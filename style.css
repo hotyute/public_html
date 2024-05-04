@@ -17,18 +17,23 @@ header, footer {
 nav ul {
     list-style: none;
     padding: 0;
+}
+
+nav ul.nav-links {
     display: flex;
-    justify-content: space-between; /* Ensures elements are spaced out */
+    justify-content: center;
+    margin: 0 auto; /* Ensures the nav links stay centered */
+}
+
+nav ul.auth {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px; /* Space between navigation links and user greeting/login link */
 }
 
 nav ul li {
     display: inline;
     margin-right: 10px;
-}
-
-li.right {
-    margin-right: 0;
-    margin-left: auto; /* Pushes the right item to the edge */
 }
 
 a {
@@ -55,7 +60,7 @@ header a, footer a {
 
 /* Responsive design adjustments */
 @media only screen and (max-width: 768px) {
-    .container, nav, header, footer, nav ul {
+    .container, nav, header, footer {
         width: 100%;
         padding: 0;
     }
@@ -72,11 +77,8 @@ header a, footer a {
         padding: 5px 10px;
     }
 
-    nav ul {
+    nav ul.nav-links, nav ul.auth {
         flex-direction: column;
-    }
-
-    nav ul li {
         text-align: center;
     }
 

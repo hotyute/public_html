@@ -18,13 +18,15 @@ error_reporting(E_ALL);
     <div class="hamburger">☰</div> <!-- Hamburger Icon -->
     <h1>Welcome to Our Christian Community</h1>
     <nav>
-        <ul>
+        <ul class="nav-links">
             <li><a href="<?php echo BASE_URL; ?>index.php">Home</a></li>
             <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
                 <li><a href="<?php echo BASE_URL; ?>admin/posts.php">Admin</a></li>
             <?php endif; ?>
             <li><a href="<?php echo BASE_URL; ?>contact.php">Contact Us</a></li>
-            <li class="right">
+        </ul>
+        <ul class="auth">
+            <li>
                 <?php if (isset($_SESSION['username'])): ?>
                     <span>Hello, <?php echo $_SESSION['username']; ?></span>
                 <?php else: ?>
