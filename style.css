@@ -155,3 +155,31 @@ header a, footer a {
         padding: 10px 0;
     }
 }
+
+.hamburger {
+    display: none;  /* Ensures it's only shown when needed */
+}
+
+@media (max-width: 600px) {
+    .hamburger {
+        display: block;  /* Shows the hamburger icon on mobile devices */
+        cursor: pointer;
+    }
+
+    nav ul {
+        display: none;  /* Initially hides the navigation on mobile */
+    }
+
+    nav ul.nav-links {
+        flex-direction: column;
+    }
+
+    main, aside {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    header, footer {
+        padding: 10px 0;
+    }
+}
