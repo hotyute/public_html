@@ -22,7 +22,6 @@ if (isset($_GET['logout'])) {
 </head>
 <body>
 <header style="background-image: url('<?php echo BASE_URL; ?>images/banner.jpg'); background-repeat: no-repeat; background-size: cover;">
-    <div class="hamburger">☰</div> <!-- Hamburger Icon -->
     <h1>Welcome to Our Christian Community</h1>
     <nav>
         <ul class="nav-links">
