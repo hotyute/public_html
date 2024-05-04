@@ -3,6 +3,8 @@ include 'includes/config.php';
 include 'includes/database.php';
 session_start();
 
+$error_message = ''; // Initialize the error message variable
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = htmlspecialchars($_POST['username']);
     $password = htmlspecialchars($_POST['password']);
@@ -27,6 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 include 'header.php';
 ?>
 <h2>Login</h2>
+<?php if ($error_message != ''): ?>
+    <p style="color: red;"><?php echo $error_message; ?></p>
+<?php endif; ?>
 <p>Please enter your credentials to login.</p>
 <form method="post" action="login.php">
     Username: <input type="text" name="username" required><br>
