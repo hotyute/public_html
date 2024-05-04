@@ -1,7 +1,6 @@
-
 <?php
 require_once 'base_config.php';
-session_start(); // Start the session to use session variables
+session_start();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 ?>
@@ -25,7 +24,11 @@ error_reporting(E_ALL);
                 <li><a href="<?php echo BASE_URL; ?>admin/posts.php">Admin</a></li>
             <?php endif; ?>
             <li><a href="<?php echo BASE_URL; ?>contact.php">Contact Us</a></li>
-            <li><a href="<?php echo BASE_URL; ?>login.php">Login</a></li>
+            <?php if (isset($_SESSION['username'])): ?>
+                <li>Hello, <?php echo $_SESSION['username']; ?></li>
+            <?php else: ?>
+                <li><a href="<?php echo BASE_URL; ?>login.php">Login</a></li>
+            <?php endif; ?>
         </ul>
     </nav>
 </header>
