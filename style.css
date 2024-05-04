@@ -22,13 +22,15 @@ nav ul {
 nav ul.nav-links {
     display: flex;
     justify-content: center;
-    margin: 0 auto; /* Ensures the nav links stay centered */
+    margin: 0 auto; /* Keeps nav links centered */
 }
 
 nav ul.auth {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end; /* Flushes the auth link to the right */
+    width: 100%; /* Takes full width to push to the edge */
     margin-top: 10px; /* Space between navigation links and user greeting/login link */
+    color: #ffd700; /* Gold color for differentiation */
 }
 
 nav ul li {
