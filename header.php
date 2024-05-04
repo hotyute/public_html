@@ -3,6 +3,13 @@ require_once 'base_config.php';
 session_start();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
+
+// Handle logout action
+if (isset($_GET['logout'])) {
+    session_destroy();  // Destroy all session data
+    header("Location: " . BASE_URL . "login.php"); // Redirect to the login page after logout
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -26,13 +33,12 @@ error_reporting(E_ALL);
             <li><a href="<?php echo BASE_URL; ?>contact.php">Contact Us</a></li>
         </ul>
         <ul class="auth">
-            <li>
-                <?php if (isset($_SESSION['username'])): ?>
-                    <span>Hello, <?php echo $_SESSION['username']; ?></span>
-                <?php else: ?>
-                    <a href="<?php echo BASE_URL; ?>login.php">Login</a>
-                <?php endif; ?>
-            </li>
+            <?php if (isset($_SESSION['username'])): ?>
+                <li><span>Hello, <?php echo $_SESSION['username']; ?></span></li>
+                <li><a href="?logout=true">Logout</a></li> <!-- Logout Link -->
+            <?php else: ?>
+                <li><a href="<?php echo BASE_URL; ?>login.php">Login</a></li>
+            <?php endif; ?>
         </ul>
     </nav>
 </header>
