@@ -24,11 +24,13 @@ error_reporting(E_ALL);
                 <li><a href="<?php echo BASE_URL; ?>admin/posts.php">Admin</a></li>
             <?php endif; ?>
             <li><a href="<?php echo BASE_URL; ?>contact.php">Contact Us</a></li>
-            <?php if (isset($_SESSION['username'])): ?>
-                <li>Hello, <?php echo $_SESSION['username']; ?></li>
-            <?php else: ?>
-                <li><a href="<?php echo BASE_URL; ?>login.php">Login</a></li>
-            <?php endif; ?>
+            <li class="right">
+                <?php if (isset($_SESSION['username'])): ?>
+                    <span>Hello, <?php echo $_SESSION['username']; ?></span>
+                <?php else: ?>
+                    <a href="<?php echo BASE_URL; ?>login.php">Login</a>
+                <?php endif; ?>
+            </li>
         </ul>
     </nav>
 </header>
