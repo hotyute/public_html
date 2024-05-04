@@ -1,0 +1,129 @@
+
+body {
+    font-family: 'Georgia', serif;
+    margin: 0;
+    padding: 0;
+    background: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+header, footer {
+    background-color: #006699;
+    color: #ffffff;
+    text-align: center;
+    padding: 20px 0;
+}
+nav ul {
+    list-style: none;
+    padding: 0;
+}
+nav ul li {
+    display: inline;
+    margin-right: 10px;
+}
+a {
+    color: #0044cc;
+    text-decoration: none;
+    font-size: 1.2em;
+}
+main {
+    width: 85%;
+    margin: 20px auto;
+    background: white;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+section {
+    margin-bottom: 20px;
+}
+
+header a, footer a {
+    color: white;
+}
+
+/* Responsive design adjustments */
+@media only screen and (max-width: 768px) {
+    .container, nav, header, footer {
+        width: 100%;
+        padding: 0;
+    }
+
+    header {
+        padding: 10px 0;
+    }
+
+    h1, h2, h3 {
+        font-size: 1.5em;
+    }
+
+    nav a {
+        padding: 5px 10px;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    body {
+        font-size: 14px;
+    }
+
+    h1, h2, h3 {
+        font-size: 1.2em;
+    }
+
+    nav {
+        flex-direction: column;
+    }
+
+    nav a {
+        padding: 10px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .hamburger {
+        display: block;
+        cursor: pointer;
+    }
+    nav ul {
+        display: none;
+        position: absolute;
+        background-color: white;
+        width: 100%;
+        left: 0;
+        top: 60px;
+        z-index: 1000;
+    }
+    nav ul li {
+        display: block;
+        text-align: center;
+    }
+}
+
+.hamburger {
+    display: none; /* Hides by default for desktop */
+}
+
+@media (max-width: 768px) {
+    .hamburger {
+        display: block;
+        cursor: pointer;
+    }
+    nav ul {
+        display: none;
+        position: absolute;
+        background-color: white;
+        width: 100%;
+        left: 0;
+        top: 60px;
+        z-index: 1000;
+    }
+    nav ul li {
+        display: block;
+        text-align: center;
+    }
+}
+
+.hamburger {
+    display: none; /* Hides by default for desktop */
+}
