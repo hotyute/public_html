@@ -16,11 +16,3 @@
     </aside>
 </div>
 <?php include 'footer.php'; ?>
-
-
-<?php if (!isset($_SESSION['user_id'])): ?>
-    <p>Not registered yet? <a href="register.php">Register here</a></p>
-<?php endif; ?>
-
-<!-- Link to registration page -->
-<p>If you are not registered, please <a href='register.php'>register here</a>.</p>
