@@ -100,10 +100,6 @@ button.auth-button:hover {
         padding: 5px 10px;
     }
 
-    nav ul.nav-links {
-        display: none;
-    }
-
     nav ul.nav-links, nav ul.auth {
         flex-direction: column;
         text-align: center;
@@ -116,7 +112,8 @@ button.auth-button:hover {
     }
 
     nav ul {
-        display: none;
+        display: block; /* Ensures that the ul is always block but hidden */
+        overflow: hidden;
         position: absolute;
         transition: max-height 3.5s ease-out;
         top: 60px;
