@@ -17,30 +17,26 @@ header, footer {
 nav ul {
     list-style: none;
     padding: 0;
-    background-color: white; /* Ensures background color is consistent */
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Optional: Adds shadow for better visibility */
+    margin: 0;  // Ensure no default browser margin is applied
+    background-color: white;  // Make sure the background is white
 }
 
 nav ul.nav-links {
     display: flex;
     justify-content: center;
-    margin: 0 auto; /* Keeps nav links centered */
 }
 
 nav ul.auth {
     display: flex;
-    flex-direction: column; /* Aligns items in a column */
-    align-items: flex-end; /* Aligns items to the right */
-    width: 100%; /* Takes full width to push to the edge */
-    margin-top: 10px; /* Space between navigation links and user greeting/login link */
-    color: #ffd700; /* Gold color for differentiation */
+    flex-direction: column;
+    align-items: flex-end;
+    width: 100%;
+    color: #ffd700;
 }
 
 nav ul li {
-    display: block; /* Changes display to block to stack items vertically */
-    margin-right: 10px;
-    padding: 10px; /* Adds padding for touch friendliness */
-    text-align: center; /* Centers text */
+    padding: 10px;
+    text-align: center;
 }
 
 a {
@@ -51,7 +47,7 @@ a {
 
 main {
     width: 85%;
-    margin: 20px auto;
+    margin: auto;
     background: white;
     padding: 20px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -65,7 +61,7 @@ header a, footer a {
     color: white;
 }
 
-/* Media Queries - Combined and cleaned */
+/* Responsive adjustments for smaller screens */
 @media only screen and (max-width: 768px) {
     .container, nav, header, footer, main {
         width: 100%;
@@ -77,7 +73,7 @@ header a, footer a {
     }
 
     h1, h2, h3, body {
-        font-size: 1.5em; /* Adjusted for all headings and body font size */
+        font-size: 1.5em;
     }
 
     nav {
@@ -86,7 +82,6 @@ header a, footer a {
 
     nav a {
         padding: 10px;
-        text-align: center;
     }
 
     .hamburger {
@@ -104,6 +99,6 @@ header a, footer a {
     }
 
     nav ul.is-visible {
-        display: block; /* Ensures nav displays when hamburger is clicked */
+        display: block;
     }
 }

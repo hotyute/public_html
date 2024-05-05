@@ -3,6 +3,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const navUL = document.querySelector('nav ul');
 
     hamburger.addEventListener('click', function() {
-        navUL.classList.toggle('is-visible'); // Toggles visibility class
+        navUL.classList.toggle('is-visible');
     });
 });
