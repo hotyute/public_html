@@ -92,13 +92,13 @@ header a, footer a {
 
     nav ul {
         display: none;
-        position: absolute;
+        /*position: absolute;*/
         top: 60px;
         z-index: 1000;
     }
 
     nav ul li {
-        display: none;
+        display: block;
     }
 }
 
