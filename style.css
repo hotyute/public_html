@@ -81,6 +81,7 @@ header a, footer a {
     }
 
     nav ul.nav-links, nav ul.auth {
+        display: none;
         flex-direction: column;
         text-align: center;
     }
@@ -92,7 +93,7 @@ header a, footer a {
 
     nav ul {
         display: none;
-        /*position: absolute;*/
+        position: absolute;
         top: 60px;
         z-index: 1000;
     }
