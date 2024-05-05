@@ -80,6 +80,10 @@ header a, footer a {
         padding: 5px 10px;
     }
 
+    nav ul.nav-links {
+        display: none;
+    }
+
     nav ul.nav-links, nav ul.auth {
         flex-direction: column;
         text-align: center;
