@@ -119,7 +119,7 @@ button.auth-button:hover {
         /*position: absolute;*/
         top: 60px;
         z-index: 1000;
-        width: 100%; /* Full width */
+        width: 80%; /* Full width */
     }
 
     nav ul.open {
