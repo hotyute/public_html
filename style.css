@@ -91,28 +91,17 @@ header a, footer a {
     }
 
     nav ul {
-        display: none; /* Hidden by default */
+        display: none;
         position: absolute;
         background-color: white;
-        top: 60px; /* Adjust if necessary to align with the bottom of the navbar */
-        left: 0;
-        right: 0;
+        top: 60px;
         z-index: 1000;
-        border: none; /* Remove any default borders */
-        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); /* Optional: Adds a shadow for better visibility */
     }
 
     nav ul li {
-        text-align: center;
-        width: 100%; /* Ensures each link takes full width */
-        padding: 10px; /* Adds padding for touch friendliness */
-    }
-
-    nav ul.is-visible {
-        display: block; /* Shows the menu when hamburger is clicked */
+        display: block;
     }
 }
-
 
 @media only screen and (max-width: 480px) {
     body {
@@ -147,22 +136,5 @@ header a, footer a {
     nav ul li {
         display: block;
         text-align: center;
-    }
-}
-
-
-/* Media Queries for devices with max-width of 600px */
-@media (max-width: 600px) {
-    nav ul.nav-links {
-        flex-direction: column;
-    }
-
-    main, aside {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    header, footer {
-        padding: 10px 0;
     }
 }
