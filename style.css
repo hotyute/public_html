@@ -118,6 +118,7 @@ button.auth-button:hover {
     nav ul {
         display: none;
         position: absolute;
+        transition: max-height 3.5s ease-out;
         top: 60px;
         z-index: 1000;
     }
