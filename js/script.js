@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const navUL = document.querySelector('nav ul');
 
     hamburger.addEventListener('click', function () {
-        // Toggle class for sliding animation
-        navUL.classList.toggle('open');
+        navUL.style.display = navUL.style.display === 'block' ? 'none' : 'block';
     });
 });
