@@ -63,18 +63,21 @@ header a, footer a {
 
 /* Button Styling */
 button.auth-button {
-    background-color: #0044cc; /* Harmonizes with your link color for consistency */
-    color: #ffffff; /* White text for readability */
-    border: none; /* Removes default border */
-    border-radius: 5px; /* Slightly rounded corners for a modern look */
-    padding: 10px 20px; /* Adequate padding for better touch interaction */
-    cursor: pointer; /* Cursor indicates clickable item */
-    font-size: 1em; /* Matches the general font sizing */
-    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+    background-color: #0044cc; /* Blue background */
+    color: #ffffff; /* White text */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 10px 20px; /* Padding around the text */
+    cursor: pointer; /* Hand cursor on hover */
+    font-size: 1em; /* Standard text size */
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Smooth transform and color transition */
+    outline: none; /* Remove outline to keep the design clean */
 }
 
 button.auth-button:hover {
-    background-color: #003399; /* Slightly darker shade on hover for visual feedback */
+    background-color: #003399; /* Darker blue on hover */
+    transform: scale(1.05); /* Slightly increase the scale */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Add shadow for depth */
 }
 
 
