@@ -91,6 +91,7 @@ header a, footer a {
 
     .hamburger {
         display: block;
+        position: absolute;
         cursor: pointer;
     }
 
