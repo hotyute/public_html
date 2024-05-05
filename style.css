@@ -61,28 +61,27 @@ header a, footer a {
     color: white;
 }
 
-/* Responsive design adjustments */
+/* Responsive adjustments for smaller screens */
 @media only screen and (max-width: 768px) {
-    .container, nav, header, footer {
+    .container, nav, header, footer, main {
         width: 100%;
         padding: 0;
     }
 
-    header {
+    header, footer {
         padding: 10px 0;
     }
 
-    h1, h2, h3 {
+    h1, h2, h3, body {
         font-size: 1.5em;
     }
 
-    nav a {
-        padding: 5px 10px;
+    nav {
+        flex-direction: column;
     }
 
-    nav ul.nav-links, nav ul.auth {
-        flex-direction: column;
-        text-align: center;
+    nav a {
+        padding: 10px;
     }
 
     .hamburger {
@@ -93,48 +92,13 @@ header a, footer a {
     nav ul {
         display: none;
         position: absolute;
-        background-color: white;
         top: 60px;
+        left: 0;
+        right: 0;
         z-index: 1000;
     }
 
-    nav ul li {
+    nav ul.is-visible {
         display: block;
-    }
-}
-
-@media only screen and (max-width: 480px) {
-    body {
-        font-size: 14px;
-    }
-
-    h1, h2, h3 {
-        font-size: 1.2em;
-    }
-
-    nav {
-        flex-direction: column;
-    }
-
-    nav a {
-        padding: 10px;
-        text-align: center;
-    }
-}
-
-.hamburger {
-    display: none; /* Hides by default for desktop */
-}
-
-@media (max-width: 768px) {
-    .hamburger {
-        display: block;
-    }
-    nav ul {
-        display: none;
-    }
-    nav ul li {
-        display: block;
-        text-align: center;
     }
 }
