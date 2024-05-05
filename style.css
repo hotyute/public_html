@@ -7,7 +7,8 @@ body {
     line-height: 1.6;
 }
 
-header, footer {
+header,
+footer {
     background-color: #006699;
     color: #ffffff;
     text-align: center;
@@ -22,20 +23,27 @@ nav ul {
 nav ul.nav-links {
     display: flex;
     justify-content: center;
-    margin: 0 auto; /* Keeps nav links centered */
+    margin: 0 auto;
+    /* Keeps nav links centered */
 }
 
 nav ul.auth {
     display: flex;
-    flex-direction: column; /* Aligns items in a column */
-    align-items: flex-end; /* Aligns items to the right */
-    width: 100%; /* Takes full width to push to the edge */
-    margin-top: 10px; /* Space between navigation links and user greeting/login link */
-    color: #ffd700; /* Gold color for differentiation */
+    flex-direction: column;
+    /* Aligns items in a column */
+    align-items: flex-end;
+    /* Aligns items to the right */
+    width: 100%;
+    /* Takes full width to push to the edge */
+    margin-top: 10px;
+    /* Space between navigation links and user greeting/login link */
+    color: #ffd700;
+    /* Gold color for differentiation */
 }
 
 nav ul li {
-    display: block; /* Changes display to block to stack items vertically */
+    display: block;
+    /* Changes display to block to stack items vertically */
     margin-right: 10px;
 }
 
@@ -50,40 +58,57 @@ main {
     margin: 20px auto;
     background: white;
     padding: 20px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 section {
     margin-bottom: 20px;
 }
 
-header a, footer a {
+header a,
+footer a {
     color: white;
 }
 
 /* Button Styling */
 button.auth-button {
-    background-color: #0044cc; /* Blue background */
-    color: #ffffff; /* White text */
-    border: none; /* No border */
-    border-radius: 5px; /* Rounded corners */
-    padding: 10px 20px; /* Padding around the text */
-    cursor: pointer; /* Hand cursor on hover */
-    font-size: 1em; /* Standard text size */
-    transition: transform 0.3s ease, background-color 0.3s ease; /* Smooth transform and color transition */
-    outline: none; /* Remove outline to keep the design clean */
+    background-color: #0044cc;
+    /* Blue background */
+    color: #ffffff;
+    /* White text */
+    border: none;
+    /* No border */
+    border-radius: 5px;
+    /* Rounded corners */
+    padding: 10px 20px;
+    /* Padding around the text */
+    cursor: pointer;
+    /* Hand cursor on hover */
+    font-size: 1em;
+    /* Standard text size */
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    /* Smooth transform and color transition */
+    outline: none;
+    /* Remove outline to keep the design clean */
 }
 
 button.auth-button:hover {
-    background-color: #003399; /* Darker blue on hover */
-    transform: scale(1.05); /* Slightly increase the scale */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Add shadow for depth */
+    background-color: #003399;
+    /* Darker blue on hover */
+    transform: scale(1.05);
+    /* Slightly increase the scale */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    /* Add shadow for depth */
 }
 
 
 /* Responsive design adjustments */
 @media only screen and (max-width: 768px) {
-    .container, nav, header, footer {
+
+    .container,
+    nav,
+    header,
+    footer {
         width: 100%;
         padding: 0;
     }
@@ -92,7 +117,9 @@ button.auth-button:hover {
         padding: 10px 0;
     }
 
-    h1, h2, h3 {
+    h1,
+    h2,
+    h3 {
         font-size: 1.5em;
     }
 
@@ -104,7 +131,8 @@ button.auth-button:hover {
         display: none;
     }
 
-    nav ul.nav-links, nav ul.auth {
+    nav ul.nav-links,
+    nav ul.auth {
         flex-direction: column;
         text-align: center;
     }
@@ -113,15 +141,27 @@ button.auth-button:hover {
         display: block;
         /*position: absolute;*/
         cursor: pointer;
-        font-size: 30px; /* Adjust size as needed */
+        font-size: 30px;
+        /* Adjust size as needed */
         /*padding: 10px;*/
     }
 
     nav ul {
         display: none;
-        position: absolute;
-        top: 60px;
-        z-index: 1000;
+        overflow: hidden;
+        /* Ensures content doesn't flow out during transition */
+        max-height: 0;
+        /* Start with no content shown */
+        transition: max-height 0.5s ease-out;
+        /* Smooth transition for sliding effect */
+        width: 100%;
+        /* Full width of nav bar */
+    }
+
+    nav ul.open {
+        display: block;
+        max-height: 500px;
+        /* Max height large enough to show all content when open */
     }
 
     nav ul li {
@@ -129,8 +169,10 @@ button.auth-button:hover {
     }
 
     button.auth-button {
-        width: 100%; /* Full width for easier access on mobile */
-        padding: 15px 20px; /* Larger padding for better tapability */
+        width: 100%;
+        /* Full width for easier access on mobile */
+        padding: 15px 20px;
+        /* Larger padding for better tapability */
     }
 }
 
@@ -139,7 +181,9 @@ button.auth-button:hover {
         font-size: 14px;
     }
 
-    h1, h2, h3 {
+    h1,
+    h2,
+    h3 {
         font-size: 1.2em;
     }
 
@@ -154,16 +198,19 @@ button.auth-button:hover {
 }
 
 .hamburger {
-    display: none; /* Hides by default for desktop */
+    display: none;
+    /* Hides by default for desktop */
 }
 
 @media (max-width: 768px) {
     .hamburger {
         display: block;
     }
+
     nav ul {
         display: none;
     }
+
     nav ul li {
         display: block;
         text-align: center;
