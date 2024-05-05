@@ -111,21 +111,28 @@ button.auth-button:hover {
 
     .hamburger {
         display: block;
-        /*position: absolute;*/
         cursor: pointer;
-        font-size: 30px; /* Adjust size as needed */
-        /*padding: 10px;*/
+        font-size: 30px;
     }
 
     nav ul {
-        display: none;
+        display: block; /* Ensures that the ul is always block but hidden */
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 0.5s ease-out;
         position: absolute;
         top: 60px;
         z-index: 1000;
+        width: 100%; /* Full width */
+    }
+
+    nav ul.open {
+        max-height: 500px; /* Adjust as needed for your content */
     }
 
     nav ul li {
         display: block;
+        text-align: center;
     }
 
     button.auth-button {
@@ -133,6 +140,7 @@ button.auth-button:hover {
         padding: 15px 20px; /* Larger padding for better tapability */
     }
 }
+
 
 @media only screen and (max-width: 480px) {
     body {
