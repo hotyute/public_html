@@ -17,26 +17,27 @@ header, footer {
 nav ul {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
-nav ul.nav-links {
+nav ul.nav-links, nav ul.auth {
     display: flex;
-    justify-content: center;
-    margin: 0 auto; /* Keeps nav links centered */
+    justify-content: center; /* Aligns items for nav-links */
+    flex-direction: column; /* Default for mobile */
+    text-align: center; /* Centers text on mobile */
+    width: 100%; /* Full width */
 }
 
 nav ul.auth {
-    display: flex;
-    flex-direction: column; /* Aligns items in a column */
-    align-items: flex-end; /* Aligns items to the right */
-    width: 100%; /* Takes full width to push to the edge */
-    margin-top: 10px; /* Space between navigation links and user greeting/login link */
+    align-items: flex-end; /* Aligns authentication links to the right */
     color: #ffd700; /* Gold color for differentiation */
+    margin-top: 10px; /* Space between navigation links and user greeting/login link */
 }
 
 nav ul li {
-    display: block; /* Changes display to block to stack items vertically */
-    margin-right: 10px;
+    display: block; /* Stacks items vertically */
+    padding: 10px; /* Uniform padding */
+    text-align: center; /* Ensures text is centered, useful for mobile */
 }
 
 a {
@@ -47,7 +48,7 @@ a {
 
 main {
     width: 85%;
-    margin: 20px auto;
+    margin: auto;
     background: white;
     padding: 20px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -61,28 +62,14 @@ header a, footer a {
     color: white;
 }
 
-/* Responsive design adjustments */
-@media only screen and (max-width: 768px) {
-    .container, nav, header, footer {
+@media (max-width: 768px) {
+    .container, nav, header, footer, main {
         width: 100%;
         padding: 0;
     }
-
-    header {
-        padding: 10px 0;
-    }
-
-    h1, h2, h3 {
+    
+    h1, h2, h3, body {
         font-size: 1.5em;
-    }
-
-    nav a {
-        padding: 5px 10px;
-    }
-
-    nav ul.nav-links, nav ul.auth {
-        flex-direction: column;
-        text-align: center;
     }
 
     .hamburger {
@@ -94,46 +81,22 @@ header a, footer a {
         display: none;
         position: absolute;
         top: 60px;
+        left: 0;
+        right: 0;
         z-index: 1000;
     }
 
-    nav ul li {
+    nav ul.is-visible {
         display: block;
     }
 }
 
-@media only screen and (max-width: 480px) {
-    body {
-        font-size: 14px;
-    }
-
-    h1, h2, h3 {
+@media (max-width: 480px) {
+    body, h1, h2, h3 {
         font-size: 1.2em;
-    }
-
-    nav {
-        flex-direction: column;
     }
 
     nav a {
         padding: 10px;
-        text-align: center;
-    }
-}
-
-.hamburger {
-    display: none; /* Hides by default for desktop */
-}
-
-@media (max-width: 768px) {
-    .hamburger {
-        display: block;
-    }
-    nav ul {
-        display: none;
-    }
-    nav ul li {
-        display: block;
-        text-align: center;
     }
 }
