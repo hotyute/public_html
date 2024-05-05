@@ -116,7 +116,7 @@ button.auth-button:hover {
         overflow: hidden;
         max-height: 0;
         transition: max-height 0.5s ease-out;
-        position: absolute;
+        /*position: absolute;*/
         top: 60px;
         z-index: 1000;
         width: 100%; /* Full width */
