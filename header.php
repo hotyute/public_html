@@ -13,6 +13,7 @@ if (isset($_GET['logout'])) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,26 +27,26 @@ if (isset($_GET['logout'])) {
         }
     </script>
 </head>
-<body>
-<header style="background-image: url('<?php echo BASE_URL; ?>images/banner.jpg'); background-repeat: no-repeat; background-size: cover;">
-    <div class="hamburger">☰</div> <!-- Hamburger Icon -->
-    <h1>Welcome to Our Christian Community</h1>
-    <nav>
-        <ul class="nav-links">
-            <li><a href="<?php echo BASE_URL; ?>index.php">Home</a></li>
-            <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
-                <li><a href="<?php echo BASE_URL; ?>admin/posts.php">Admin</a></li>
-            <?php endif; ?>
-            <li><a href="<?php echo BASE_URL; ?>contact.php">Contact Us</a></li>
-        </ul>
-        <ul class="auth">
-            <?php if (isset($_SESSION['username'])): ?>
-                <li><span>Hello, <?php echo $_SESSION['username']; ?></span></li>
-                <li><button onclick="logout()">Logout</button></li> <!-- Logout Button -->
-            <?php else: ?>
-                <li><button onclick="window.location.href='<?php echo BASE_URL; ?>login.php'">Login</button></li>
-            <?php endif; ?>
-        </ul>
-    </nav>
-</header>
 
+<body>
+    <header style="background-image: url('<?php echo BASE_URL; ?>images/banner.jpg'); background-repeat: no-repeat; background-size: cover;">
+        <div class="hamburger">☰</div> <!-- Hamburger Icon -->
+        <h1>Welcome to Our Christian Community</h1>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="<?php echo BASE_URL; ?>index.php">Home</a></li>
+                <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') : ?>
+                    <li><a href="<?php echo BASE_URL; ?>admin/posts.php">Admin</a></li>
+                <?php endif; ?>
+                <li><a href="<?php echo BASE_URL; ?>contact.php">Contact Us</a></li>
+            </ul>
+            <ul class="auth">
+                <?php if (isset($_SESSION['username'])) : ?>
+                    <li><span>Hello, <?php echo $_SESSION['username']; ?></span></li>
+                    <li><button class="auth-button" onclick="logout()">Logout</button></li> <!-- Styled Logout Button -->
+                <?php else : ?>
+                    <li><button class="auth-button" onclick="window.location.href='<?php echo BASE_URL; ?>login.php'">Login</button></li> <!-- Styled Login Button -->
+                <?php endif; ?>
+            </ul>
+        </nav>
+    </header>

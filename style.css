@@ -61,6 +61,23 @@ header a, footer a {
     color: white;
 }
 
+/* Button Styling */
+button.auth-button {
+    background-color: #0044cc; /* Harmonizes with your link color for consistency */
+    color: #ffffff; /* White text for readability */
+    border: none; /* Removes default border */
+    border-radius: 5px; /* Slightly rounded corners for a modern look */
+    padding: 10px 20px; /* Adequate padding for better touch interaction */
+    cursor: pointer; /* Cursor indicates clickable item */
+    font-size: 1em; /* Matches the general font sizing */
+    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+button.auth-button:hover {
+    background-color: #003399; /* Slightly darker shade on hover for visual feedback */
+}
+
+
 /* Responsive design adjustments */
 @media only screen and (max-width: 768px) {
     .container, nav, header, footer {
@@ -106,6 +123,11 @@ header a, footer a {
 
     nav ul li {
         display: block;
+    }
+
+    button.auth-button {
+        width: 100%; /* Full width for easier access on mobile */
+        padding: 15px 20px; /* Larger padding for better tapability */
     }
 }
 
