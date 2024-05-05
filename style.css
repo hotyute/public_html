@@ -17,8 +17,8 @@ header, footer {
 nav ul {
     list-style: none;
     padding: 0;
-    margin: 0;  // Ensure no default browser margin is applied
-    background-color: white;  // Make sure the background is white
+    margin: 0;  /* Ensure no default browser margin is applied*/
+    background-color: white;  /* Make sure the background is white*/
 }
 
 nav ul.nav-links {
