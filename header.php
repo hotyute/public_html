@@ -19,6 +19,12 @@ if (isset($_GET['logout'])) {
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>style.css">
     <script src="<?php echo BASE_URL; ?>js/script.js"></script>
     <title>MyGospel Christian Website</title>
+    <script>
+        // Function to handle redirection
+        function redirectTo(url) {
+            window.location.href = url;
+        }
+    </script>
 </head>
 <body>
 <header style="background-image: url('<?php echo BASE_URL; ?>images/banner.jpg'); background-repeat: no-repeat; background-size: cover;">
@@ -26,19 +32,20 @@ if (isset($_GET['logout'])) {
     <h1>Welcome to Our Christian Community</h1>
     <nav>
         <ul class="nav-links">
-            <li><a href="<?php echo BASE_URL; ?>index.php">Home</a></li>
+            <li><button onclick="redirectTo('<?php echo BASE_URL; ?>index.php')">Home</button></li>
             <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
-                <li><a href="<?php echo BASE_URL; ?>admin/posts.php">Admin</a></li>
+                <li><button onclick="redirectTo('<?php echo BASE_URL; ?>admin/posts.php')">Admin</button></li>
             <?php endif; ?>
-            <li><a href="<?php echo BASE_URL; ?>contact.php">Contact Us</a></li>
+            <li><button onclick="redirectTo('<?php echo BASE_URL; ?>contact.php')">Contact Us</button></li>
         </ul>
         <ul class="auth">
             <?php if (isset($_SESSION['username'])): ?>
                 <li><span>Hello, <?php echo $_SESSION['username']; ?></span></li>
-                <li><a href="?logout=true">Logout</a></li> <!-- Logout Link -->
+                <li><button onclick="redirectTo('?logout=true')">Logout</button></li> <!-- Logout Button -->
             <?php else: ?>
-                <li><a href="<?php echo BASE_URL; ?>login.php">Login</a></li>
+                <li><button onclick="redirectTo('<?php echo BASE_URL; ?>login.php')">Login</button></li>
             <?php endif; ?>
         </ul>
     </nav>
 </header>
+
