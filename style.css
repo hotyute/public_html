@@ -114,7 +114,7 @@ button.auth-button:hover {
     nav ul {
         display: block; /* Ensures that the ul is always block but hidden */
         overflow: hidden;
-        max-height: 500px;
+        max-height: 0;
         transition: max-height 5s ease-out;
         position: absolute;
         top: 60px;
