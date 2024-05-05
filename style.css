@@ -126,15 +126,19 @@ header a, footer a {
     display: none; /* Hides by default for desktop */
 }
 
-@media (max-width: 768px) {
-    .hamburger {
-        display: block;
+
+/* Media Queries for devices with max-width of 600px */
+@media (max-width: 600px) {
+    nav ul.nav-links {
+        flex-direction: column;
     }
-    nav ul {
-        display: none;
+
+    main, aside {
+        flex-direction: column;
+        width: 100%;
     }
-    nav ul li {
-        display: block;
-        text-align: center;
+
+    header, footer {
+        padding: 10px 0;
     }
 }
