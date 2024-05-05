@@ -110,29 +110,25 @@ button.auth-button:hover {
     }
 
     .hamburger {
-        display: block;
-        cursor: pointer;
-        font-size: 30px;
+        display: block; /* Ensure the hamburger is visible */
     }
 
     nav ul {
-        display: block; /* Ensures that the ul is always block but hidden */
-        overflow: hidden;
-        max-height: 0;
-        transition: max-height 5s ease-out;
-        position: absolute;
-        top: 60px;
-        z-index: 1000;
+        overflow: hidden; /* Hide the overflow */
+        height: 0; /* Start with 0 height */
+        transition: height 0.5s ease-out; /* Animate height change */
         width: 100%; /* Full width */
+        background: #006699; /* Ensure background matches the header for consistency */
     }
 
     nav ul.open {
-        max-height: 500px; /* Adjust as needed for your content */
+        height: auto; /* Adjust height automatically based on content */
     }
 
     nav ul li {
-        display: block;
-        text-align: center;
+        display: block; /* Ensure links are stacked */
+        width: 100%; /* Full width for each link */
+        text-align: center; /* Center align text */
     }
 
     button.auth-button {
