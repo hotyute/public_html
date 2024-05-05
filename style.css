@@ -98,7 +98,7 @@ header a, footer a {
     }
 
     nav ul li {
-        display: block;
+        display: none;
     }
 }
 
