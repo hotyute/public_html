@@ -138,20 +138,3 @@ header a, footer a {
         text-align: center;
     }
 }
-
-
-/* Media Queries for devices with max-width of 600px */
-@media (max-width: 600px) {
-    nav ul.nav-links {
-        flex-direction: column;
-    }
-
-    main, aside {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    header, footer {
-        padding: 10px 0;
-    }
-}
