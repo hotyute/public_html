@@ -2,7 +2,7 @@
 session_start(); // Start the session to access session variables
 require '../includes/database.php';  // Ensure the database connection is available
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['username'])) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = htmlspecialchars($_POST['title']);
     $content = htmlspecialchars($_POST['content']);
     $user_id = $_SESSION['user_id']; // Fetch the user_id from session
