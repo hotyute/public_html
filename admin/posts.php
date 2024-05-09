@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
         <label for="title">Title:</label>
         <input type="text" id="title" name="title" required><br>
         <label for="content">Content:</label>
-        <textarea id="content" name="content" required></textarea><br>
+        <textarea cols="2" rows="10" id="content" name="content" required></textarea><br>
         <label for="thumbnail">Thumbnail:</label>
         <input type="file" id="thumbnail" name="thumbnail"><br>
         <button type="submit">Add Post</button>
