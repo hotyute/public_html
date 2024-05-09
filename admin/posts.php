@@ -30,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
 ?>
 
 <?php include '../header.php'; ?>
+<div class="login-form">
     <h1>Manage Posts</h1>
     <form method="POST" action="posts.php" enctype="multipart/form-data">
         <label for="title">Title:</label>
@@ -40,4 +41,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
         <input type="file" id="thumbnail" name="thumbnail"><br>
         <button type="submit">Add Post</button>
     </form>
+</div>
 <?php include '../footer.php'; ?>
