@@ -1,5 +1,5 @@
 <?php
-//session_start(); // Start the session to access session variables
+session_start(); // Start the session to access session variables
 require '../includes/database.php';  // Ensure the database connection is available
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
