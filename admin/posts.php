@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
 
 <?php include '../header.php'; ?>
 <div class="login-form">
-    <h1 style="text-align: center;">Manage Posts</h1>
+    <h2 style="text-align: center;">Manage Posts</h2>
     <form method="POST" action="posts.php" enctype="multipart/form-data">
         <label for="title">Title:</label>
         <input type="text" id="title" name="title" required><br>
