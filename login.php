@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['username'] = $user['username'];
             $_SESSION['user_role'] = $user['role'];
             header("Location: index.php");
+            exit;
         } else {
             $error_message = "Incorrect password!";
         }
@@ -28,14 +29,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 include 'header.php';
 ?>
-<h2>Login</h2>
-<?php if ($error_message != ''): ?>
-    <p style="color: red;"><?php echo $error_message; ?></p>
-<?php endif; ?>
-<p>Please enter your credentials to login.</p>
-<form method="post" action="login.php">
-    Username: <input type="text" name="username" required><br>
-    Password: <input type="password" name="password" required><br>
-    <input type="submit" value="Login">
-</form>
+<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f9f9f9;">
+    <form method="POST" action="login.php" style="padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: white; border-radius: 8px; width: 300px;">
+        <h2 style="text-align: center;">Login</h2>
+        <?php if ($error_message != ''): ?>
+            <p style="color: red; text-align: center;"><?php echo $error_message; ?></p>
+        <?php endif; ?>
+        <div style="margin-bottom: 20px;">
+            <label for="username" style="display: block; margin-bottom: 5px;">Username:</label>
+            <input type="text" id="username" name="username" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+        <div style="margin-bottom: 20px;">
+            <label for="password" style="display: block; margin-bottom: 5px;">Password:</label>
+            <input type="password" id="password" name="password" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+        <div style="text-align: center;">
+            <button type="submit" style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">Login</button>
+        </div>
+    </form>
+</div>
 <?php include 'footer.php'; ?>
