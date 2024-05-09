@@ -1,18 +1,16 @@
 <?php
 include 'header.php';
-require 'includes/database.php';  // Make sure the database connection is available
+require 'includes/database.php';
 
-// Get the post ID from the URL
 $post_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-
-// Fetch the post from the database
 if ($post_id > 0) {
-    $stmt = $pdo->prepare("SELECT * FROM posts WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT posts.title, posts.content, posts.thumbnail, users.username AS author FROM posts JOIN users ON posts.user_id = users.id WHERE posts.id = ?");
     $stmt->execute([$post_id]);
     $post = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($post) {
         echo "<h1>" . htmlspecialchars($post['title']) . "</h1>";
+        echo "<h4>By " . htmlspecialchars($post['author']) . "</h4>";
         if ($post['thumbnail']) {
             echo '<img src="' . $post['thumbnail'] . '" alt="Post Image" style="max-width:100%;">';
         }
@@ -23,6 +21,5 @@ if ($post_id > 0) {
 } else {
     echo "<p>Invalid post ID.</p>";
 }
-
 include 'footer.php';
 ?>

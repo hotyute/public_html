@@ -6,8 +6,8 @@
             <p>This is the home of our Christian community where we share insights, teachings, and fellowship together.</p>
             <div>
                 <?php
-                require 'includes/database.php';  // Make sure the database connection is available
-                $query = "SELECT id, title, thumbnail, content FROM posts ORDER BY id DESC LIMIT 6";
+                require 'includes/database.php';
+                $query = "SELECT posts.id, posts.title, posts.thumbnail, posts.content, users.username AS author FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.id DESC LIMIT 6";
                 $posts = $pdo->query($query);
                 while ($post = $posts->fetch(PDO::FETCH_ASSOC)) {
                     echo '<div style="margin-bottom: 20px;">';
@@ -16,6 +16,7 @@
                         echo '<img src="' . $post['thumbnail'] . '" alt="Post thumbnail" style="width:100%; max-width: 300px; height: auto; display: block;">';
                     }
                     echo '<h3>' . htmlspecialchars($post['title']) . '</h3>';
+                    echo '<p>By ' . htmlspecialchars($post['author']) . '</p>';
                     echo '<p>' . substr(htmlspecialchars($post['content']), 0, 100) . '...</p>';
                     echo '</a>';
                     echo '</div>';
