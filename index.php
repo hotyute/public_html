@@ -1,5 +1,5 @@
 <?php include 'header.php'; ?>
-<div class="container">
+<div class="main-container">
     <main>
         <section>
             <h2>Welcome to Our Community</h2>

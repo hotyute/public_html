@@ -45,7 +45,7 @@ a {
     font-size: 1.2em;
 }
 
-.container {
+.main-container {
     display: flex;
     justify-content: center; /* Center the content horizontally */
     max-width: 85%; /* Limit the maximum width for larger screens */
@@ -181,6 +181,21 @@ button.auth-button:hover {
 }
 
 @media (max-width: 768px) {
+    .main-container {
+        flex-direction: column;
+        max-width: 100%;
+    }
+
+    main, aside {
+        flex: none; /* Disable flex sizing in mobile view */
+        width: 100%; /* Full width for each */
+        margin: 10px 0; /* Vertical spacing for clarity */
+    }
+
+    aside {
+        margin-left: 0; /* Remove left margin in mobile view */
+    }
+    
     .hamburger {
         display: block;
     }
