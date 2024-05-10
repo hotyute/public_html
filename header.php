@@ -17,7 +17,8 @@ if (isset($_GET['logout'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>style.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/style.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/surplus.css">
     <script src="<?php echo BASE_URL; ?>js/script.js"></script>
     <title>MyGospel Christian Website</title>
     <script>

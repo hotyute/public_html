@@ -1,0 +1,67 @@
+/* Login Form Styling */
+.login-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f9f9f9;
+}
+
+.login-form form {
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    background: white;
+    border-radius: 8px;
+    width: 300px;
+}
+
+.login-form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.login-form button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%; /* Makes the button full width */
+}
+
+.login-form button:hover {
+    background-color: #45a049;
+}
+
+/* preview-styles.css */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+.post-preview {
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+.post-preview img {
+    width: 100%;
+    height: auto;
+}
+
+
+/* Responsive design adjustments */
+@media only screen and (max-width: 768px) {
+
+    .login-form form {
+        width: 90%; /* Makes the form take up almost full width */
+    }
+}
