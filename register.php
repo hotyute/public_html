@@ -9,6 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Collect and sanitize input
     $username = htmlspecialchars($_POST['username']);
     $password = htmlspecialchars($_POST['password']);
+    $displayname = htmlspecialchars($_POST['displayname']); // Sanitize the displayname
     $role = htmlspecialchars($_POST['role']);
 
     // Check if the username already exists
@@ -20,9 +21,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Hash the password
         $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
-        // Insert new user into the database
-        $insert_stmt = $pdo->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
-        if ($insert_stmt->execute([$username, $password_hash, $role])) {
+        // Insert new user into the database including displayname
+        $insert_stmt = $pdo->prepare("INSERT INTO users (username, displayname, password, role) VALUES (?, ?, ?, ?)");
+        if ($insert_stmt->execute([$username, $displayname, $password_hash, $role])) {
             $success_message = "User registered successfully!";
         } else {
             $error_message = "Failed to register user.";
@@ -43,6 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <form method="POST" action="register.php">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required><br>
+        <label for="displayname">Full Name:</label>
+        <input type="text" id="displayname" name="displayname" required><br>
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required><br>
         <label for="role">Role:</label>
