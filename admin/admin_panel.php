@@ -32,5 +32,5 @@ include '../header.php';
 
 <?php
 // Include footer file
-include 'footer.php';
+include '../footer.php';
 ?>
