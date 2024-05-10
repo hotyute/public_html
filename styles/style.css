@@ -48,7 +48,7 @@ a {
 .main-container {
     display: flex;
     justify-content: center; /* Ensures content is centered horizontally */
-    width: 80%; /* Ensures the container takes full width */
+    width: 100%; /* Ensures the container takes full width */
     padding: 0 40px; /* Adds horizontal padding to prevent content touching the sides */
 }
 
