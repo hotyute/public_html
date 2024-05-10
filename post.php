@@ -4,7 +4,7 @@ require 'includes/database.php';
 
 $post_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 if ($post_id > 0) {
-    $stmt = $pdo->prepare("SELECT posts.title, posts.content, posts.thumbnail, users.username AS author FROM posts JOIN users ON posts.user_id = users.id WHERE posts.id = ?");
+    $stmt = $pdo->prepare("SELECT posts.title, posts.content, posts.thumbnail, users.displayname AS author FROM posts JOIN users ON posts.user_id = users.id WHERE posts.id = ?");
     $stmt->execute([$post_id]);
     $post = $stmt->fetch(PDO::FETCH_ASSOC);
     
