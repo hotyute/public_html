@@ -1,10 +1,10 @@
+/* Ensure that the overall container is centered and padded correctly */
 body {
-    font-family: 'Georgia', serif;
+    display: flex;
+    justify-content: center; /* Centers the content horizontally */
     margin: 0;
-    padding: 0;
-    background: #f4f4f4;
-    color: #333;
-    line-height: 1.6;
+    padding: 20px; /* Adds padding around the edges of the viewport */
+    background: #f4f4f4; /* Adjust background color as needed */
 }
 
 header, footer {
@@ -46,11 +46,11 @@ a {
 }
 
 main {
-    width: 85%;
-    margin: 20px auto;
-    background: white;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    flex: 3;  /* Adjust flex ratio if needed */
+    padding: 20px;  /* Maintain or increase padding */
+    margin: 0 auto; /* Centers the main content horizontally */
+    max-width: 90%; /* Limit the max width to prevent stretching too wide */
+    box-shadow: 0 0 15px rgba(0,0,0,0.1); /* Optional: Adds subtle shadow for depth */
 }
 
 section {
