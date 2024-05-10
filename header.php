@@ -20,6 +20,7 @@ if (isset($_GET['logout'])) {
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/style.css">
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/surplus.css">
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/admin.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/post.css">
     <script src="<?php echo BASE_URL; ?>js/script.js"></script>
     <title>MyGospel Christian Website</title>
     <script>
