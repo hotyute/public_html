@@ -19,6 +19,7 @@ if (isset($_GET['logout'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/style.css">
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/surplus.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/admin.css">
     <script src="<?php echo BASE_URL; ?>js/script.js"></script>
     <title>MyGospel Christian Website</title>
     <script>
@@ -37,7 +38,7 @@ if (isset($_GET['logout'])) {
             <ul class="nav-links">
                 <li><a href="<?php echo BASE_URL; ?>index.php">Home</a></li>
                 <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') : ?>
-                    <li><a href="<?php echo BASE_URL; ?>admin/posts.php">Admin</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>admin/create_post.php">Admin</a></li>
                 <?php endif; ?>
                 <li><a href="<?php echo BASE_URL; ?>contact.php">Contact Us</a></li>
             </ul>

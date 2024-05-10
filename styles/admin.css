@@ -1,0 +1,48 @@
+/* Admin Page Base Styles */
+.admin-content {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    max-width: 800px;
+    margin: 30px auto;
+}
+
+/* Style for Form Fields */
+.admin-form input[type="text"],
+.admin-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Style for Form Labels */
+.admin-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+/* Style for the Submit Button */
+.admin-form button {
+    padding: 10px 20px;
+    color: white;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.admin-form button:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .admin-content {
+        padding: 10px;
+        margin: 10px;
+    }
+}

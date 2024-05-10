@@ -30,13 +30,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id'])) {
 ?>
 
 <?php include '../header.php'; ?>
-<div class="login-form">
-    <h2 style="text-align: center;">Manage Posts</h2>
-    <form method="POST" action="posts.php" enctype="multipart/form-data">
+<div class="admin-content">
+    <h2 style="text-align: center;">Create New Post</h2>
+    <form class="admin-form" method="POST" action="create_post.php" enctype="multipart/form-data">
         <label for="title">Title:</label>
         <input type="text" id="title" name="title" required><br>
         <label for="content">Content:</label>
-        <textarea cols="2" rows="10" id="content" name="content" required></textarea><br>
+        <textarea id="content" name="content" rows="10" required></textarea><br>
         <label for="thumbnail">Thumbnail:</label>
         <input type="file" id="thumbnail" name="thumbnail"><br>
         <button type="submit">Add Post</button>
