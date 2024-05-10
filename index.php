@@ -7,7 +7,7 @@
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
                 <?php
                 require 'includes/database.php';
-                $query = "SELECT posts.id, posts.title, posts.thumbnail, posts.content, users.username AS author FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.id DESC LIMIT 6";
+                $query = "SELECT posts.id, posts.title, posts.thumbnail, posts.content, users.displayname AS author FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.id DESC LIMIT 6";
                 $posts = $pdo->query($query);
                 while ($post = $posts->fetch(PDO::FETCH_ASSOC)) {
                     echo '<div style="background: #fff; border: 1px solid #ccc; padding: 10px;">';
