@@ -46,22 +46,12 @@ a {
 }
 
 main {
-    width: 70%;
-    margin: 40px auto;
+    width: 85%;
+    margin: 20px auto;
     background: white;
     padding: 20px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
-
-aside {
-    flex: 1;  /* Maintain sidebar size */
-    background-color: #f0f0f0;
-    padding: 20px;
-    margin: 40px 20px;  /* Increase margin to align with main content */
-    width: 200px;  /* Maintaining fixed width */
-    box-sizing: border-box;  /* Ensures padding and border are included in the width */
-}
-
 
 section {
     margin-bottom: 20px;
@@ -177,10 +167,6 @@ button.auth-button:hover {
 }
 
 @media (max-width: 768px) {
-    main, aside {
-        width: 90%;  /* Increase width for smaller screens for better readability */
-        margin: 20px auto;  /* Adjust margin to be auto for center alignment */
-    }
     .hamburger {
         display: block;
     }
