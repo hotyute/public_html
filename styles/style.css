@@ -53,7 +53,7 @@ a {
 }
 
 main {
-    flex: 1 0 80%; /* Flex-grow, Flex-shrink, and Flex-basis */
+    flex: 1 0 70%; /* Flex-grow, Flex-shrink, and Flex-basis */
     padding: 20px; /* Maintains padding inside the main area */
     box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Optional: Adds shadow for depth */
 }
