@@ -48,3 +48,16 @@ img {
     max-width: 100%;
     height: auto;
 }
+
+@media (max-width: 768px) {
+    img {
+        /* Example: apply additional styling for smaller devices */
+        padding: 10px 0;  /* Just an example, typically you wouldn't add padding to images */
+    }
+    .post-container {
+        padding: 10px; /* Less padding to accommodate smaller screen real estate */
+    }
+    .post-title, .post-author {
+        text-align: center; /* Centering text for better mobile readability */
+    }
+}
