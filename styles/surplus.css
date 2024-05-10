@@ -61,7 +61,17 @@
 /* Responsive design adjustments */
 @media only screen and (max-width: 768px) {
 
+    .grid-container {
+        grid-template-columns: repeat(2, 1fr); /* 2 columns for tablets */
+    }
+
     .login-form form {
         width: 90%; /* Makes the form take up almost full width */
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .grid-container {
+        grid-template-columns: 1fr; /* 1 column for mobile phones */
     }
 }
