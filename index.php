@@ -4,21 +4,21 @@
         <section>
             <h2>Welcome to Our Community</h2>
             <p>This is the home of our Christian community where we share insights, teachings, and fellowship together.</p>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+            <div class="grid-container">  <!-- Utilizing the grid-container class -->
                 <?php
                 require 'includes/database.php';
                 $query = "SELECT posts.id, posts.title, posts.thumbnail, posts.content, users.displayname AS author FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.id DESC LIMIT 6";
                 $posts = $pdo->query($query);
                 while ($post = $posts->fetch(PDO::FETCH_ASSOC)) {
-                    echo '<div style="background: #fff; border: 1px solid #ccc; padding: 10px;">';
+                    echo '<div class="post-preview">';  // Utilizing the post-preview class
                     echo '<a href="post.php?id=' . $post['id'] . '" style="text-decoration: none; color: black;">';
                     if ($post['thumbnail']) {
-                        echo '<img src="' . $post['thumbnail'] . '" alt="Post thumbnail" style="width:100%; height: auto;">';
+                        echo '<img src="' . $post['thumbnail'] . '" alt="Post thumbnail" class="post-thumbnail">';  // Use post-thumbnail class
                     }
                     echo '<h3>' . htmlspecialchars($post['title']) . '</h3>';
                     echo '<p>By ' . htmlspecialchars($post['author']) . '</p>';
-                    echo '<div class="content-full">' . substr(htmlspecialchars($post['content']), 0, 100) . '...</div>';
-                    echo '<div class="content-short">' . substr(htmlspecialchars($post['content']), 0, 50) . '...</div>';
+                    echo '<div class="content-full">' . substr(htmlspecialchars($post['content']), 0, 100) . '...</div>';  // Use content-full class
+                    echo '<div class="content-short">' . substr(htmlspecialchars($post['content']), 0, 50) . '...</div>';  // Use content-short class
                     echo '</a>';
                     echo '</div>';
                 }
