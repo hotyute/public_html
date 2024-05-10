@@ -48,7 +48,7 @@ a {
 .container {
     display: flex;
     justify-content: center; /* Center the content horizontally */
-    max-width: 1200px; /* Limit the maximum width for larger screens */
+    max-width: 85%; /* Limit the maximum width for larger screens */
     margin: 0 auto; /* Center the entire container */
     padding: 0 20px; /* Padding to prevent content touching the screen edge */
 }
