@@ -77,6 +77,30 @@
     border-radius: 8px; /* Rounded corners for images */
 }
 
+/* Basic styling for admin panel */
+.admin-container {
+    width: 90%;
+    margin: 20px auto;
+    padding: 20px;
+    background: #f4f4f4;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.admin-container h1 {
+    color: #333;
+}
+
+.admin-container ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.admin-container ul li a {
+    color: #006699;
+    text-decoration: none;
+}
+
 /* Responsive design adjustments */
 @media only screen and (max-width: 768px) {
 

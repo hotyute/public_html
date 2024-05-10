@@ -11,7 +11,7 @@ include '../header.php';
 ?>
 
 <body>
-    <div class="main-container">
+    <div class="admin-container">
         <h1>Admin Dashboard</h1>
         <p>Welcome to the admin dashboard. Use the links below to manage the site:</p>
         <ul>
