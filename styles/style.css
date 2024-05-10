@@ -45,12 +45,17 @@ a {
     font-size: 1.2em;
 }
 
+.main-container {
+    display: flex;
+    justify-content: center; /* Ensures content is centered horizontally */
+    width: 100%; /* Ensures the container takes full width */
+    padding: 0 40px; /* Adds horizontal padding to prevent content touching the sides */
+}
+
 main {
-    max-width: 85%;
-    margin: 20px auto;
-    background: white;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    flex: 1 0 80%; /* Flex-grow, Flex-shrink, and Flex-basis */
+    padding: 20px; /* Maintains padding inside the main area */
+    box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Optional: Adds shadow for depth */
 }
 
 section {
