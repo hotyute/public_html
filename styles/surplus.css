@@ -57,12 +57,24 @@
     height: auto;
 }
 
+/* Hide the shorter content by default */
+.content-short {
+    display: none;
+}
+
 
 /* Responsive design adjustments */
 @media only screen and (max-width: 768px) {
 
     .grid-container {
         grid-template-columns: repeat(2, 1fr); /* 2 columns for tablets */
+    }
+
+    .content-full {
+        display: none;
+    }
+    .content-short {
+        display: block;
     }
 
     .login-form form {

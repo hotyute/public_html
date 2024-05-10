@@ -17,7 +17,8 @@
                     }
                     echo '<h3>' . htmlspecialchars($post['title']) . '</h3>';
                     echo '<p>By ' . htmlspecialchars($post['author']) . '</p>';
-                    echo '<p>' . substr(htmlspecialchars($post['content']), 0, 100) . '...</p>';
+                    echo '<div class="content-full">' . substr(htmlspecialchars($post['content']), 0, 100) . '...</div>';
+                    echo '<div class="content-short">' . substr(htmlspecialchars($post['content']), 0, 50) . '...</div>';
                     echo '</a>';
                     echo '</div>';
                 }
