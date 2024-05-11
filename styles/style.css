@@ -203,7 +203,6 @@ button.auth-button:hover {
     nav ul {
         display: none;
         max-height: 1000px;
-        overflow: visible;
     }
 
     nav ul li {
