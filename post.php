@@ -44,12 +44,16 @@ if ($post_id > 0) {
         echo '<div class="comments-section" id="commentsSection">';
         $comments_stmt = $pdo->prepare("SELECT comments.id, comments.content, users.displayname AS author FROM comments JOIN users ON comments.user_id = users.id WHERE comments.post_id = ?");
         $comments_stmt->execute([$post_id]);
-        while ($comment = $comments_stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo '<div class="comment">' . htmlspecialchars($comment['content']) . ' - <strong>' . htmlspecialchars($comment['author']) . '</strong>';
-            if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
-                echo ' <form method="POST" action=""><input type="hidden" name="comment_id" value="' . $comment['id'] . '"><button type="submit" name="delete_comment">Delete</button></form>';
+        if ($comments_stmt->rowCount() > 0) {
+            while ($comment = $comments_stmt->fetch(PDO::FETCH_ASSOC)) {
+                echo '<div class="comment">' . htmlspecialchars($comment['content']) . ' - <strong>' . htmlspecialchars($comment['author']) . '</strong>';
+                if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
+                    echo ' <form method="POST" action=""><input type="hidden" name="comment_id" value="' . $comment['id'] . '"><button type="submit" name="delete_comment">Delete</button></form>';
+                }
+                echo '</div>';
             }
-            echo '</div>';
+        } else {
+            echo '<p>No Comments Yet.</p>';  // Display "No Comments Yet" inside the comments section
         }
         echo '</div>'; // Close comments section
 
