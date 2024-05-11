@@ -99,6 +99,21 @@ button.auth-button:hover {
 
 /* Responsive design adjustments */
 @media only screen and (max-width: 768px) {
+    .main-container {
+        flex-direction: column;
+        max-width: 100%;
+    }
+
+    main, aside {
+        flex: none; /* Disable flex sizing in mobile view */
+        width: 100%; /* Full width for each */
+        margin: 10px 0; /* Vertical spacing for clarity */
+    }
+
+    aside {
+        margin-left: 0; /* Remove left margin in mobile view */
+    }
+
     .container, nav, header, footer {
         width: 100%;
         padding: 0;
@@ -180,39 +195,19 @@ button.auth-button:hover {
     display: none; /* Hides by default for desktop */
 }
 
+/*
 @media (max-width: 768px) {
-    .main-container {
-        flex-direction: column;
-        max-width: 100%;
-    }
-
-    main, aside {
-        flex: none; /* Disable flex sizing in mobile view */
-        width: 100%; /* Full width for each */
-        margin: 10px 0; /* Vertical spacing for clarity */
-    }
-
-    aside {
-        margin-left: 0; /* Remove left margin in mobile view */
-    }
     
     .hamburger {
         display: block;
     }
 
     nav ul {
-        display: block; /* Ensures that the ul is always block but hidden */
-        overflow: hidden;
-        max-height: 0;
-        transition: max-height 2s ease-out;
-        position: absolute;
-        top: 60px;
-        z-index: 1000;
-        width: 100%; /* Full width */
+        display: none;
     }
-
+    
     nav ul li {
         display: block;
         text-align: center;
     }
-}
+}*/
