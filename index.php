@@ -43,21 +43,32 @@
 </div>
 <?php include 'footer.php'; ?>
 <script>
-function getCharacterCount(width) {
-    // Define minimum and maximum widths and corresponding character counts
-    const minWidth = 480;  // Minimum screen width to consider
+function getCharacterCount(width, height) {
+    // Define minimum and maximum dimensions and corresponding character counts
+    const minWidth = 480; // Minimum screen width to consider
     const maxWidth = 720; // Maximum screen width after which content size stabilizes
-    const minChars = 30;   // Minimum characters to show at or below minWidth
-    const maxChars = 75;  // Maximum characters to show at or above maxWidth
+    const minHeight = 500; // Minimum screen height to consider
+    const maxHeight = 1920; // Maximum screen height after which content size stabilizes
 
-    if (width <= minWidth) return minChars;
-    if (width >= maxWidth) return maxChars;
+    const minCharsWidth = 30;  // Minimum characters to show at or below minWidth
+    const maxCharsWidth = 75;  // Maximum characters to show at or above maxWidth
+    const minCharsHeight = 30;  // Minimum characters to show at or below minHeight
+    const maxCharsHeight = 75; // Maximum characters to show at or above maxHeight
 
-    // Calculate slope (m) of the line connecting the points (minWidth, minChars) and (maxWidth, maxChars)
-    const slope = (maxChars - minChars) / (maxWidth - minWidth);
+    // Calculate character limit based on width
+    const slopeWidth = (maxCharsWidth - minCharsWidth) / (maxWidth - minWidth);
+    const charLimitWidth = width <= minWidth ? minCharsWidth :
+                           width >= maxWidth ? maxCharsWidth :
+                           Math.floor(slopeWidth * (width - minWidth) + minCharsWidth);
 
-    // Apply linear equation y = mx + b, where x is width and b is y-intercept
-    return Math.floor(slope * (width - minWidth) + minChars);
+    // Calculate character limit based on height
+    const slopeHeight = (maxCharsHeight - minCharsHeight) / (maxHeight - minHeight);
+    const charLimitHeight = height <= minHeight ? minCharsHeight :
+                            height >= maxHeight ? maxCharsHeight :
+                            Math.floor(slopeHeight * (height - minHeight) + minCharsHeight);
+
+    // Use the smaller of the two character limits
+    return Math.min(charLimitWidth, charLimitHeight);
 }
 
 function adjustContentPreview() {
@@ -65,7 +76,8 @@ function adjustContentPreview() {
     previews.forEach(preview => {
         const fullText = preview.getAttribute('data-content');
         const screenWidth = window.innerWidth;
-        const charLimit = getCharacterCount(screenWidth);
+        const screenHeight = window.innerHeight;
+        const charLimit = getCharacterCount(screenWidth, screenHeight);
         preview.textContent = fullText.length > charLimit ? fullText.substring(0, charLimit) + '...' : fullText;
     });
 }
