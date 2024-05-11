@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             // Menu is closed, need to open it
             // Temporarily set max-height to a very high value to measure full height
-            navUL.style.maxHeight = "1000px";
+            navUL.style.maxHeight = "100%";
             const fullHeight = navUL.scrollHeight + "px";
             navUL.style.maxHeight = "0px"; // Reset before animation
             requestAnimationFrame(() => {
