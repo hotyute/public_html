@@ -45,10 +45,10 @@
 <script>
 function getCharacterCount(width, height) {
     // Define ranges for character count adjustment
-    const minWidth = 480;
-    const maxWidth = 720;
-    const minHeight = 500;
-    const maxHeight = 1920;
+    const minWidth = 320;
+    const maxWidth = 1200;
+    const minHeight = 480;
+    const maxHeight = 800;
 
     const minCharsWidth = 30; // Minimum characters at minimum width
     const maxCharsWidth = 75; // Maximum characters at maximum width
