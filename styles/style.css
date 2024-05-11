@@ -201,9 +201,16 @@ button.auth-button:hover {
     }
 
     nav ul {
-        display: none;
+        display: block; /* Ensures that the ul is always block but hidden */
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 2s ease-out;
+        position: absolute;
+        top: 60px;
+        z-index: 1000;
+        width: 100%; /* Full width */
     }
-    
+
     nav ul li {
         display: block;
         text-align: center;
