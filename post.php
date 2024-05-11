@@ -88,11 +88,20 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(data => {
             if (data.success) {
                 const commentsSection = document.getElementById('commentsSection');
+                // Check if there is a "No Comments Yet" message and remove it
+                const noCommentsMsg = commentsSection.querySelector('p');
+                if (noCommentsMsg && noCommentsMsg.textContent === 'No Comments Yet.') {
+                    commentsSection.removeChild(noCommentsMsg);
+                }
+                
+                // Create and append the new comment
                 const newComment = document.createElement('div');
                 newComment.classList.add('comment');
                 newComment.innerHTML = `${commentText} - <strong>You</strong>`;
                 commentsSection.appendChild(newComment);
-                document.querySelector('#commentForm textarea').value = ''; // Clear the textarea after submission
+                
+                // Clear the textarea after successful submission
+                document.querySelector('#commentForm textarea').value = ''; 
             } else {
                 alert('Failed to add comment.');
             }
