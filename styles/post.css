@@ -47,6 +47,8 @@
 img {
     max-width: 256px;
     height: auto;
+    margin: auto;
+    display: block;
 }
 
 @media (max-width: 768px) {
