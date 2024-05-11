@@ -4,6 +4,7 @@
         <section>
             <h2>Welcome to Our Community</h2>
             <p>This is the home of our Christian community where we share insights, teachings, and fellowship together.</p>
+            <hr>
             <div class="grid-container"> <!-- Utilizing the grid-container class -->
                 <?php
                 require 'includes/database.php';
