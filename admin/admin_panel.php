@@ -16,6 +16,7 @@ include '../header.php';
         <p>Welcome to the admin dashboard. Use the links below to manage the site:</p>
         <ul>
             <li><a href="create_post.php">Create New Post</a></li>
+            <li><a href="edit_post.php">Edit Post</a></li>
             <!-- Additional links for other admin tasks can be added here -->
         </ul>
     </div>
