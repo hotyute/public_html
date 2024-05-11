@@ -11,11 +11,11 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             // Menu is closed, need to open it
             // Temporarily set max-height to a very high value to measure full height
-            navUL.style.maxHeight = "100%";
+            navUL.style.maxHeight = "1000px";
             const fullHeight = navUL.scrollHeight + "px";
             navUL.style.maxHeight = "0px"; // Reset before animation
             requestAnimationFrame(() => {
-                navUL.style.maxHeight = fullHeight; // Set actual needed height
+                navUL.style.maxHeight = "1000px"; // Set actual needed height
                 navUL.classList.add('open');
             });
         }
