@@ -70,6 +70,10 @@
     box-shadow: 0 6px 12px rgba(0,0,0,0.15); /* Enhanced shadow on hover for a 'lifting' effect */
 }
 
+.post-preview p {
+    font-weight: bold;
+}
+
 /* Image Styling within Post Previews */
 .post-preview img {
     width: 100%; /* Ensures image takes full width of the container */
