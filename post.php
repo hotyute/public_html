@@ -32,7 +32,7 @@ if ($post_id > 0) {
         echo '<div class="post-content">' . nl2br(htmlspecialchars($post['content'])) . '</div>';
 
         if (isset($_SESSION['user_id'])) {
-            echo '<form id="commentForm">';
+            echo '<form id="commentForm" class="comment-form">';
             echo '<textarea name="comment" required></textarea>';
             echo '<button type="button" id="submitComment">Submit Comment</button>';
             echo '</form>';
@@ -40,6 +40,7 @@ if ($post_id > 0) {
             echo '<p>Please <a href="login.php">login</a> to make a comment.</p>';
         }
 
+        echo '<h3 class="comments-title">Comments</h3>';
         echo '<div class="comments-section" id="commentsSection">';
         $comments_stmt = $pdo->prepare("SELECT comments.id, comments.content, users.displayname AS author FROM comments JOIN users ON comments.user_id = users.id WHERE comments.post_id = ?");
         $comments_stmt->execute([$post_id]);

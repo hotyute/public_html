@@ -2,8 +2,8 @@
 .comments-section {
     margin-top: 20px;
     padding: 10px;
-    background-color: #fff;
-    border: 1px solid #ccc;
+    background-color: #f8f8f8; /* Slightly off-white for less stark contrast */
+    border: 2px solid #ddd; /* Slightly thicker border for better definition */
     border-radius: 5px;
 }
 
@@ -20,29 +20,29 @@
     color: #333;
 }
 
+/* Comments title styling */
+.comments-title {
+    font-size: 22px;
+    color: #333;
+    margin-bottom: 10px; /* Adds space between the title and the first comment */
+}
+
 /* Form styling */
-#commentForm {
-    margin-top: 20px;
-}
-
-#commentForm textarea {
+/* Styling improvements for form */
+.comment-form textarea, .comment-form button {
     width: 100%;
+    margin-top: 10px;
     padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
 }
 
-#commentForm button {
-    padding: 10px 20px;
+.comment-form button {
     background-color: #007bff;
     color: white;
     border: none;
-    border-radius: 4px;
     cursor: pointer;
 }
 
-#commentForm button:hover {
+.comment-form button:hover {
     background-color: #0056b3;
 }
 
@@ -53,11 +53,11 @@
         padding: 10px;
     }
 
-    #commentForm textarea {
-        padding: 6px;
+    #commentForm textarea, #commentForm button {
+        padding: 6px; /* Ensure uniform padding for smaller screens */
     }
 
     #commentForm button {
-        padding: 8px 16px;
+        padding: 8px 16px; /* Adjust button padding for better tap target size */
     }
 }
