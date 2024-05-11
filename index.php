@@ -32,6 +32,14 @@
             </div>
         </section>
     </main>
+    <aside style="flex: 1; background-color: #f0f0f0; padding: 20px;">
+        <h3>Sidebar Content</h3>
+        <ul>
+            <li><a href="#">Link 1</a></li>
+            <li><a href="#">Link 2</a></li>
+            <li><a href="#">Link 3</a></li>
+        </ul>
+    </aside>
 </div>
 <?php include 'footer.php'; ?>
 <script>
