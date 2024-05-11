@@ -199,16 +199,9 @@ button.auth-button:hover {
     .hamburger {
         display: block;
     }
-    
     nav ul {
         display: none;
-        width: 100%;
     }
-
-    nav ul.open {
-        display: block;
-    }
-
     nav ul li {
         display: block;
         text-align: center;
