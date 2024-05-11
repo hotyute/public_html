@@ -44,41 +44,60 @@
 <?php include 'footer.php'; ?>
 <script>
 function getCharacterCount(width, height) {
-    // Define minimum and maximum dimensions and corresponding character counts
-    const minWidth = 480; // Minimum screen width to consider
-    const maxWidth = 720; // Maximum screen width after which content size stabilizes
-    const minHeight = 500; // Minimum screen height to consider
-    const maxHeight = 1920; // Maximum screen height after which content size stabilizes
+    // Define ranges for character count adjustment
+    const minWidth = 480;
+    const maxWidth = 720;
+    const minHeight = 500;
+    const maxHeight = 1920;
 
-    const minCharsWidth = 30;  // Minimum characters to show at or below minWidth
-    const maxCharsWidth = 75;  // Maximum characters to show at or above maxWidth
-    const minCharsHeight = 30;  // Minimum characters to show at or below minHeight
-    const maxCharsHeight = 75; // Maximum characters to show at or above maxHeight
+    const minCharsWidth = 30; // Minimum characters at minimum width
+    const maxCharsWidth = 75; // Maximum characters at maximum width
+    const minCharsHeight = 30; // Minimum characters at minimum height
+    const maxCharsHeight = 75; // Maximum characters at maximum height
 
-    // Calculate character limit based on width
+    // Linear scaling calculations
     const slopeWidth = (maxCharsWidth - minCharsWidth) / (maxWidth - minWidth);
-    const charLimitWidth = width <= minWidth ? minCharsWidth :
-                           width >= maxWidth ? maxCharsWidth :
-                           Math.floor(slopeWidth * (width - minWidth) + minCharsWidth);
-
-    // Calculate character limit based on height
     const slopeHeight = (maxCharsHeight - minCharsHeight) / (maxHeight - minHeight);
-    const charLimitHeight = height <= minHeight ? minCharsHeight :
-                            height >= maxHeight ? maxCharsHeight :
-                            Math.floor(slopeHeight * (height - minHeight) + minCharsHeight);
 
-    // Use the smaller of the two character limits
+    const charLimitWidth = width <= minWidth ? minCharsWidth :
+                          width >= maxWidth ? maxCharsWidth :
+                          Math.floor(minCharsWidth + slopeWidth * (width - minWidth));
+
+    const charLimitHeight = height <= minHeight ? minCharsHeight :
+                           height >= maxHeight ? maxCharsHeight :
+                           Math.floor(minCharsHeight + slopeHeight * (height - minHeight));
+
+    // Use the smaller of the two calculated character limits
     return Math.min(charLimitWidth, charLimitHeight);
+}
+
+function adjustFontSize(width, height) {
+    // Base font size
+    const baseFontSize = 14; // Base font size in pixels
+
+    // Scaling factors
+    const widthFactor = 0.01;
+    const heightFactor = 0.015;
+
+    // Calculate font size based on width and height
+    const fontSizeWidth = baseFontSize + (width - 320) * widthFactor;
+    const fontSizeHeight = baseFontSize + (height - 480) * heightFactor;
+
+    // Use the smaller of the two to adjust font size
+    return Math.min(fontSizeWidth, fontSizeHeight);
 }
 
 function adjustContentPreview() {
     const previews = document.querySelectorAll('.content-preview');
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const charLimit = getCharacterCount(screenWidth, screenHeight);
+    const fontSize = adjustFontSize(screenWidth, screenHeight);
+
     previews.forEach(preview => {
         const fullText = preview.getAttribute('data-content');
-        const screenWidth = window.innerWidth;
-        const screenHeight = window.innerHeight;
-        const charLimit = getCharacterCount(screenWidth, screenHeight);
         preview.textContent = fullText.length > charLimit ? fullText.substring(0, charLimit) + '...' : fullText;
+        preview.style.fontSize = `${fontSize}px`; // Apply the dynamically calculated font size
     });
 }
 
