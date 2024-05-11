@@ -7,25 +7,37 @@ $stmt = $pdo->prepare("SELECT id, title, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i
 $stmt->execute();
 $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['post_id'])) {
-    $post_id = $_POST['post_id'];
-    $title = htmlspecialchars($_POST['title']);
-    $content = htmlspecialchars($_POST['content']);
-    $thumbnail = null;
-
-    if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] == 0) {
-        $target_directory = "../images/uploads/";
-        $target_file = $target_directory . basename($_FILES["thumbnail"]["name"]);
-        if (move_uploaded_file($_FILES["thumbnail"]["tmp_name"], $target_file)) {
-            $thumbnail = $target_file;
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['delete']) && isset($_POST['post_id'])) {
+        // Delete post
+        $post_id = $_POST['post_id'];
+        $delete_stmt = $pdo->prepare("DELETE FROM posts WHERE id = ?");
+        if ($delete_stmt->execute([$post_id])) {
+            echo "<p>Post deleted successfully!</p>";
+        } else {
+            echo "<p>Failed to delete post.</p>";
         }
-    }
+    } else if (isset($_POST['post_id'])) {
+        // Update post
+        $post_id = $_POST['post_id'];
+        $title = htmlspecialchars($_POST['title']);
+        $content = htmlspecialchars($_POST['content']);
+        $thumbnail = null;
 
-    $update_stmt = $pdo->prepare("UPDATE posts SET title = ?, content = ?, thumbnail = ? WHERE id = ?");
-    if ($update_stmt->execute([$title, $content, $thumbnail, $post_id])) {
-        echo "<p>Post updated successfully!</p>";
-    } else {
-        echo "<p>Failed to update post.</p>";
+        if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] == 0) {
+            $target_directory = "../images/uploads/";
+            $target_file = $target_directory . basename($_FILES["thumbnail"]["name"]);
+            if (move_uploaded_file($_FILES["thumbnail"]["tmp_name"], $target_file)) {
+                $thumbnail = $target_file;
+            }
+        }
+
+        $update_stmt = $pdo->prepare("UPDATE posts SET title = ?, content = ?, thumbnail = ? WHERE id = ?");
+        if ($update_stmt->execute([$title, $content, $thumbnail, $post_id])) {
+            echo "<p>Post updated successfully!</p>";
+        } else {
+            echo "<p>Failed to update post.</p>";
+        }
     }
 }
 
@@ -60,6 +72,7 @@ include '../header.php';
         </div>
         
         <button type="submit" class="btn btn-primary">Update Post</button>
+        <button type="submit" name="delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</button>
     </form>
 </div>
 <script>
