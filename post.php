@@ -51,6 +51,7 @@ if ($post_id > 0) {
             echo '</div>';
         }
         echo '</div>'; // Close comments section
+
         echo '</div>'; // Close post container
     } else {
         echo '<p class="post-error">Post not found.</p>';
@@ -61,32 +62,40 @@ if ($post_id > 0) {
 include 'footer.php';
 ?>
 <script>
-document.getElementById('submitComment').addEventListener('click', function() {
-    const commentText = document.querySelector('[name="comment"]').value;
-    const formData = new FormData();
-    formData.append('comment', commentText);
-    formData.append('user_id', <?php echo json_encode($_SESSION['user_id']); ?>);
-    formData.append('post_id', <?php echo $post_id; ?>);
-
-    fetch('submit_comment.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const commentsSection = document.getElementById('commentsSection');
-            const newComment = document.createElement('div');
-            newComment.classList.add('comment');
-            newComment.innerHTML = `${commentText} - <strong>You</strong>`;
-            commentsSection.appendChild(newComment);
-            document.querySelector('[name="comment"]').value = ''; // Clear the input after submission
-        } else {
-            alert('Failed to add comment.');
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById('submitComment').addEventListener('click', function() {
+        const commentText = document.querySelector('#commentForm textarea').value;
+        if (!commentText) {
+            alert('Please enter a comment.');
+            return;
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
+        
+        const formData = new FormData();
+        formData.append('comment', commentText);
+        formData.append('user_id', <?php echo json_encode($_SESSION['user_id']); ?>);
+        formData.append('post_id', <?php echo $post_id; ?>);
+
+        fetch('submit_comment.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const commentsSection = document.getElementById('commentsSection');
+                const newComment = document.createElement('div');
+                newComment.classList.add('comment');
+                newComment.innerHTML = `${commentText} - <strong>You</strong>`;
+                commentsSection.appendChild(newComment);
+                document.querySelector('#commentForm textarea').value = ''; // Clear the textarea after submission
+            } else {
+                alert('Failed to add comment.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error submitting comment.');
+        });
     });
 });
 </script>
