@@ -37,21 +37,21 @@
 </div>
 <?php include 'footer.php'; ?>
 <script>
-function getWordCount(width) {
-    // Define minimum and maximum widths and corresponding word counts
+function getCharacterCount(width) {
+    // Define minimum and maximum widths and corresponding character counts
     const minWidth = 320;  // Minimum screen width to consider
     const maxWidth = 1200; // Maximum screen width after which content size stabilizes
-    const minWords = 30;   // Minimum words to show at or below minWidth
-    const maxWords = 100;  // Maximum words to show at or above maxWidth
+    const minChars = 50;   // Minimum characters to show at or below minWidth
+    const maxChars = 150;  // Maximum characters to show at or above maxWidth
 
-    if (width <= minWidth) return minWords;
-    if (width >= maxWidth) return maxWords;
+    if (width <= minWidth) return minChars;
+    if (width >= maxWidth) return maxChars;
 
-    // Calculate slope (m) of the line connecting the points (minWidth, minWords) and (maxWidth, maxWords)
-    const slope = (maxWords - minWords) / (maxWidth - minWidth);
+    // Calculate slope (m) of the line connecting the points (minWidth, minChars) and (maxWidth, maxChars)
+    const slope = (maxChars - minChars) / (maxWidth - minWidth);
 
     // Apply linear equation y = mx + b, where x is width and b is y-intercept
-    return Math.floor(slope * (width - minWidth) + minWords);
+    return Math.floor(slope * (width - minWidth) + minChars);
 }
 
 function adjustContentPreview() {
@@ -59,13 +59,8 @@ function adjustContentPreview() {
     previews.forEach(preview => {
         const fullText = preview.getAttribute('data-content');
         const screenWidth = window.innerWidth;
-        const wordLimit = getWordCount(screenWidth);
-        const words = fullText.split(/\s+/); // Split by whitespace to get words
-        if (words.length > wordLimit) {
-            preview.textContent = words.slice(0, wordLimit).join(' ') + '...';
-        } else {
-            preview.textContent = fullText;
-        }
+        const charLimit = getCharacterCount(screenWidth);
+        preview.textContent = fullText.length > charLimit ? fullText.substring(0, charLimit) + '...' : fullText;
     });
 }
 
