@@ -21,6 +21,7 @@
                     echo '<div class="content-short">' . substr(htmlspecialchars($post['content']), 0, 50) . '...</div>';  // Use content-short class
                     echo '</a>';
                     echo '</div>';
+                    echo "<hr>"; // Separator between posts
                 }
                 ?>
             </div>
