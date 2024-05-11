@@ -37,7 +37,7 @@ if ($post_id > 0) {
             echo '<button type="button" id="submitComment">Submit Comment</button>';
             echo '</form>';
         } else {
-            echo '<p>Please <a href="login.php">login</a to comment.</p>';
+            echo '<p>Please <a href="login.php">login</a> to make a comment.</p>';
         }
 
         echo '<div class="comments-section" id="commentsSection">';
