@@ -1,6 +1,6 @@
 <?php include 'header.php'; ?>
 <div class="main-container">
-    <main>
+<main>
         <section>
             <h2>Welcome to Our Community</h2>
             <p>This is the home of our Christian community where we share insights, teachings, and fellowship together.</p>
@@ -8,7 +8,12 @@
             <div class="grid-container">
                 <?php
                 require 'includes/database.php';
-                $query = "SELECT posts.id, posts.title, posts.thumbnail, posts.content, users.displayname AS author FROM posts JOIN users ON posts.user_id = users.id ORDER BY posts.id DESC LIMIT 6";
+                $query = "SELECT posts.id, posts.title, posts.thumbnail, posts.content, users.displayname AS author, COUNT(comments.id) AS comment_count FROM posts
+                          JOIN users ON posts.user_id = users.id
+                          LEFT JOIN comments ON posts.id = comments.post_id
+                          GROUP BY posts.id
+                          ORDER BY posts.id DESC
+                          LIMIT 6";
                 $posts = $pdo->query($query);
                 while ($post = $posts->fetch(PDO::FETCH_ASSOC)) {
                     echo '<div class="post-preview">';
@@ -19,6 +24,7 @@
                     echo '<h3>' . htmlspecialchars($post['title']) . '</h3>';
                     echo '<p>By ' . htmlspecialchars($post['author']) . '</p>';
                     echo '<div class="content-preview" data-content="' . htmlspecialchars($post['content']) . '"></div>';
+                    echo '<p class="comment-count">' . $post['comment_count'] . ' Comments</p>';
                     echo '</a>';
                     echo '</div>';
                 }
