@@ -39,7 +39,7 @@
 <script>
 function getCharacterCount(width) {
     // Define minimum and maximum widths and corresponding character counts
-    const minWidth = 320;  // Minimum screen width to consider
+    const minWidth = 480;  // Minimum screen width to consider
     const maxWidth = 1024; // Maximum screen width after which content size stabilizes
     const minChars = 30;   // Minimum characters to show at or below minWidth
     const maxChars = 75;  // Maximum characters to show at or above maxWidth
