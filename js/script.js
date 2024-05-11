@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Check if the menu is currently open
         if (navUL.classList.contains('open')) {
             // Menu is open, need to close it
-            navUL.style.maxHeight = null; // Reset max-height
+            navUL.style.maxHeight = "0px"; // Reset max-height
             navUL.classList.remove('open');
         } else {
             // Menu is closed, need to open it
