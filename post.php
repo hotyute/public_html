@@ -5,13 +5,22 @@ require 'includes/database.php';
 $post_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_comment']) && isset($_POST['comment_id'])) {
-    // Delete comment
+    // Get the user_id of the comment owner
     $comment_id = $_POST['comment_id'];
-    $delete_stmt = $pdo->prepare("DELETE FROM comments WHERE id = ?");
-    if ($delete_stmt->execute([$comment_id])) {
-        echo "<p>Comment deleted successfully!</p>";
+    $comment_owner_query = $pdo->prepare("SELECT user_id FROM comments WHERE id = ?");
+    $comment_owner_query->execute([$comment_id]);
+    $comment_owner_id = $comment_owner_query->fetchColumn();
+
+    // Check if logged-in user is the comment owner or an admin
+    if ($_SESSION['user_id'] == $comment_owner_id || $_SESSION['user_role'] === 'admin') {
+        $delete_stmt = $pdo->prepare("DELETE FROM comments WHERE id = ?");
+        if ($delete_stmt->execute([$comment_id])) {
+            echo "<p>Comment deleted successfully!</p>";
+        } else {
+            echo "<p>Failed to delete comment.</p>";
+        }
     } else {
-        echo "<p>Failed to delete comment.</p>";
+        echo "<p>You do not have permission to delete this comment.</p>";
     }
 }
 
@@ -42,27 +51,26 @@ if ($post_id > 0) {
 
         echo '<h3 class="comments-title">Comments</h3>';
         echo '<div class="comments-section" id="commentsSection">';
-        $comments_stmt = $pdo->prepare("SELECT comments.id, comments.content, users.displayname AS author FROM comments JOIN users ON comments.user_id = users.id WHERE comments.post_id = ?");
+        $comments_stmt = $pdo->prepare("SELECT comments.id, comments.content, comments.user_id, users.displayname AS author FROM comments JOIN users ON comments.user_id = users.id WHERE comments.post_id = ?");
         $comments_stmt->execute([$post_id]);
-        if ($comments_stmt->rowCount() > 0) {
-            while ($comment = $comments_stmt->fetch(PDO::FETCH_ASSOC)) {
-                echo '<div class="comment">' . htmlspecialchars($comment['content']) . ' - <strong>' . htmlspecialchars($comment['author']) . '</strong>';
-                if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
-                    echo ' <form method="POST" action=""><input type="hidden" name="comment_id" value="' . $comment['id'] . '"><button type="submit" name="delete_comment">Delete</button></form>';
-                }
-                echo '</div>';
+        while ($comment = $comments_stmt->fetch(PDO::FETCH_ASSOC)) {
+            echo '<div class="comment">' . htmlspecialchars($comment['content']) . ' - <strong>' . htmlspecialchars($comment['author']) . '</strong>';
+            if ($_SESSION['user_id'] == $comment['user_id'] || $_SESSION['user_role'] === 'admin') {
+                echo ' <form method="POST" action=""><input type="hidden" name="comment_id" value="' . $comment['id'] . '"><button type="submit" name="delete_comment">Delete</button></form>';
             }
-        } else {
-            echo '<p>No Comments Yet.</p>';  // Display "No Comments Yet" inside the comments section
+            echo '</div>';
+        }
+        if ($comments_stmt->rowCount() == 0) {
+            echo '<p>No Comments Yet.</p>';
         }
         echo '</div>'; // Close comments section
 
         echo '</div>'; // Close post container
     } else {
-        echo '<p class="post-error">Post not found.</p>';
+        echo '<p>Post not found.</p>';
     }
 } else {
-    echo '<p class="post-error">Invalid post ID.</p>';
+    echo '<p>Invalid post ID.</p>';
 }
 include 'footer.php';
 ?>
