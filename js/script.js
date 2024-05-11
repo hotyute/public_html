@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const fullHeight = navUL.scrollHeight + "px";
             navUL.style.maxHeight = "0px"; // Reset before animation
             requestAnimationFrame(() => {
-                navUL.style.maxHeight = "1000px"; // Set actual needed height
+                navUL.style.maxHeight = fullHeight; // Set actual needed height
                 navUL.classList.add('open');
             });
         }
