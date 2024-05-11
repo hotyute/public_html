@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 navUL.style.maxHeight = "0"; // Collapse the menu
                 navUL.classList.remove('open');
             } else {
-                navUL.style.maxHeight = "none"; // Remove any max-height limit
+                navUL.style.maxHeight = "1000px"; // Remove any max-height limit
                 const fullHeight = navUL.scrollHeight + "px"; // Calculate full height
                 navUL.style.maxHeight = "0"; // Reset to zero before animation
                 
