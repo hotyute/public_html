@@ -33,25 +33,33 @@ include '../header.php';
 ?>
 <div class="admin-content">
     <h2>Edit Post</h2>
-    <form method="POST" action="edit_post.php" enctype="multipart/form-data">
-        <label for="post_id">Choose a post to edit:</label>
-        <select id="post_id" name="post_id" onchange="loadPostData(this.value)">
-            <option value="">Select a post</option>
-            <?php foreach ($posts as $post): ?>
-                <option value="<?= $post['id'] ?>"><?= htmlspecialchars($post['title']) ?> - <?= $post['formatted_date'] ?></option>
-            <?php endforeach; ?>
-        </select><br>
+    <form method="POST" action="edit_post.php" enctype="multipart/form-data" class="admin-form">
+        <div class="form-group">
+            <label for="post_id">Choose a post to edit:</label>
+            <select id="post_id" name="post_id" onchange="loadPostData(this.value)" class="form-control">
+                <option value="">Select a post</option>
+                <?php foreach ($posts as $post): ?>
+                    <option value="<?= $post['id'] ?>"><?= htmlspecialchars($post['title']) ?> - <?= $post['formatted_date'] ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
         
-        <label for="title">Title:</label>
-        <input type="text" id="title" name="title" required><br>
+        <div class="form-group">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required class="form-control">
+        </div>
         
-        <label for="content">Content:</label>
-        <textarea id="content" name="content" rows="10" required></textarea><br>
+        <div class="form-group">
+            <label for="content">Content:</label>
+            <textarea id="content" name="content" rows="10" required class="form-control"></textarea>
+        </div>
         
-        <label for="thumbnail">Thumbnail (optional):</label>
-        <input type="file" id="thumbnail" name="thumbnail"><br>
+        <div class="form-group">
+            <label for="thumbnail">Thumbnail (optional):</label>
+            <input type="file" id="thumbnail" name="thumbnail" class="form-control">
+        </div>
         
-        <button type="submit">Update Post</button>
+        <button type="submit" class="btn btn-primary">Update Post</button>
     </form>
 </div>
 <script>
