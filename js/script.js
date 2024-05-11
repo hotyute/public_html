@@ -3,20 +3,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const navUL = document.querySelector('nav ul');
 
     hamburger.addEventListener('click', function () {
-        // Check if the menu is currently open
         if (navUL.classList.contains('open')) {
-            // Menu is open, need to close it
-            navUL.style.maxHeight = null; // Reset max-height
+            // Transition to close the menu
+            navUL.style.maxHeight = "0"; // Immediately start collapsing
             navUL.classList.remove('open');
         } else {
-            // Menu is closed, need to open it
-            // Temporarily set max-height to a very high value to measure full height
-            navUL.style.maxHeight = "1000px";
-            const fullHeight = navUL.scrollHeight + "px";
-            //navUL.style.maxHeight = "0px"; // Reset before animation
-            requestAnimationFrame(() => {
-                navUL.style.maxHeight = fullHeight; // Set actual needed height
-                navUL.classList.add('open');
+            // Transition to open the menu
+            // Calculate the full height only once and apply it
+            navUL.style.maxHeight = "none"; // Remove any max-height limit
+            const fullHeight = navUL.scrollHeight + "px"; // Calculate full height
+            navUL.style.maxHeight = "0"; // Reset to zero before animation
+            
+            // Use requestAnimationFrame to ensure layout has time to reset
+            requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                    navUL.style.maxHeight = fullHeight; // Set to full height on the next frame
+                    navUL.classList.add('open');
+                });
             });
         }
     });
