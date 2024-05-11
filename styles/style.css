@@ -154,7 +154,7 @@ button.auth-button:hover {
     }
 
     nav ul.open {
-        max-height: 1000px; /* Max height large enough to show all content when open */
+        max-height: 100%; /* Max height large enough to show all content when open */
     }
 
     nav ul li {
