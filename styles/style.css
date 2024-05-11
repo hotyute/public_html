@@ -97,7 +97,7 @@ button.auth-button:hover {
 }
 
 
-/* Responsive design adjustments */
+/* Responsive design adjustments for screen only devices */
 @media only screen and (max-width: 768px) {
     .container, nav, header, footer {
         width: 100%;
@@ -202,7 +202,10 @@ button.auth-button:hover {
     
     nav ul {
         display: none;
+        max-height: 1000px;
+        overflow: visible;
     }
+
     nav ul li {
         display: block;
         text-align: center;
