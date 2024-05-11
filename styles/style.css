@@ -199,9 +199,11 @@ button.auth-button:hover {
     .hamburger {
         display: block;
     }
+
     nav ul {
         display: none;
     }
+    
     nav ul li {
         display: block;
         text-align: center;
