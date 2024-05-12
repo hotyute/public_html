@@ -55,7 +55,7 @@ if ($post_id > 0) {
         $comments_stmt->execute([$post_id]);
         while ($comment = $comments_stmt->fetch(PDO::FETCH_ASSOC)) {
             echo '<div class="comment">' . htmlspecialchars($comment['content']) . ' - <strong>' . htmlspecialchars($comment['author']) . '</strong>';
-            if ($_SESSION['user_id'] == $comment['user_id'] || $_SESSION['user_role'] === 'admin') {
+            if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $comment['user_id'] || $_SESSION['user_role'] === 'admin')) {
                 echo ' <form method="POST" action=""><input type="hidden" name="comment_id" value="' . $comment['id'] . '"><button type="submit" name="delete_comment">Delete</button></form>';
             }
             echo '</div>';
