@@ -81,8 +81,8 @@ function loadPostData(postId) {
         fetch('get_post_data.php?post_id=' + postId)
             .then(response => response.json())
             .then(data => {
-                document.getElementById('title').value = data.title;
-                document.getElementById('content').value = data.content;
+                document.getElementById('title').value = decodeHtmlEntities(data.title);
+                document.getElementById('content').value = decodeHtmlEntities(data.content);
                 // Handle thumbnail and other fields as needed
             });
     } else {
@@ -90,6 +90,12 @@ function loadPostData(postId) {
         document.getElementById('content').value = '';
         // Reset other fields as needed
     }
+}
+
+function decodeHtmlEntities(str) {
+    var textarea = document.createElement('textarea');
+    textarea.innerHTML = str;
+    return textarea.value;
 }
 </script>
 <?php include '../footer.php'; ?>

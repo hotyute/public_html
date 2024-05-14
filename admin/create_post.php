@@ -46,17 +46,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id']) && $_SES
         <input type="submit" value="Create Post">
     </form>
 </div>
-
-<?php
-// Fetch and display the post
-$stmt = $pdo->prepare("SELECT title, content FROM posts ORDER BY created_at DESC LIMIT 1");
-$stmt->execute();
-$post = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if ($post) {
-    $decoded_title = htmlspecialchars_decode($post['title']);
-    $decoded_content = htmlspecialchars_decode($post['content']);
-    echo "<h2>{$decoded_title}</h2>";
-    echo "<p>{$decoded_content}</p>";
-}
-?>
+<?php include '../footer.php'; ?>
