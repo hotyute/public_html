@@ -33,12 +33,12 @@ if ($post_id > 0) {
 
     if ($post) {
         echo '<div class="post-container">';
-        echo '<h1 class="post-title">' . htmlspecialchars($post['title']) . '</h1>';
-        echo '<h4 class="post-author">By ' . htmlspecialchars($post['author']) . ' | Views: ' . $post['views'] . '</h4>';
+        echo '<h1 class="post-title">' . htmlspecialchars_decode($post['title']) . '</h1>';
+        echo '<h4 class="post-author">By ' . htmlspecialchars_decode($post['author']) . ' | Views: ' . $post['views'] . '</h4>';
         if ($post['thumbnail']) {
             echo '<img src="' . $post['thumbnail'] . '" alt="Post Image" class="post-thumbnail">';
         }
-        echo '<div class="post-content">' . nl2br(htmlspecialchars($post['content'])) . '</div>';
+        echo '<div class="post-content">' . nl2br(htmlspecialchars_decode($post['content'])) . '</div>';
 
         if (isset($_SESSION['user_id'])) {
             echo '<form id="commentForm" class="comment-form">';
@@ -54,7 +54,7 @@ if ($post_id > 0) {
         $comments_stmt = $pdo->prepare("SELECT comments.id, comments.content, comments.user_id, users.displayname AS author FROM comments JOIN users ON comments.user_id = users.id WHERE comments.post_id = ?");
         $comments_stmt->execute([$post_id]);
         while ($comment = $comments_stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo '<div class="comment">' . htmlspecialchars($comment['content']) . ' - <strong>' . htmlspecialchars($comment['author']) . '</strong>';
+            echo '<div class="comment">' . htmlspecialchars_decode($comment['content']) . ' - <strong>' . htmlspecialchars_decode($comment['author']) . '</strong>';
             if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $comment['user_id'] || $_SESSION['user_role'] === 'admin')) {
                 echo ' <form method="POST" action=""><input type="hidden" name="comment_id" value="' . $comment['id'] . '"><button type="submit" name="delete_comment">Delete</button></form>';
             }
@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function() {
             alert('Please enter a comment.');
             return;
         }
-        
+
         const formData = new FormData();
         formData.append('comment', commentText);
         formData.append('user_id', <?php echo json_encode($_SESSION['user_id']); ?>);
@@ -101,13 +101,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (noCommentsMsg && noCommentsMsg.textContent === 'No Comments Yet.') {
                     commentsSection.removeChild(noCommentsMsg);
                 }
-                
+
                 // Create and append the new comment
                 const newComment = document.createElement('div');
                 newComment.classList.add('comment');
                 newComment.innerHTML = `${commentText} - <strong>You</strong>`;
                 commentsSection.appendChild(newComment);
-                
+
                 // Clear the textarea after successful submission
                 document.querySelector('#commentForm textarea').value = ''; 
             } else {
