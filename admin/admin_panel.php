@@ -17,6 +17,7 @@ include '../header.php';
         <ul>
             <li><a href="create_post.php">Create New Post</a></li>
             <li><a href="edit_post.php">Edit Post</a></li>
+            <li><a href="edit_video.php">Edit Video of the Week</a></li>
             <!-- Additional links for other admin tasks can be added here -->
         </ul>
     </div>
