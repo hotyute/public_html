@@ -1,11 +1,11 @@
 <?php
-session_start(); // Start the session to access session variables
-require '../includes/database.php';  // Ensure the database connection is available
+session_start();
+require '../includes/database.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id']) && $_SESSION['user_role'] === 'admin') {
     $title = htmlspecialchars($_POST['title']);
     $content = htmlspecialchars($_POST['content']);
-    $user_id = $_SESSION['user_id']; // Fetch the user_id from session
+    $user_id = $_SESSION['user_id'];
     $thumbnail = null;
 
     // Handle file upload
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id']) && $_SES
         echo "<p>Failed to add post.</p>";
     }
 } else {
-    echo "<p>Please login to submit posts.</p>"; // Prompt user to log in if session does not contain user_id
+    echo "<p>Please login to submit posts.</p>";
 }
 ?>
 
@@ -43,7 +43,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id']) && $_SES
         <textarea id="content" name="content" rows="10" required></textarea><br>
         <label for="thumbnail">Thumbnail:</label>
         <input type="file" id="thumbnail" name="thumbnail"><br>
-        <button type="submit">Add Post</button>
+        <input type="submit" value="Create Post">
     </form>
 </div>
-<?php include '../footer.php'; ?>
+
+<?php
+// Fetch and display the post
+$stmt = $pdo->prepare("SELECT title, content FROM posts ORDER BY created_at DESC LIMIT 1");
+$stmt->execute();
+$post = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if ($post) {
+    $decoded_title = htmlspecialchars_decode($post['title']);
+    $decoded_content = htmlspecialchars_decode($post['content']);
+    echo "<h2>{$decoded_title}</h2>";
+    echo "<p>{$decoded_content}</p>";
+}
+?>
