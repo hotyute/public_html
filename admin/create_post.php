@@ -15,10 +15,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id']) && $_SES
         if (move_uploaded_file($_FILES["thumbnail"]["tmp_name"], $target_file)) {
             $thumbnail = $target_file;
         } else {
-            echo "<p>Error: Failed to move uploaded file.</p>";
+            echo "<p>Error Thumbnail: Failed to move uploaded file.</p>";
         }
     } else {
-        echo "<p>Error: " . $_FILES['thumbnail']['error'] . "</p>";
+        echo "<p>Error Thumbnail: " . $_FILES['thumbnail']['error'] . "</p>";
     }
 
     // Prepare the SQL statement to include user_id
