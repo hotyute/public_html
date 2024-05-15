@@ -2,6 +2,8 @@
 <?php
 include(BASE_URL . 'includes/config.php'); // Database connection and other configuration
 include('header.php'); // Admin panel header
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
 // Check if admin is logged in
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
