@@ -79,7 +79,7 @@ include '../header.php';
 <script>
 function loadPostData(postId) {
     if (postId) {
-        fetch('/includes/posts/get_post_data.php?post_id=' + postId)
+        fetch('../includes/posts/get_post_data.php?post_id=' + postId)
             .then(response => response.json())
             .then(data => {
                 document.getElementById('title').value = decodeHtmlEntities(data.title);
