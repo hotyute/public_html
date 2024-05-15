@@ -1,5 +1,7 @@
 // admin/search_users.php
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 require_once '../../base_config.php';
 include('includes/config.php');
 include('includes/database.php');
