@@ -63,29 +63,6 @@
     border-radius: 10px; /* Rounded corners for a softer look */
     box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow for depth */
     transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions for hover effects */
-    height: 300px; /* Fixed height to ensure uniform size */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    overflow: hidden; /* Ensures content doesn't overflow */
-}
-
-.post-preview .title {
-    font-size: 1.2em; /* Adjust font size for title */
-    margin-bottom: 10px;
-    line-height: 1.4;
-}
-
-.post-preview .excerpt {
-    font-size: 1em; /* Adjust font size for excerpt */
-    line-height: 1.6;
-    flex-grow: 1; /* Allows the excerpt to take up remaining space */
-}
-
-.post-preview .meta {
-    font-size: 0.8em; /* Adjust font size for metadata */
-    color: #666;
-    margin-top: 10px;
 }
 
 .post-preview:hover {
