@@ -36,20 +36,14 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
 </div>
 
 <script>
+// JavaScript for handling search and user editing
 document.getElementById('searchForm').addEventListener('submit', function(event) {
     event.preventDefault();
     let query = document.getElementById('searchQuery').value;
 
     fetch(`/includes/users/search_users.php?query=${query}`)
-        .then(response => {
-            console.log('Response status:', response.status); // Log response status
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            console.log('Search results:', data); // Log the search results
             let resultsDiv = document.getElementById('searchResults');
             resultsDiv.innerHTML = '';
 
@@ -61,30 +55,17 @@ document.getElementById('searchForm').addEventListener('submit', function(event)
                 });
                 resultsDiv.appendChild(userDiv);
             });
-        })
-        .catch(error => {
-            console.error('There was a problem with the fetch operation:', error);
         });
 });
 
 function loadUserDetails(userId) {
     fetch(`/includes/users/get_user_details.php?id=${userId}`)
-        .then(response => {
-            console.log('Response status:', response.status); // Log response status
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            console.log('User details:', data); // Log the user details
             document.getElementById('userId').value = data.id;
             document.getElementById('displayName').value = data.displayname;
             document.getElementById('role').value = data.role;
             document.getElementById('userDetails').style.display = 'block';
-        })
-        .catch(error => {
-            console.error('There was a problem with the fetch operation:', error);
         });
 }
 
@@ -97,26 +78,15 @@ document.getElementById('editUserForm').addEventListener('submit', function(even
         method: 'POST',
         body: formData
     })
-    .then(response => {
-        console.log('Response status:', response.status); // Log response status
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        console.log('Update result:', data); // Log the update result
         if (data.success) {
             alert('User updated successfully');
         } else {
             alert('Failed to update user');
         }
-    })
-    .catch(error => {
-        console.error('There was a problem with the fetch operation:', error);
     });
 });
-
 </script>
 
 <?php
