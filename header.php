@@ -23,6 +23,7 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/style.css">
     
     <?php if ($current_page == 'index'): ?>
+        <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/post.css">
         <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/featuredvid.css">
     <?php endif; ?>
     
