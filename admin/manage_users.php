@@ -36,9 +36,9 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
 </div>
 
 <script>
+    console.log('JavaScript loaded.');
 // JavaScript for handling search and user editing
 document.getElementById('searchForm').addEventListener('submit', function(event) {
-    console.log('Hello:');
     event.preventDefault();
     let query = document.getElementById('searchQuery').value;
 
