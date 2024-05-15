@@ -2,7 +2,7 @@
 <?php
 require '../database.php';
 
-$searchQuery = '%' . $_GET['query'] . '%';
+$searchQuery = $_GET['query'];
 $results = null;
 
 $stmt = $pdo->prepare("SELECT id, username, displayname, role FROM users WHERE username = ? OR displayname = ?");
