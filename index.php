@@ -30,6 +30,7 @@
                 }
                 ?>
             </div>
+            <hr>
             <?php
             // Fetch the video link from a text file (or database)
             $video_link = '';
