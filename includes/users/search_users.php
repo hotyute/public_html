@@ -2,6 +2,8 @@
 <?php
 include('../../includes/database.php');
 
+echo 'hello';
+
 $searchQuery = '%' . $_GET['query'] . '%';
 
 $stmt = $pdo->prepare("SELECT id, username, displayname, role FROM users WHERE username LIKE ? OR displayname LIKE ?");
