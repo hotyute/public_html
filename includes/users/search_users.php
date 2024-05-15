@@ -1,8 +1,8 @@
 // admin/search_users.php
 <?php
-include('../../includes/database.php');
-
 echo 'hello';
+
+include('../database.php');
 
 $searchQuery = '%' . $_GET['query'] . '%';
 
