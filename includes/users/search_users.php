@@ -1,7 +1,8 @@
 // admin/search_users.php
 <?php
-include(BASE_URL . 'includes/config.php');
-include(BASE_URL . 'includes/database.php');
+require_once '../../base_config.php';
+include('includes/config.php');
+include('includes/database.php');
 
 $searchQuery = '%' . $_GET['query'] . '%';
 

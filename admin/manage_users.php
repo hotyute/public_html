@@ -7,7 +7,7 @@ include('includes/config.php'); // Database connection and other configuration
 
 // Check if admin is logged in
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
-    header('Location: login.php');
+    header('Location: /login.php');
     exit();
 }
 ?>
