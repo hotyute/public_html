@@ -4,10 +4,10 @@ require_once '../../base_config.php';
 include('includes/config.php');
 include('includes/database.php');
 
-$userId = $_GET['id'];
+$userName = $_GET['id'];
 
-$stmt = $pdo->prepare("SELECT id, displayname, role FROM users WHERE id = ?");
-$stmt->execute([$userId]);
+$stmt = $pdo->prepare("SELECT username, displayname, role FROM users WHERE id = ?");
+$stmt->execute([$userName]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 echo json_encode($user);
