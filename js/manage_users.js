@@ -2,7 +2,6 @@
 document.getElementById('searchForm').addEventListener('submit', function(event) {
     event.preventDefault();
     let query = document.getElementById('searchQuery').value;
-    alert("Working!");
 
     fetch(`/includes/users/search_users.php?query=${query}`)
         .then(response => response.json())
@@ -17,6 +16,7 @@ document.getElementById('searchForm').addEventListener('submit', function(event)
                     loadUserDetails(user.id);
                 });
                 resultsDiv.appendChild(userDiv);
+                alert(userDiv.innerHTML);
             });
         });
 });
