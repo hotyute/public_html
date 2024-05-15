@@ -9,6 +9,8 @@ document.getElementById('searchForm').addEventListener('submit', function(event)
             let resultsDiv = document.getElementById('searchResults');
             resultsDiv.innerHTML = '';
 
+            alert(resultsDiv.innerHTML);
+
             data.forEach(user => {
                 let userDiv = document.createElement('div');
                 userDiv.textContent = `${user.username} (${user.displayname})`;
@@ -16,7 +18,6 @@ document.getElementById('searchForm').addEventListener('submit', function(event)
                     loadUserDetails(user.id);
                 });
                 resultsDiv.appendChild(userDiv);
-                alert(userDiv.innerHTML);
             });
         });
 });
