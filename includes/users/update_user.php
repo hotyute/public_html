@@ -1,8 +1,6 @@
 // admin/update_user.php
 <?php
-require_once '../../base_config.php';
-include('includes/config.php');
-include('includes/database.php');
+include('../../includes/database.php');
 
 $userId = $_POST['id'];
 $displayName = $_POST['displayname'];

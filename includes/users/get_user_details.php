@@ -1,8 +1,6 @@
 // admin/get_user_details.php
 <?php
-require_once '../../base_config.php';
-include('includes/config.php');
-include('includes/database.php');
+include('../../includes/database.php');
 
 $userId = $_GET['id'];
 
