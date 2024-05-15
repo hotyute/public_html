@@ -1,5 +1,5 @@
 <?php
-require '../includes/database.php';
+require '../../includes/database.php';
 
 $post_id = $_GET['post_id'] ?? 0;
 $post = null;
