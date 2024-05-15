@@ -3,6 +3,7 @@
 require '../database.php';
 
 $searchQuery = '%' . $_GET['query'] . '%';
+$results = null;
 
 $stmt = $pdo->prepare("SELECT id, username, displayname, role FROM users WHERE username LIKE ? OR displayname LIKE ?");
 $stmt->execute([$searchQuery, $searchQuery]);
