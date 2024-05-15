@@ -2,10 +2,9 @@
 <?php
 require '../database.php';
 
-$searchQuery = $_GET['query'];
-$results = null;
+$searchQuery = '%' . $_GET['query'] . '%';
 
-$stmt = $pdo->prepare("SELECT id, username, displayname, role FROM users WHERE username = ? OR displayname = ?");
+$stmt = $pdo->prepare("SELECT id, username, displayname, role FROM users WHERE username LIKE ? OR displayname LIKE ?");
 $stmt->execute([$searchQuery, $searchQuery]);
 $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
