@@ -5,4 +5,6 @@ define('BASE_URL', '/'); // Adjust the path as needed depending on your server s
 
 // Define base directory path
 define('BASE_DIR', __DIR__ . '/');
+
+set_include_path(__DIR__);
 ?>
