@@ -1,3 +1,5 @@
+console.log('JavaScript loaded.');
+
 // JavaScript for handling search and user editing
 document.getElementById('searchForm').addEventListener('submit', function(event) {
     event.preventDefault();
