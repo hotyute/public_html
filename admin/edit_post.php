@@ -1,6 +1,7 @@
 <?php
 session_start();
-require '../includes/database.php';
+require_once '../base_config.php';
+require 'includes/database.php';
 
 // Fetch all posts for dropdown
 $stmt = $pdo->prepare("SELECT id, title, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') as formatted_date FROM posts ORDER BY created_at DESC");
