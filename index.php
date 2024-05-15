@@ -54,7 +54,7 @@
     <aside style="flex: 1; background-color: #f0f0f0; padding: 20px;">
         <h3>Sidebar Content</h3>
         <ul>
-            <li><a href="#">Link 1</a></li>
+            <li><a href="<?php echo BASE_URL; ?>archive.php">All Posts</a></li>
             <li><a href="#">Link 2</a></li>
             <li><a href="#">Link 3</a></li>
         </ul>
