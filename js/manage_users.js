@@ -1,9 +1,8 @@
-alert("Working!");
-
 // JavaScript for handling search and user editing
 document.getElementById('searchForm').addEventListener('submit', function(event) {
     event.preventDefault();
     let query = document.getElementById('searchQuery').value;
+    alert("Working!");
 
     fetch(`/includes/users/search_users.php?query=${query}`)
         .then(response => response.json())
