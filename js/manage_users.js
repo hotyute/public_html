@@ -10,6 +10,7 @@ document.getElementById('searchForm').addEventListener('submit', function(event)
             if (!response.ok) {
                 alert('Network response was not ok');
             }
+            alert('Network response was ok');
             return response.json();
         })
         .then(data => {
