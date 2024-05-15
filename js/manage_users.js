@@ -3,8 +3,6 @@ document.getElementById('searchForm').addEventListener('submit', function(event)
     event.preventDefault();
     let query = document.getElementById('searchQuery').value;
 
-    alert(query);
-
     fetch(`/includes/users/search_users.php?query=${query}`)
         .then(response => response.json())
         .then(data => {
