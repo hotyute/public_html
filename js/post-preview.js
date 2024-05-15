@@ -1,5 +1,3 @@
-console.log('JavaScript loaded.');
-
 function getCharacterCount(width, height) {
     // Define ranges for character count adjustment
     const minWidth = 320;
