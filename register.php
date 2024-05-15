@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <option value="member">Member</option>
             <option value="editor">Editor</option>
             <option value="admin">Admin</option>
-        </select>--><br>
+        </select><br>-->
         <button type="submit">Register</button>
     </form>
 </body>
