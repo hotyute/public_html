@@ -1,4 +1,4 @@
-console.assert(false, "Working!");
+alert("Working!");
 
 // JavaScript for handling search and user editing
 document.getElementById('searchForm').addEventListener('submit', function(event) {
