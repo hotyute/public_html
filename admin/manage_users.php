@@ -2,7 +2,7 @@
 <?php
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
-include('header.php'); // Admin panel header
+include('../header.php'); // Admin panel header
 include('includes/config.php'); // Database connection and other configuration
 
 // Check if admin is logged in
