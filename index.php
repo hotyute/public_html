@@ -48,16 +48,15 @@
         $video_link = trim(file_get_contents($video_file));
     }
     ?>
-</div>
-
-<!-- Featured Video of the Week -->
-<div class="featured-video">
-    <h2>Featured Video of the Week</h2>
-    <?php if (!empty($video_link)) : ?>
-        <iframe width="560" height="315" src="<?php echo $video_link; ?>" frameborder="0" allowfullscreen></iframe>
-    <?php else : ?>
-        <p>No featured video this week. Check back later!</p>
-    <?php endif; ?>
+    <!-- Featured Video of the Week -->
+    <div class="featured-video">
+        <h2>Featured Video of the Week</h2>
+        <?php if (!empty($video_link)) : ?>
+            <iframe width="560" height="315" src="<?php echo $video_link; ?>" frameborder="0" allowfullscreen></iframe>
+        <?php else : ?>
+            <p>No featured video this week. Check back later!</p>
+        <?php endif; ?>
+    </div>
 </div>
 
 <?php include 'footer.php'; ?>
