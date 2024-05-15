@@ -14,7 +14,7 @@ include '../header.php';
     <div class="admin-container">
         <h1>Admin Dashboard</h1>
         <p>Welcome to the admin dashboard. Use the links below to manage the site:</p>
-        <ul>
+        <ul class="admin-links">
             <li><a href="create_post.php">Create New Post</a></li>
             <li><a href="edit_post.php">Edit Post</a></li>
             <li><a href="edit_video.php">Edit Video of the Week</a></li>
