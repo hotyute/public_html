@@ -11,3 +11,6 @@
 <?php if ($current_page == 'index') : ?>
     <script src="<?php echo BASE_URL; ?>js/post-preview.js"></script>
 <?php endif; ?>
+<?php if ($current_page == 'manage_user') : ?>
+    <script src="<?php echo BASE_URL; ?>js/manage_user.js"></script>
+<?php endif; ?>
