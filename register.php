@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = htmlspecialchars($_POST['username']);
     $password = htmlspecialchars($_POST['password']);
     $displayname = htmlspecialchars($_POST['displayname']); // Sanitize the displayname
-    $role = htmlspecialchars($_POST['role']);
+    $role = "member";//htmlspecialchars($_POST['role']);
 
     // Check if the username already exists
     $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
@@ -48,12 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <input type="text" id="displayname" name="displayname" required><br>
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required><br>
-        <label for="role">Role:</label>
+        <!--<label for="role">Role:</label>
         <select id="role" name="role">
             <option value="member">Member</option>
             <option value="editor">Editor</option>
             <option value="admin">Admin</option>
-        </select><br>
+        </select>--><br>
         <button type="submit">Register</button>
     </form>
 </body>
