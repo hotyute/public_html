@@ -90,5 +90,5 @@ document.getElementById('editUserForm').addEventListener('submit', function(even
 </script>
 
 <?php
-include('footer.php'); // Admin panel footer
+include('../footer.php'); // Admin panel footer
 ?>
