@@ -26,6 +26,10 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
         <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/surplus.css">
         <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/featuredvid.css">
     <?php endif; ?>
+
+    <?php if ($current_page == 'login'): ?>
+        <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/surplus.css">
+    <?php endif; ?>
     
     <?php if ($current_page == 'admin_panel'): ?>
         <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/admin.css">
