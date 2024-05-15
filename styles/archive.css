@@ -1,0 +1,43 @@
+.archive-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.archive-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.archive-list a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+
+.archive-list a:hover {
+    text-decoration: underline;
+}
+
+.pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    padding: 10px 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin: 0 5px;
+    text-decoration: none;
+    color: #333;
+    background-color: #f9f9f9;
+}
+
+.pagination a:hover {
+    background-color: #f1f1f1;
+}
+
+form {
+    margin-bottom: 20px;
+}

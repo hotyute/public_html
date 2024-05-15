@@ -40,6 +40,10 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
         <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/surplus.css">
     <?php endif; ?>
 
+    <?php if ($current_page == 'archive'): ?>
+        <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/archive.css">
+    <?php endif; ?>
+
     <script src="<?php echo BASE_URL; ?>js/script.js"></script>
     <title>MyGospel Christian Website</title>
     <script>
