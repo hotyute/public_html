@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
         // Insert new user into the database including displayname
-        $insert_stmt = $pdo->prepare("INSERT INTO users (username, displayname, password, rights) VALUES (?, ?, ?, ?)");
+        $insert_stmt = $pdo->prepare("INSERT INTO users (username, displayname, password, role) VALUES (?, ?, ?, ?)");
         if ($insert_stmt->execute([$username, $displayname, $password_hash, $role])) {
             $success_message = "User registered successfully!";
         } else {

@@ -4,7 +4,7 @@ include('../database.php');
 
 $userId = $_GET['id'];
 
-$stmt = $pdo->prepare("SELECT id, displayname, rights FROM users WHERE id = ?");
+$stmt = $pdo->prepare("SELECT id, displayname, role FROM users WHERE id = ?");
 $stmt->execute([$userId]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
