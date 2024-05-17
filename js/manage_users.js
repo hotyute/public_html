@@ -42,8 +42,6 @@ document.getElementById('editUserForm').addEventListener('submit', function (eve
 
     //FormData uses the 'name' attribute to collect data 
     const formData = new FormData(this);
-    const values = [...formData.entries()];
-    console.log(values);
 
     fetch('/includes/users/update_user.php', {
         method: 'POST',

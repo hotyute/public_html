@@ -1,8 +1,8 @@
 <?php
 require '../database.php';
 
-$userId = $_POST['id'];
-$displayName = $_POST['displayname'];
+$userId = $_POST['userId'];
+$displayName = $_POST['displayName'];
 $role = $_POST['role'];
 
 $stmt = $pdo->prepare("UPDATE users SET displayname = ?, role = ? WHERE id = ?");
