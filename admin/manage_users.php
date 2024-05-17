@@ -28,7 +28,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
             <label for="role">Role:</label>
             <select id="role">
                 <option value="admin">Admin</option>
-                <option value="user">User</option>
+                <option value="editor">Editor</option>
+                <option value="member">Member</option>
             </select>
             <button type="submit">Update User</button>
         </form>
