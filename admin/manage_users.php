@@ -24,9 +24,9 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
         <form id="editUserForm">
             <input type="hidden" id="userId" name="userId">
             <label for="displayName">Display Name:</label>
-            <input type="text" id="displayName">
+            <input type="text" id="displayName" name="displayName">
             <label for="role">Role:</label>
-            <select id="role">
+            <select id="role" name="role">
                 <option value="admin">Admin</option>
                 <option value="editor">Editor</option>
                 <option value="member">Member</option>

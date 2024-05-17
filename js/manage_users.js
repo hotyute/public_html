@@ -40,6 +40,7 @@ function loadUserDetails(userId) {
 document.getElementById('editUserForm').addEventListener('submit', function (event) {
     event.preventDefault();
 
+    //FormData uses the 'name' attribute to collect data 
     const formData = new FormData(this);
     const values = [...formData.entries()];
     console.log(values);
