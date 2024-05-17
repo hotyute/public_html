@@ -23,7 +23,8 @@ document.getElementById('searchForm').addEventListener('submit', function (event
                 });
                 resultsDiv.appendChild(userDiv);
             });
-        });
+        })
+        .catch(error => console.error('There has been a problem with your fetch operation:', error));
 });
 
 function loadUserDetails(userId) {

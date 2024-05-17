@@ -1,4 +1,3 @@
-// admin/search_users.php
 <?php
 include('../database.php');
 
