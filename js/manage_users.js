@@ -43,7 +43,10 @@ document.getElementById('editUserForm').addEventListener('submit', function (eve
 
     let formData = new FormData(this);
 
-    alert(formData['id']);
+    // Log the values in FormData
+    for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+    }
 
     fetch('/includes/users/update_user.php', {
         method: 'POST',
@@ -56,5 +59,6 @@ document.getElementById('editUserForm').addEventListener('submit', function (eve
             } else {
                 alert('Failed to update user');
             }
-        });
+        })
+        .catch(error => console.error('Error:', error));;
 });
