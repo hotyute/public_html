@@ -12,7 +12,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
 }
 ?>
 
-<div class="container">
+<div class="admin-container">
     <h2>User Management</h2>
     <form id="searchForm">
         <input type="text" id="searchQuery" placeholder="Search by username or display name">
