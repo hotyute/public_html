@@ -1,19 +1,17 @@
-/* Add these styles to style.css if preferred */
-
 .userinfo {
     display: flex;
-    flex-direction: column; /* Aligns items in a column */
-    align-items: flex-end; /* Aligns items to the right */
-    width: 100%; /* Takes full width to push to the edge */
-    margin-top: 10px; /* Space between navigation links and user greeting/login link */
-    color: #ffd700; /* Gold color for differentiation */
+    flex-direction: column;
+    align-items: flex-end;
+    width: 100%;
+    margin-top: 10px;
+    color: #ffd700;
 }
 
 nav {
     background-color: #333;
     overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Added shadowing */
-    background: linear-gradient(to bottom, #444 0%, #222 100%); /* Gradient for glossy look */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(to bottom, #444 0%, #222 100%);
     border-top: 1px solid rgba(255, 255, 255, 0.2);
     border-bottom: 1px solid rgba(0, 0, 0, 0.2);
     position: relative;
@@ -55,20 +53,19 @@ nav ul li a, nav ul li button.auth-button {
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
-    font-weight: bold; /* Added font weight */
-    position: relative; /* For z-index */
+    font-weight: bold;
+    position: relative;
     z-index: 2;
-    text-shadow: 1px 1px 5px rgba(100, 100, 100, 0.5); /* Added bright text shadow */
-    background: linear-gradient(to top, #ffffff, #cccccc); /* Brighter glossy text look */
+    text-shadow: 1px 1px 5px rgba(100, 100, 100, 0.5);
+    background: linear-gradient(to top, #ffffff, #cccccc);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 nav ul li a:hover, nav ul li button.auth-button:hover {
-    background-color: #111;
-    color: #ffd700 !important; /* Change text color on hover for contrast */
-    text-shadow: 2px 2px 8px rgba(100, 100, 100, 0.7) !important; /* Increased and brightened text shadow on hover */
-    z-index: 3; /* Ensure hover state is on top */
+    background-color: #111 !important;
+    color: #ffd700 !important;
+    text-shadow: 2px 2px 8px rgba(100, 100, 100, 0.7) !important;
 }
 
 @media screen and (max-width: 768px) {
@@ -83,15 +80,15 @@ nav ul li a:hover, nav ul li button.auth-button:hover {
     }
 
     nav ul {
-        display: block; /* Ensures that the ul is always block but hidden */
+        display: block;
         overflow: hidden;
         max-height: 0;
         transition: max-height 2s ease-out;
-        width: 100%; /* Full width */
+        width: 100%;
     }
 
     nav ul.open {
-        max-height: 100%; /* Max height large enough to show all content when open */
+        max-height: 100%;
     }
 
     nav ul li {
