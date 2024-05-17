@@ -47,6 +47,12 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
     <?php if ($current_page == 'archive') : ?>
         <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/archive.css">
     <?php endif; ?>
+
+    <?php if ($current_page == 'manage_users') : ?>
+        <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/surplus.css">
+        <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/manage_users.css">
+    <?php endif; ?>
+
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/header.css">
 
     <script src="<?php echo BASE_URL; ?>js/script.js"></script>
