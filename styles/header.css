@@ -49,7 +49,7 @@ nav ul li {
 
 nav ul li a, nav ul li button.auth-button {
     display: block;
-    color: white;
+    color: rgb(44, 43, 43);
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
@@ -64,7 +64,7 @@ nav ul li a, nav ul li button.auth-button {
 }
 
 nav ul li a:hover, nav ul li button.auth-button:hover {
-    background-color: #f9f8f8;
+    background-color: #111;
     color: #6e5e00;
     text-shadow: 2px 2px 8px rgba(100, 100, 100, 0.7);
     -webkit-background-clip: initial;
