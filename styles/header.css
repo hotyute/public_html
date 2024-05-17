@@ -44,6 +44,10 @@ nav ul li a, nav ul li button.auth-button {
     font-weight: bold;
     position: relative;
     z-index: 2;
+    text-shadow: 1px 1px 5px rgba(100, 100, 100, 0.5);
+    background: linear-gradient(to top, #ffffff, #cccccc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 nav ul li a:hover, nav ul li button.auth-button:hover {
@@ -51,6 +55,7 @@ nav ul li a:hover, nav ul li button.auth-button:hover {
     color: #ffd700;
     text-shadow: 2px 2px 8px rgba(100, 100, 100, 0.7);
 }
+
 
 @media screen and (max-width: 768px) {
     nav ul li {
