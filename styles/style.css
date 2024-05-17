@@ -25,15 +25,6 @@ nav ul.nav-links {
     margin: 0 auto; /* Keeps nav links centered */
 }
 
-.userinfo {
-    display: flex;
-    flex-direction: column; /* Aligns items in a column */
-    align-items: flex-end; /* Aligns items to the right */
-    width: 100%; /* Takes full width to push to the edge */
-    margin-top: 10px; /* Space between navigation links and user greeting/login link */
-    color: #ffd700; /* Gold color for differentiation */
-}
-
 nav ul li {
     display: block; /* Changes display to block to stack items vertically */
     margin-right: 10px;

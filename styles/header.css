@@ -1,4 +1,14 @@
 /* Add these styles to style.css if preferred */
+
+.userinfo {
+    display: flex;
+    flex-direction: column; /* Aligns items in a column */
+    align-items: flex-end; /* Aligns items to the right */
+    width: 100%; /* Takes full width to push to the edge */
+    margin-top: 10px; /* Space between navigation links and user greeting/login link */
+    color: #ffd700; /* Gold color for differentiation */
+}
+
 nav {
     background-color: #333;
     overflow: hidden;
