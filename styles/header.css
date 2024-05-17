@@ -49,7 +49,7 @@ nav ul li {
 
 nav ul li a, nav ul li button.auth-button {
     display: block;
-    color: rgb(1, 1, 1);
+    color: white;
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
