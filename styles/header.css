@@ -11,22 +11,10 @@ nav {
     background-color: #333;
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    background: linear-gradient(to bottom, #444 0%, #222 100%);
     border-top: 1px solid rgba(255, 255, 255, 0.2);
     border-bottom: 1px solid rgba(0, 0, 0, 0.2);
     position: relative;
     z-index: 1;
-}
-
-nav:before {
-    content: "";
-    display: block;
-    height: 4px;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
 }
 
 nav ul {
@@ -56,16 +44,12 @@ nav ul li a, nav ul li button.auth-button {
     font-weight: bold;
     position: relative;
     z-index: 2;
-    text-shadow: 1px 1px 5px rgba(100, 100, 100, 0.5);
-    background: linear-gradient(to top, #ffffff, #cccccc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
 }
 
 nav ul li a:hover, nav ul li button.auth-button:hover {
-    background-color: #111 !important;
-    color: #ffd700 !important;
-    text-shadow: 2px 2px 8px rgba(100, 100, 100, 0.7) !important;
+    background-color: #111;
+    color: #ffd700;
+    text-shadow: 2px 2px 8px rgba(100, 100, 100, 0.7);
 }
 
 @media screen and (max-width: 768px) {
