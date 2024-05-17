@@ -6,7 +6,7 @@ document.getElementById('searchForm').addEventListener('submit', function (event
     fetch(`/includes/users/search_users.php?query=${query}`)
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                alert('Network response was not ok');
             }
             return response.json();
         })
