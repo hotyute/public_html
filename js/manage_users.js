@@ -42,6 +42,12 @@ document.getElementById('editUserForm').addEventListener('submit', function (eve
 
     let formData = new FormData(this);
 
+    // Log form elements and their values
+    let formElements = document.getElementById('editUserForm').elements;
+    for (let element of formElements) {
+        console.log(`${element.name}: ${element.value}`);
+    }
+
     // Log the values in FormData
     for (let [key, value] of formData.entries()) {
         console.log(`${key}: ${value}`);
