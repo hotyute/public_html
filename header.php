@@ -31,7 +31,7 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
         <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/surplus.css">
     <?php endif; ?>
 
-    <?php if (($current_page == 'admin_panel') || ($current_page ==  'edit_post') || ($current_page == 'create_post')): ?>
+    <?php if (($current_page == 'admin_panel') || ($current_page ==  'edit_post') || ($current_page == 'create_post')) : ?>
         <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/admin.css">
     <?php endif; ?>
 
@@ -60,7 +60,7 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
 </head>
 
 <body>
-<header style="background-image: url('<?php echo BASE_URL; ?>images/banner.jpg'); background-repeat: no-repeat; background-size: cover;">
+    <header style="background-image: url('<?php echo BASE_URL; ?>images/banner.jpg'); background-repeat: no-repeat; background-size: cover;">
         <div class="hamburger">☰</div> <!-- Hamburger Icon -->
         <h1>Welcome to Our Christian Community</h1>
         <nav>
@@ -71,13 +71,13 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
                 <?php endif; ?>
                 <li><a href="<?php echo BASE_URL; ?>contact.php">Contact Us</a></li>
             </ul>
-            <ul class="auth">
-                <?php if (isset($_SESSION['username'])) : ?>
-                    <li><span>Hello, <?php echo $_SESSION['username']; ?></span></li>
-                    <li><button class="auth-button" onclick="logout()">Logout</button></li> <!-- Styled Logout Button -->
-                <?php else : ?>
-                    <li><button class="auth-button" onclick="window.location.href='<?php echo BASE_URL; ?>login.php'">Login</button></li> <!-- Styled Login Button -->
-                <?php endif; ?>
-            </ul>
         </nav>
+        <ul class="auth">
+            <?php if (isset($_SESSION['username'])) : ?>
+                <li><span>Hello, <?php echo $_SESSION['username']; ?></span></li>
+                <li><button class="auth-button" onclick="logout()">Logout</button></li> <!-- Styled Logout Button -->
+            <?php else : ?>
+                <li><button class="auth-button" onclick="window.location.href='<?php echo BASE_URL; ?>login.php'">Login</button></li> <!-- Styled Login Button -->
+            <?php endif; ?>
+        </ul>
     </header>
