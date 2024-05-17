@@ -14,22 +14,6 @@ header, footer {
     padding: 20px 0;
 }
 
-nav ul {
-    list-style: none;
-    padding: 0;
-}
-
-nav ul.nav-links {
-    display: flex;
-    justify-content: center;
-    margin: 0 auto; /* Keeps nav links centered */
-}
-
-nav ul li {
-    display: block; /* Changes display to block to stack items vertically */
-    margin-right: 10px;
-}
-
 a {
     color: #0044cc;
     text-decoration: none;
@@ -123,39 +107,10 @@ hr::after {
         font-size: 1.5em;
     }
 
-    nav a {
-        padding: 5px 10px;
-    }
-
-    nav ul.nav-links, nav ul.auth {
-        flex-direction: column;
-        text-align: center;
-    }
-
     .hamburger {
         display: block;
         cursor: pointer;
         font-size: 30px; /* Adjust size as needed */
-    }
-
-    nav ul {
-        display: block; /* Ensures that the ul is always block but hidden */
-        overflow: hidden;
-        max-height: 0;
-        transition: max-height 2s ease-out;
-        position: absolute;
-        top: 60px;
-        z-index: 1000;
-        width: 100%; /* Full width */
-    }
-
-    nav ul.open {
-        max-height: 100%; /* Max height large enough to show all content when open */
-    }
-
-    nav ul li {
-        display: block;
-        text-align: center;
     }
 
     button.auth-button {
@@ -171,15 +126,6 @@ hr::after {
 
     h1, h2, h3 {
         font-size: 1.2em;
-    }
-
-    nav {
-        flex-direction: column;
-    }
-
-    nav a {
-        padding: 10px;
-        text-align: center;
     }
 
     .login-form form {
@@ -209,14 +155,5 @@ hr::after {
     
     .hamburger {
         display: block;
-    }
-    
-    nav ul {
-        display: none;
-    }
-
-    nav ul li {
-        display: block;
-        text-align: center;
     }
 }
