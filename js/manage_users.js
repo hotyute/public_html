@@ -11,7 +11,6 @@ document.getElementById('searchForm').addEventListener('submit', function (event
             return response.json();
         })
         .then(data => {
-            console.log('Search results:', data);
             let resultsDiv = document.getElementById('searchResults');
             resultsDiv.innerHTML = '';
 
