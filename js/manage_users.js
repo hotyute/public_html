@@ -3,7 +3,7 @@ document.getElementById('searchForm').addEventListener('submit', function (event
     event.preventDefault();
     let query = document.getElementById('searchQuery').value;
 
-    fetch(`/includes/users/search_users.php?query=${query}`)
+    fetch(`../includes/users/search_users.php?query=${query}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
