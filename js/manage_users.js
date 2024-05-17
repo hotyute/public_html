@@ -40,7 +40,7 @@ function loadUserDetails(userId) {
 document.getElementById('editUserForm').addEventListener('submit', function (event) {
     event.preventDefault();
 
-    let formData = new FormData(document.getElementById('editUserForm'));
+    const formData = new FormData(this);
     const values = [...formData.entries()];
     console.log(values);
 
