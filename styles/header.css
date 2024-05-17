@@ -57,7 +57,7 @@ nav ul li a, nav ul li button.auth-button {
     position: relative;
     z-index: 2;
     text-shadow: 1px 1px 5px rgba(100, 100, 100, 0.5);
-    background: linear-gradient(to top, #ffffff, #cccccc);
+    background: linear-gradient(to top, #d4d4d4, #888787);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     transition: all 0.3s ease; /* Smooth transition */
