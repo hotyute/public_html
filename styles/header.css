@@ -68,6 +68,7 @@ nav ul li a:hover, nav ul li button.auth-button:hover {
     background-color: #111;
     color: #ffd700; /* Change text color on hover for contrast */
     text-shadow: 2px 2px 8px rgba(100, 100, 100, 0.7); /* Increased and brightened text shadow on hover */
+    z-index: 3; /* Ensure hover state is on top */
 }
 
 @media screen and (max-width: 768px) {
