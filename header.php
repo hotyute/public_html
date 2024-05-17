@@ -74,10 +74,10 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
         </nav>
         <div class="userinfo">
             <?php if (isset($_SESSION['username'])) : ?>
-                <li><span>Hello, <?php echo $_SESSION['username']; ?></span></li>
-                <li><button class="auth-button" onclick="logout()">Logout</button></li> <!-- Styled Logout Button -->
+                <span>Hello, <?php echo $_SESSION['username']; ?></span>
+                <button class="auth-button" onclick="logout()">Logout</button> <!-- Styled Logout Button -->
             <?php else : ?>
-                <li><button class="auth-button" onclick="window.location.href='<?php echo BASE_URL; ?>login.php'">Login</button></li> <!-- Styled Login Button -->
+                <button class="auth-button" onclick="window.location.href='<?php echo BASE_URL; ?>login.php'">Login</button> <!-- Styled Login Button -->
             <?php endif; ?>
         </div>
     </header>
