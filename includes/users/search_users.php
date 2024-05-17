@@ -1,5 +1,5 @@
 <?php
-include('../database.php');
+require '../database.php';
 
 $searchQuery = '%' . $_GET['query'] . '%';
 $response = [];

@@ -1,5 +1,5 @@
 <?php
-include('../database.php');
+require '../database.php';
 
 $userId = $_POST['id'];
 $displayName = $_POST['displayname'];
