@@ -59,7 +59,7 @@ nav ul li a:hover, nav ul li button.auth-button:hover {
     background-color: #111;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 768px) {
     nav ul li {
         float: none;
     }
@@ -67,6 +67,26 @@ nav ul li a:hover, nav ul li button.auth-button:hover {
     nav ul.nav-links, nav ul.auth {
         float: none;
         width: 100%;
+        text-align: center;
+    }
+
+    nav ul {
+        display: block; /* Ensures that the ul is always block but hidden */
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 2s ease-out;
+        position: absolute;
+        top: 60px;
+        z-index: 1000;
+        width: 100%; /* Full width */
+    }
+
+    nav ul.open {
+        max-height: 100%; /* Max height large enough to show all content when open */
+    }
+
+    nav ul li {
+        display: block;
         text-align: center;
     }
 }
