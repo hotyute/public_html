@@ -43,6 +43,8 @@ document.getElementById('editUserForm').addEventListener('submit', function (eve
 
     let formData = new FormData(this);
 
+    alert(formData['id']);
+
     fetch('/includes/users/update_user.php', {
         method: 'POST',
         body: formData
