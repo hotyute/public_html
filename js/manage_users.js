@@ -3,7 +3,7 @@ document.getElementById('searchForm').addEventListener('submit', function (event
     event.preventDefault();
     let query = document.getElementById('searchQuery').value;
 
-    fetch(`../includes/users/search_users.php?query=${query}`)
+    fetch(`/includes/users/search_users.php?query=${query}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -24,7 +24,10 @@ document.getElementById('searchForm').addEventListener('submit', function (event
                 resultsDiv.appendChild(userDiv);
             });
         })
-        .catch(error => console.error('There has been a problem with your fetch operation:', error));
+        .catch(error => {
+            console.error('There has been a problem with your fetch operation:', error);
+            console.error('Full error details:', error);
+          });
 });
 
 function loadUserDetails(userId) {
