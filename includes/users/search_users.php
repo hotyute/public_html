@@ -1,14 +1,20 @@
 // admin/search_users.php
 <?php
-require '../database.php';
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+include('../database.php');
 
-$searchQuery = $_GET['query'];
+$searchQuery = '%' . $_GET['query'] . '%';
+$response = [];
 
-$stmt = $pdo->prepare("SELECT id, username, displayname, role FROM users WHERE username = ?");
-$stmt->execute([$searchQuery]);
+$stmt = $pdo->prepare("SELECT id, username, displayname, role FROM users WHERE username LIKE ? OR displayname LIKE ?");
+$stmt->execute([$searchQuery, $searchQuery]);
 $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+if ($results) {
+    $response = $results;
+} else {
+    $response['error'] = 'No results found';
+}
+
+header('Content-Type: application/json');
 echo json_encode($results);
 ?>
