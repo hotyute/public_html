@@ -1,6 +1,8 @@
 // admin/search_users.php
 <?php
 require '../database.php';
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
 $searchQuery = $_GET['query'];
 
