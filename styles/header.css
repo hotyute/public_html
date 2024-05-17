@@ -58,7 +58,7 @@ nav ul li a, nav ul li button.auth-button {
     font-weight: bold; /* Added font weight */
     position: relative; /* For z-index */
     z-index: 2;
-    text-shadow: 1px 1px 5px rgba(255, 255, 255, 0.8); /* Added bright text shadow */
+    text-shadow: 1px 1px 5px rgba(203, 201, 201, 0.8); /* Added bright text shadow */
     background: linear-gradient(to top, #ffffff, #cccccc); /* Brighter glossy text look */
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -67,7 +67,7 @@ nav ul li a, nav ul li button.auth-button {
 nav ul li a:hover, nav ul li button.auth-button:hover {
     background-color: #111;
     color: #ffd700; /* Change text color on hover for contrast */
-    text-shadow: 2px 2px 8px rgba(255, 255, 255, 1); /* Increased and brightened text shadow on hover */
+    text-shadow: 2px 2px 8px rgb(213, 212, 212); /* Increased and brightened text shadow on hover */
 }
 
 @media screen and (max-width: 768px) {
