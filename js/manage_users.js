@@ -6,7 +6,7 @@ document.getElementById('searchForm').addEventListener('submit', function (event
     fetch(`/includes/users/search_users.php?query=${query}`)
         .then(response => {
             if (!response.ok) {
-                alert('Network response was not ok');
+                throw new Error('Network response was not ok');
             }
             return response.json();
         })
@@ -23,7 +23,8 @@ document.getElementById('searchForm').addEventListener('submit', function (event
                 });
                 resultsDiv.appendChild(userDiv);
             });
-        });
+        })
+        .catch(error => console.error('There has been a problem with your fetch operation:', error));
 });
 
 function loadUserDetails(userId) {
