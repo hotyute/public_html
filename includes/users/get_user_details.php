@@ -1,4 +1,3 @@
-// admin/get_user_details.php
 <?php
 include('../database.php');
 

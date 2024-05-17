@@ -1,4 +1,3 @@
-// admin/update_user.php
 <?php
 include('../database.php');
 
