@@ -25,7 +25,7 @@ nav ul.nav-links {
     margin: 0 auto; /* Keeps nav links centered */
 }
 
-nav ul.auth {
+.userinfo {
     display: flex;
     flex-direction: column; /* Aligns items in a column */
     align-items: flex-end; /* Aligns items to the right */

@@ -72,12 +72,12 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
                 <li><a href="<?php echo BASE_URL; ?>contact.php">Contact Us</a></li>
             </ul>
         </nav>
-        <ul class="auth">
+        <div class="userinfo">
             <?php if (isset($_SESSION['username'])) : ?>
                 <li><span>Hello, <?php echo $_SESSION['username']; ?></span></li>
                 <li><button class="auth-button" onclick="logout()">Logout</button></li> <!-- Styled Logout Button -->
             <?php else : ?>
                 <li><button class="auth-button" onclick="window.location.href='<?php echo BASE_URL; ?>login.php'">Login</button></li> <!-- Styled Login Button -->
             <?php endif; ?>
-        </ul>
+        </div>
     </header>
