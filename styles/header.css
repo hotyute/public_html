@@ -74,7 +74,6 @@ nav ul li a:hover, nav ul li button.auth-button:hover {
         display: block; /* Ensures that the ul is always block but hidden */
         overflow: hidden;
         max-height: 0;
-        transition: max-height 2s ease-out;
         position: absolute;
         z-index: 1000;
         width: 100%; /* Full width */
