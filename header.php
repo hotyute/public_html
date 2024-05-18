@@ -68,7 +68,7 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
 <body>
     <header style="background-image: url('<?php echo BASE_URL; ?>images/banner.jpg'); background-repeat: no-repeat; background-size: cover;">
         <div class="hamburger">☰</div> <!-- Hamburger Icon -->
-        <h1>Welcome to Our Christian Community</h1>
+        <h1>Welcome to the Divine Word Community</h1>
         <nav>
             <ul class="nav-links">
                 <li><a href="<?php echo BASE_URL; ?>index.php">Home</a></li>
