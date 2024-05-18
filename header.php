@@ -56,7 +56,7 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/header.css">
 
     <script src="<?php echo BASE_URL; ?>js/script.js"></script>
-    <title>MyGospel Christian Website</title>
+    <title>Divine Word</title>
     <script>
         // Function to handle logout redirection
         function logout() {
