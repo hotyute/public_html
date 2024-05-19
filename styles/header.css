@@ -53,7 +53,7 @@ header {
 }
 
 .logo img {
-    text-align: left;
+    align: left;
     width: 300px; /* Adjust size as needed */
     height: auto;
 }
