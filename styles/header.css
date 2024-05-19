@@ -53,13 +53,15 @@ header {
 }
 
 .logo img {
-    align: left;
-    width: 300px; /* Adjust size as needed */
+    float: left;
+    width: 300px;
+    /* Adjust size as needed */
     height: auto;
 }
 
 
-nav ul li a, nav ul li button.auth-button {
+nav ul li a,
+nav ul li button.auth-button {
     display: block;
     color: white;
     text-align: center;
@@ -73,10 +75,12 @@ nav ul li a, nav ul li button.auth-button {
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    transition: all 0.3s ease; /* Smooth transition */
+    transition: all 0.3s ease;
+    /* Smooth transition */
 }
 
-nav ul li a:hover, nav ul li button.auth-button:hover {
+nav ul li a:hover,
+nav ul li button.auth-button:hover {
     background-color: #111;
     color: #ffd700;
     text-shadow: 2px 2px 8px rgba(100, 100, 100, 0.7);
@@ -90,7 +94,8 @@ nav ul li a:hover, nav ul li button.auth-button:hover {
         float: none;
     }
 
-    nav ul.nav-links, nav ul.auth {
+    nav ul.nav-links,
+    nav ul.auth {
         float: none;
         width: 100%;
         text-align: center;
