@@ -50,15 +50,15 @@ nav ul li {
 header {
     position: relative;
     padding: 10px;
-    display: flex;
-    align-items: center;
     background-size: cover;
     background-repeat: no-repeat;
 }
 
 .logo {
-    float: left;
-    margin-right: 20px;
+    display: block;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 20px; /* Add some space below the logo if needed */
 }
 
 .logo img {
