@@ -47,21 +47,14 @@ nav ul li {
     float: left;
 }
 
-/* Ensure the header is correctly formatted */
 header {
     position: relative;
     padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-size: cover;
-    background-repeat: no-repeat;
 }
 
 .logo {
-    display: block;
-    text-align: center;
-    margin: 0 auto;
+    float: left;
+    margin-right: 20px;
 }
 
 .logo img {
