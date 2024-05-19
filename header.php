@@ -66,31 +66,27 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
 </head>
 
 <body>
-    <header style="background-image: url('<?php echo BASE_URL; ?>images/banner.jpg'); background-repeat: no-repeat; background-size: cover; padding: 10px;">
-        <div class="header-container">
-            <div class="logo">
-                <img src="<?php echo BASE_URL; ?>images/logo.png" alt="Logo">
-            </div>
-            <div class="header-content">
-                <div class="hamburger">☰</div> <!-- Hamburger Icon -->
-                <h1>Welcome to the Divine Word Community</h1>
-                <nav>
-                    <ul class="nav-links">
-                        <li><a href="<?php echo BASE_URL; ?>index.php">Home</a></li>
-                        <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') : ?>
-                            <li><a href="<?php echo BASE_URL; ?>admin/admin_panel.php">Admin</a></li>
-                        <?php endif; ?>
-                        <li><a href="<?php echo BASE_URL; ?>contact.php">Contact Us</a></li>
-                    </ul>
-                </nav>
-                <div class="userinfo">
-                    <?php if (isset($_SESSION['username'])) : ?>
-                        <span>Hello, <?php echo $_SESSION['username']; ?></span>
-                        <button class="auth-button" onclick="logout()">Logout</button> <!-- Styled Logout Button -->
-                    <?php else : ?>
-                        <button class="auth-button" onclick="window.location.href='<?php echo BASE_URL; ?>login.php'">Login</button> <!-- Styled Login Button -->
-                    <?php endif; ?>
-                </div>
-            </div>
+    <header style="background-image: url('<?php echo BASE_URL; ?>images/banner.jpg'); background-repeat: no-repeat; background-size: cover;">
+        <div class="logo">
+            <img src="<?php echo BASE_URL; ?>images/logo.png" alt="Logo">
+        </div>
+        <div class="hamburger">☰</div> <!-- Hamburger Icon -->
+        <h1>Welcome to the Divine Word Community</h1>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="<?php echo BASE_URL; ?>index.php">Home</a></li>
+                <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') : ?>
+                    <li><a href="<?php echo BASE_URL; ?>admin/admin_panel.php">Admin</a></li>
+                <?php endif; ?>
+                <li><a href="<?php echo BASE_URL; ?>contact.php">Contact Us</a></li>
+            </ul>
+        </nav>
+        <div class="userinfo">
+            <?php if (isset($_SESSION['username'])) : ?>
+                <span>Hello, <?php echo $_SESSION['username']; ?></span>
+                <button class="auth-button" onclick="logout()">Logout</button> <!-- Styled Logout Button -->
+            <?php else : ?>
+                <button class="auth-button" onclick="window.location.href='<?php echo BASE_URL; ?>login.php'">Login</button> <!-- Styled Login Button -->
+            <?php endif; ?>
         </div>
     </header>

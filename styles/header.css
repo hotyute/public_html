@@ -47,22 +47,15 @@ nav ul li {
     float: left;
 }
 
-.header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+header {
+    position: relative;
+    padding: 10px;
 }
 
 .logo img {
-    width: 150px; /* Adjust size as needed */
+    text-align: left;
+    width: 300px; /* Adjust size as needed */
     height: auto;
-}
-
-.header-content {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    align-items: center;
 }
 
 
