@@ -66,7 +66,7 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
 </head>
 
 <body>
-    <header style="background-image: url('<?php echo BASE_URL; ?>images/banner.jpg'); background-repeat: no-repeat; background-size: cover;">
+    <header style="background-image: url('<?php echo BASE_URL; ?>images/banner.jpg');">
         <div class="logo">
             <img src="<?php echo BASE_URL; ?>images/logo.png" alt="Logo">
         </div>
