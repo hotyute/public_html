@@ -124,4 +124,8 @@ nav ul li button.auth-button:hover {
         display: block;
         text-align: center;
     }
+
+    header {
+        text-align: center;
+    }
 }
