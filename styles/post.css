@@ -44,7 +44,7 @@
 }
 
 /* Responsive Image Styling */
-img {
+.post-container img {
     max-width: 256px;
     height: auto;
     margin: auto;
