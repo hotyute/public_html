@@ -52,11 +52,13 @@ header {
     padding: 10px;
 }
 
-.logo img {
-    display: block;
+.logo {
     float: left;
-    width: 300px;
-    /* Adjust size as needed */
+    margin-right: 20px;
+}
+
+.logo img {
+    width: 300px; /* Adjust size as needed */
     height: auto;
 }
 
