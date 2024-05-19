@@ -54,9 +54,7 @@ header {
 
 .logo img {
     width: 300px; /* Adjust size as needed */
-    position: absolute;
-    top: 10px;
-    left: 10px;
+    height: auto;
 }
 
 
