@@ -70,6 +70,7 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
         <div class="logo">
             <img src="<?php echo BASE_URL; ?>images/logo.png" alt="Logo">
         </div>
+        <br>
         <div class="hamburger">☰</div> <!-- Hamburger Icon -->
         <h1>Welcome to the Divine Word Community</h1>
         <nav>
