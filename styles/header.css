@@ -53,6 +53,7 @@ header {
 }
 
 .logo img {
+    display: block;
     float: left;
     width: 300px;
     /* Adjust size as needed */
