@@ -50,6 +50,10 @@ nav ul li {
 header {
     position: relative;
     padding: 10px;
+    display: flex;
+    align-items: center;
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 
 .logo {
