@@ -25,14 +25,26 @@
 }
 
 .sidebar li {
-    margin-bottom: 10px; /* Add some space between list items */
+    margin-bottom: 15px; /* Add some space between list items */
+    display: flex; /* Use flexbox to align thumbnail and text */
+    align-items: center; /* Center align the items */
 }
 
 .sidebar a {
     color: #007bff; /* Link color */
     text-decoration: none;
+    font-weight: bold; /* Make the link text bold */
+    display: block; /* Ensure the link is block level */
+    margin-left: 10px; /* Space between thumbnail and text */
 }
 
 .sidebar a:hover {
     text-decoration: underline; /* Underline on hover */
+}
+
+.sidebar img.thumbnail {
+    width: 50px; /* Set thumbnail width */
+    height: 50px; /* Set thumbnail height */
+    object-fit: cover; /* Ensure image covers the thumbnail area */
+    border-radius: 5px; /* Slightly rounded corners */
 }

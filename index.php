@@ -1,4 +1,25 @@
 <?php include 'header.php'; ?>
+
+<?php
+$sidebarLinks = [
+    [
+        'url' => BASE_URL . 'archive.php',
+        'text' => 'All Posts',
+        'thumbnail' => '/images/ALL_POSTS_thumb.png'
+    ],
+    [
+        'url' => '#',
+        'text' => 'Link 2',
+        'thumbnail' => ''
+    ],
+    [
+        'url' => '#',
+        'text' => 'Link 3',
+        'thumbnail' => ''
+    ]
+];
+?>
+
 <div class="main-container">
     <main>
         <section>
@@ -54,9 +75,12 @@
     <aside class="sidebar">
         <h3>Sidebar Content</h3>
         <ul>
-            <li><a href="<?php echo BASE_URL; ?>archive.php">All Posts</a></li>
-            <li><a href="#">Link 2</a></li>
-            <li><a href="#">Link 3</a></li>
+            <?php foreach ($sidebarLinks as $link) : ?>
+                <li>
+                    <img src="<?php echo $link['thumbnail']; ?>" alt="<?php echo $link['text']; ?>" class="thumbnail">
+                    <a href="<?php echo $link['url']; ?>"><?php echo $link['text']; ?></a>
+                </li>
+            <?php endforeach; ?>
         </ul>
     </aside>
 </div>
