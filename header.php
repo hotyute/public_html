@@ -25,6 +25,7 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
     <?php if ($current_page == 'index') : ?>
         <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/surplus.css">
         <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/featuredvid.css">
+        <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/sidebar.css">
     <?php endif; ?>
 
     <?php if ($current_page == 'login') : ?>
