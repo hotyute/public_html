@@ -23,7 +23,7 @@
                     }
                     echo '<h3>' . htmlspecialchars_decode($post['title']) . '</h3>';
                     echo '<p>By ' . htmlspecialchars_decode($post['author']) . '</p>';
-                    echo '<div class="content-preview" data-content="' . htmlspecialchars_decode($post['content']) . '"></div>';
+                    echo '<div class="content-preview" data-content="' . htmlspecialchars($post['content']) . '"></div>';
                     echo '<p class="comment-count">' . $post['comment_count'] . ' Comments</p>';
                     echo '</a>';
                     echo '</div>';
