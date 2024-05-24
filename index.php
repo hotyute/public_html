@@ -51,7 +51,7 @@
             </div>
         </section>
     </main>
-    <aside style="flex: 1; background-color: #f0f0f0; padding: 20px;">
+    <aside class="sidebar">
         <h3>Sidebar Content</h3>
         <ul>
             <li><a href="<?php echo BASE_URL; ?>archive.php">All Posts</a></li>
