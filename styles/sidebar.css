@@ -43,8 +43,8 @@
 }
 
 .sidebar img.thumbnail {
-    width: 50px; /* Set thumbnail width */
-    height: 50px; /* Set thumbnail height */
+    width: 70px; /* Set thumbnail width */
+    height: 70px; /* Set thumbnail height */
     object-fit: cover; /* Ensure image covers the thumbnail area */
     border-radius: 5px; /* Slightly rounded corners */
 }
