@@ -70,6 +70,7 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
     <header style="background-image: url('<?php echo BASE_URL; ?>images/banner.jpg');">
         <div class="logo">
             <img src="<?php echo BASE_URL; ?>images/logo.png" alt="Logo">
+            <h1>Welcome to the Divine Word Community</h1>
         </div>
         <div class="hamburger">☰</div> <!-- Hamburger Icon -->
         <nav>
