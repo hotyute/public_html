@@ -47,12 +47,13 @@ if ($post_id > 0) {
         echo '<div class="post-content">' . nl2br($content_page) . '</div>';
 
         // Pagination controls
-        echo '<div class="pagination" style="display: flex; justify-content: space-between;">';
+        echo '<div class="pagination" style="display: flex; justify-content: space-between; align-items: center;">';
         if ($page > 1) {
             echo '<a href="post.php?id=' . $post_id . '&page=' . ($page - 1) . '">Previous</a>';
         } else {
             echo '<span></span>'; // Empty span to maintain space
         }
+        echo '<span>Page ' . $page . ' of ' . $total_pages . '</span>';
         if ($page < $total_pages) {
             echo '<a href="post.php?id=' . $post_id . '&page=' . ($page + 1) . '">Next</a>';
         }
