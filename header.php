@@ -79,7 +79,7 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
                     <li><a href="<?php echo BASE_URL; ?>admin/admin_panel.php">Admin</a></li>
                 <?php endif; ?>
                 <li><a href="<?php echo BASE_URL; ?>contact.php">Contact Us</a></li>
-                <li><a href="<?php echo BASE_URL; ?>about.php">Contact Us</a></li>
+                <li><a href="<?php echo BASE_URL; ?>about.php">About</a></li>
             </ul>
         </nav>
         <div class="userinfo">
