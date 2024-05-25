@@ -3,6 +3,8 @@ include 'header.php';
 require 'includes/database.php';
 
 $post_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+$page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+$posts_per_page = 1000;  // Number of characters per page
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_comment']) && isset($_POST['comment_id'])) {
     // Get the user_id of the comment owner
@@ -32,48 +34,48 @@ if ($post_id > 0) {
     $post = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($post) {
+        $content = htmlspecialchars_decode($post['content']);
+        $total_pages = ceil(strlen($content) / $posts_per_page);
+        $start = ($page - 1) * $posts_per_page;
+        $content_page = substr($content, $start, $posts_per_page);
+
         echo '<div class="post-container">';
         echo '<h1 class="post-title">' . htmlspecialchars_decode($post['title']) . '</h1>';
         echo '<h4 class="post-author">By ' . htmlspecialchars_decode($post['author']) . ' | Views: ' . $post['views'] . '</h4>';
         if ($post['thumbnail']) {
             echo '<img src="' . $post['thumbnail'] . '" alt="Post Image" class="post-thumbnail">';
         }
-        echo '<div class="post-content">' . nl2br(htmlspecialchars_decode($post['content'])) . '</div>';
+        echo '<div class="post-content">' . nl2br($content_page) . '</div>';
+
+        // Pagination controls
+        echo '<div class="pagination">';
+        if ($page > 1) {
+            echo '<a href="post.php?id=' . $post_id . '&page=' . ($page - 1) . '">Previous</a>';
+        }
+        if ($page < $total_pages) {
+            echo '<a href="post.php?id=' . $post_id . '&page=' . ($page + 1) . '">Next</a>';
+        }
+        echo '</div>';
+
+        echo '</div>';
 
         if (isset($_SESSION['user_id'])) {
-            echo '<form id="commentForm" class="comment-form">';
-            echo '<textarea name="comment" required></textarea>';
-            echo '<button type="button" id="submitComment">Submit Comment</button>';
+            echo '<form id="comment_form" method="post" action="submit_comment.php">';
+            echo '<textarea name="comment" placeholder="Write your comment..."></textarea>';
+            echo '<input type="hidden" name="post_id" value="' . $post_id . '">';
+            echo '<button type="submit">Submit Comment</button>';
             echo '</form>';
-        } else {
-            echo '<p>Please <a href="login.php">Login</a> to make a comment.</p>';
         }
-
-        echo '<h3 class="comments-title">Comments</h3>';
-        echo '<div class="comments-section" id="commentsSection">';
-        $comments_stmt = $pdo->prepare("SELECT comments.id, comments.content, comments.user_id, users.displayname AS author FROM comments JOIN users ON comments.user_id = users.id WHERE comments.post_id = ?");
-        $comments_stmt->execute([$post_id]);
-        while ($comment = $comments_stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo '<div class="comment">' . htmlspecialchars_decode($comment['content']) . ' - <strong>' . htmlspecialchars_decode($comment['author']) . '</strong>';
-            if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $comment['user_id'] || $_SESSION['user_role'] === 'admin')) {
-                echo ' <form method="POST" action=""><input type="hidden" name="comment_id" value="' . $comment['id'] . '"><button type="submit" name="delete_comment">Delete</button></form>';
-            }
-            echo '</div>';
-        }
-        if ($comments_stmt->rowCount() == 0) {
-            echo '<p>No Comments Yet.</p>';
-        }
-        echo '</div>'; // Close comments section
-
-        echo '</div>'; // Close post container
     } else {
         echo '<p>Post not found.</p>';
     }
 } else {
     echo '<p>Invalid post ID.</p>';
 }
+
 include 'footer.php';
 ?>
+
 <script>
 document.addEventListener("DOMContentLoaded", function() {
     document.getElementById('submitComment').addEventListener('click', function() {
