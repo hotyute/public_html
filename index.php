@@ -18,6 +18,10 @@ $sidebarLinks = [
         'thumbnail' => ''
     ]
 ];
+
+function truncateContent($content, $limit = 100) {
+    return strlen($content) > $limit ? substr($content, 0, $limit) . '...' : $content;
+}
 ?>
 
 <div class="main-container">
@@ -44,7 +48,8 @@ $sidebarLinks = [
                     }
                     echo '<h3>' . htmlspecialchars_decode($post['title']) . '</h3>';
                     echo '<p>By ' . htmlspecialchars_decode($post['author']) . '</p>';
-                    echo '<div class="content-preview" data-content="' . htmlspecialchars($post['content']) . '"></div>';
+                    $truncatedContent = truncateContent($post['content'], 100); // Adjust character limit as needed
+                    echo '<div class="content-preview" data-content="' . htmlspecialchars($post['content']) . '">' . htmlspecialchars($truncatedContent) . '</div>';
                     echo '<p class="comment-count">' . $post['comment_count'] . ' Comments</p>';
                     echo '</a>';
                     echo '</div>';
