@@ -4,7 +4,6 @@ require 'includes/database.php';
 
 $post_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-$posts_per_page = 1000;  // Number of characters per page
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_comment']) && isset($_POST['comment_id'])) {
     // Get the user_id of the comment owner
@@ -35,9 +34,9 @@ if ($post_id > 0) {
 
     if ($post) {
         $content = htmlspecialchars_decode($post['content']);
-        $total_pages = ceil(strlen($content) / $posts_per_page);
-        $start = ($page - 1) * $posts_per_page;
-        $content_page = substr($content, $start, $posts_per_page);
+        $pages = explode('<!-- pagebreak -->', $content);
+        $total_pages = count($pages);
+        $content_page = isset($pages[$page - 1]) ? $pages[$page - 1] : '';
 
         echo '<div class="post-container">';
         echo '<h1 class="post-title">' . htmlspecialchars_decode($post['title']) . '</h1>';
@@ -75,6 +74,7 @@ if ($post_id > 0) {
 
 include 'footer.php';
 ?>
+
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
