@@ -1,9 +1,13 @@
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .userinfo {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    width: 100%;
-    margin-top: 10px;
     color: #ffd700;
 }
 
@@ -56,16 +60,12 @@ header {
 
 .logo {
     display: block;
-    width: 100%;
-    text-align: left;
-    margin-bottom: 20px; /* Add some space below the logo if needed */
 }
 
 .logo img {
     width: 300px; /* Adjust size as needed */
     height: auto;
 }
-
 
 nav ul li a,
 nav ul li button.auth-button {
@@ -83,7 +83,6 @@ nav ul li button.auth-button {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     transition: all 0.3s ease;
-    /* Smooth transition */
 }
 
 nav ul li a:hover,

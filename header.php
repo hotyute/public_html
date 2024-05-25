@@ -68,8 +68,18 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
 
 <body>
     <header style="background-image: url('<?php echo BASE_URL; ?>images/banner.jpg');">
-        <div class="logo">
-            <img src="<?php echo BASE_URL; ?>images/logo.png" alt="Logo">
+        <div class="header-content">
+            <div class="logo">
+                <img src="<?php echo BASE_URL; ?>images/logo.png" alt="Logo">
+            </div>
+            <div class="userinfo">
+                <?php if (isset($_SESSION['username'])) : ?>
+                    <span>Hello, <?php echo $_SESSION['username']; ?></span>
+                    <button class="auth-button" onclick="logout()">Logout</button>
+                <?php else : ?>
+                    <button class="auth-button" onclick="window.location.href='<?php echo BASE_URL; ?>login.php'">Login</button>
+                <?php endif; ?>
+            </div>
         </div>
         <div class="hamburger">☰</div> <!-- Hamburger Icon -->
         <nav>
@@ -82,12 +92,4 @@ $current_page = basename($_SERVER['SCRIPT_NAME'], '.php');
                 <li><a href="<?php echo BASE_URL; ?>about.php">About</a></li>
             </ul>
         </nav>
-        <div class="userinfo">
-            <?php if (isset($_SESSION['username'])) : ?>
-                <span>Hello, <?php echo $_SESSION['username']; ?></span>
-                <button class="auth-button" onclick="logout()">Logout</button> <!-- Styled Logout Button -->
-            <?php else : ?>
-                <button class="auth-button" onclick="window.location.href='<?php echo BASE_URL; ?>login.php'">Login</button> <!-- Styled Login Button -->
-            <?php endif; ?>
-        </div>
     </header>
