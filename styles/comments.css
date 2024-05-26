@@ -48,7 +48,7 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .post-container, .comments-section {
+    .comments-section {
         margin: 10px;
         padding: 10px;
     }
