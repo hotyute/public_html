@@ -4,6 +4,7 @@
     /* Limits the width for readability on large screens */
     margin: 0 auto; /* was 40px */
     /* Centers the container with some margin around it */
+    justify-content: center;
     padding: 20px;
     background-color: #fff;
     /* Optional: adds a background color */
