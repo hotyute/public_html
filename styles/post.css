@@ -1,6 +1,6 @@
 /* Post Page Styles */
 .post-container {
-    max-width: 80%;
+    max-width: 100%%;
     /* Limits the width for readability on large screens */
     margin: 0 auto; /* was 40px */
     /* Centers the container with some margin around it */
