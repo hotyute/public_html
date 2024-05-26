@@ -59,7 +59,6 @@
     }
     .post-container {
         padding: 10px; /* Less padding to accommodate smaller screen real estate */
-        margin: 0 auto;
     }
     .post-title, .post-author {
         text-align: center; /* Centering text for better mobile readability */
