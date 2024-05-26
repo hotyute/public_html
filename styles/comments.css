@@ -53,11 +53,11 @@
         padding: 10px;
     }
 
-    #commentForm textarea, #commentForm button {
+    .comment-form textarea, .comment-form button {
         padding: 6px; /* Ensure uniform padding for smaller screens */
     }
 
-    #commentForm button {
+    .comment-form button {
         padding: 8px 16px; /* Adjust button padding for better tap target size */
     }
 }

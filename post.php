@@ -38,6 +38,7 @@ if ($post_id > 0) {
         $total_pages = count($pages);
         $content_page = isset($pages[$page - 1]) ? $pages[$page - 1] : '';
 
+        echo '<div class="wrapper">';
         echo '<div class="post-container">';
         echo '<h1 class="post-title">' . htmlspecialchars_decode($post['title']) . '</h1>';
         echo '<h4 class="post-author">By ' . htmlspecialchars_decode($post['author']) . ' | Views: ' . $post['views'] . '</h4>';
@@ -59,6 +60,10 @@ if ($post_id > 0) {
         }
         echo '</div>';
 
+        echo '</div>'; // Close post container
+
+        // Comments section
+        echo '<div class="comments-container">';
         if (isset($_SESSION['user_id'])) {
             echo '<form id="commentForm" class="comment-form">';
             echo '<textarea name="comment" required></textarea>';
@@ -83,8 +88,9 @@ if ($post_id > 0) {
             echo '<p>No Comments Yet.</p>';
         }
         echo '</div>'; // Close comments section
+        echo '</div>'; // Close comments container
 
-        echo '</div>'; // Close post container
+        echo '</div>'; // Close wrapper
     } else {
         echo '<p>Post not found.</p>';
     }

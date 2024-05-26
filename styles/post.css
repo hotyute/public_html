@@ -1,46 +1,41 @@
 /* Post Page Styles */
 .post-container {
     max-width: 80%;
-    /* Limits the width for readability on large screens */
-    margin: 0 auto; /* was 40px */
-    /* Centers the container with some margin around it */
+    width: 100%;
+    margin: 0 auto;
     padding: 20px;
     background-color: #fff;
-    /* Optional: adds a background color */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    /* Adds subtle shadow for depth */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .post-title {
     font-size: 2em;
-    /* Larger text for the title */
     color: #333;
-    /* Dark grey for better readability */
     margin-bottom: 10px;
+    text-align: center;
 }
 
 .post-author {
     font-size: 1em;
     color: #666;
-    /* Lighter text color for metadata like the author */
     margin-bottom: 20px;
+    text-align: center;
 }
 
 .post-content {
     font-size: 1.2em;
-    /* Slightly larger text for readability */
     line-height: 1.6;
-    /* Adequate line spacing improves reading flow */
     color: #333;
+    width: 100%;
 }
 
 .post-thumbnail {
     width: 100%;
-    /* Full width of the container */
     height: auto;
-    /* Maintain aspect ratio */
     margin-bottom: 20px;
-    /* Space below the image */
 }
 
 /* Responsive Image Styling */
@@ -53,16 +48,12 @@
 }
 
 @media (max-width: 768px) {
-    img {
-        /* Example: apply additional styling for smaller devices */
-        padding: 10px 0;  /* Just an example, typically you wouldn't add padding to images */
-    }
     .post-container {
-        /*padding: 10px;*/ /* Less padding to accommodate smaller screen real estate */
+        padding: 10px;
         max-width: 85%;
         margin: 0 auto;
     }
     .post-title, .post-author {
-        text-align: center; /* Centering text for better mobile readability */
+        text-align: center;
     }
 }
