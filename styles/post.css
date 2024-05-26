@@ -2,9 +2,9 @@
 .post-container {
     max-width: 80%;
     /* Limits the width for readability on large screens */
-    margin: 0 auto;
+    margin: 0 auto; /* was 40px */
     /* Centers the container with some margin around it */
-    /*padding: 20px;*/
+    padding: 20px;
     background-color: #fff;
     /* Optional: adds a background color */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
