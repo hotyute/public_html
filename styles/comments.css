@@ -48,16 +48,16 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .comments-section {
+    ..comments-section {
         margin: 10px;
         padding: 10px;
     }
 
-    .comment-form textarea, .comment-form button {
+    #commentForm textarea, #commentForm button {
         padding: 6px; /* Ensure uniform padding for smaller screens */
     }
 
-    .comment-form button {
+    #commentForm button {
         padding: 8px 16px; /* Adjust button padding for better tap target size */
     }
 }
