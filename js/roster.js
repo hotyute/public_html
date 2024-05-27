@@ -1,4 +1,5 @@
-let currentUserRole = 'member'; // Replace this with actual role fetching logic
+let currentUserRole = 'guest';
+let isEditMode = false; // State to track edit mode
 
 // Fetch and display the roster
 function fetchRoster() {
@@ -36,7 +37,7 @@ function fetchRoster() {
                 row.appendChild(roleCell);
 
                 let devotionCell = document.createElement('td');
-                if (true) {
+                if (currentUserRole === 'admin' && isEditMode) {
                     let select = createDevotionDropdown(user.devotion);
                     select.addEventListener('change', function () {
                         updateDevotion(user.id, select.value);
@@ -87,7 +88,6 @@ function createDevotionDropdown(selectedValue) {
     return select;
 }
 
-
 function getDevotionColor(devotion) {
     switch (devotion) {
         case 'red': return 'red';
@@ -122,14 +122,24 @@ function updateDevotion(userId, devotion) {
     .catch(error => console.error('There has been a problem with your fetch operation:', error));
 }
 
+function toggleEditMode() {
+    isEditMode = !isEditMode;
+    fetchRoster();
+    document.getElementById('editModeButton').textContent = isEditMode ? 'Exit Edit Mode' : 'Enter Edit Mode';
+}
+
 // Fetch user role and then fetch the roster
 fetch('/includes/roster/get_user_role.php')
     .then(response => response.json())
     .then(data => {
         currentUserRole = data.role;
+        if (currentUserRole === 'admin') {
+            const editButton = document.createElement('button');
+            editButton.id = 'editModeButton';
+            editButton.textContent = 'Enter Edit Mode';
+            editButton.addEventListener('click', toggleEditMode);
+            document.body.insertBefore(editButton, document.getElementById('rosterTable'));
+        }
         fetchRoster();
     })
     .catch(error => console.error('There has been a problem with fetching the user role:', error));
-
-// Call fetchRoster on page load
-window.onload = fetchRoster;
