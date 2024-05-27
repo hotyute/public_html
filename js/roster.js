@@ -1,7 +1,12 @@
 // Fetch and display the roster
 function fetchRoster() {
     fetch('/includes/users/fetch_users.php')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(users => {
             let rosterTable = document.getElementById('rosterTable');
             rosterTable.innerHTML = `
@@ -35,7 +40,8 @@ function fetchRoster() {
 
                 rosterTable.appendChild(row);
             });
-        });
+        })
+        .catch(error => console.error('There has been a problem with your fetch operation:', error));
 }
 
 function getDevotionColor(devotion) {
