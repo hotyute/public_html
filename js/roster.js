@@ -68,7 +68,7 @@ function createDevotionDropdown(selectedValue) {
         select.appendChild(opt);
     });
 
-    // Apply styles for rounded corners and shadowing
+    // Apply styles for rounded corners, shadowing, and textured shading
     select.style.backgroundColor = getDevotionColor(selectedValue);
     select.style.borderRadius = '5px';
     select.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.2)';
@@ -76,6 +76,9 @@ function createDevotionDropdown(selectedValue) {
     select.style.outline = 'none';
     select.style.border = '1px solid #ccc';
     select.style.margin = '5px 0';
+    select.style.backgroundImage = 'linear-gradient(white, #f2f2f2)';
+    select.style.fontFamily = 'Arial, sans-serif';
+    select.style.fontSize = '14px';
 
     select.addEventListener('change', function () {
         select.style.backgroundColor = getDevotionColor(select.value);
