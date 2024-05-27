@@ -91,11 +91,3 @@ function truncateContent($content, $limit = 100) {
 </div>
 
 <?php include 'footer.php'; ?>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Iterate through each content-preview div and set its innerHTML from data-content
-    document.querySelectorAll('.content-preview').forEach(function(element) {
-        element.innerHTML = element.getAttribute('data-content');
-    });
-});
-</script>
