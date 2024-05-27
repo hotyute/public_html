@@ -35,7 +35,7 @@
     text-decoration: none;
     font-weight: bold; /* Make the link text bold */
     display: block; /* Ensure the link is block level */
-    margin-left: 10px; /* Space between thumbnail and text */
+    margin-left: 5px; /* Space between thumbnail and text */
 }
 
 .sidebar a:hover {
