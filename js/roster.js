@@ -1,6 +1,6 @@
 // Fetch and display the roster
 function fetchRoster() {
-    fetch('/includes/users/fetch_roster.php')
+    fetch('/includes/roster/fetch_roster.php')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -34,7 +34,21 @@ function fetchRoster() {
                 row.appendChild(roleCell);
 
                 let devotionCell = document.createElement('td');
-                devotionCell.textContent = user.devotion;
+                if (user.role === 'admin') {
+                    let select = document.createElement('select');
+                    select.innerHTML = `
+                        <option value="red" ${user.devotion === 'red' ? 'selected' : ''}>Red</option>
+                        <option value="blue" ${user.devotion === 'blue' ? 'selected' : ''}>Blue</option>
+                        <option value="yellow" ${user.devotion === 'yellow' ? 'selected' : ''}>Yellow</option>
+                        <option value="green" ${user.devotion === 'green' ? 'selected' : ''}>Green</option>
+                    `;
+                    select.addEventListener('change', function () {
+                        updateDevotion(user.id, select.value);
+                    });
+                    devotionCell.appendChild(select);
+                } else {
+                    devotionCell.textContent = user.devotion;
+                }
                 devotionCell.style.backgroundColor = getDevotionColor(user.devotion);
                 row.appendChild(devotionCell);
 
@@ -52,6 +66,30 @@ function getDevotionColor(devotion) {
         case 'green': return 'green';
         default: return 'white';
     }
+}
+
+function updateDevotion(userId, devotion) {
+    fetch('/includes/roster/update_devotion.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId: userId, devotion: devotion })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            fetchRoster(); // Refresh the roster to show updated devotion
+        } else {
+            console.error('Failed to update devotion:', data.error);
+        }
+    })
+    .catch(error => console.error('There has been a problem with your fetch operation:', error));
 }
 
 // Call fetchRoster on page load
