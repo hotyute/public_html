@@ -68,13 +68,22 @@ function createDevotionDropdown(selectedValue) {
         select.appendChild(opt);
     });
 
+    // Apply styles for rounded corners and shadowing
     select.style.backgroundColor = getDevotionColor(selectedValue);
+    select.style.borderRadius = '5px';
+    select.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.2)';
+    select.style.padding = '5px';
+    select.style.outline = 'none';
+    select.style.border = '1px solid #ccc';
+    select.style.margin = '5px 0';
+
     select.addEventListener('change', function () {
         select.style.backgroundColor = getDevotionColor(select.value);
     });
 
     return select;
 }
+
 
 function getDevotionColor(devotion) {
     switch (devotion) {
