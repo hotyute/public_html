@@ -45,6 +45,13 @@ CREATE TABLE IF NOT EXISTS comments (
     FOREIGN KEY (post_id) REFERENCES posts(id),
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+CREATE TABLE IF NOT EXISTS roster_data (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    devotion ENUM('red', 'blue', 'yellow', 'green') DEFAULT 'red',
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
 SQL;
 
         // Replace placeholders with actual constant values
@@ -58,4 +65,3 @@ SQL;
     die("Database error: " . $e->getMessage());
 }
 ?>
-
