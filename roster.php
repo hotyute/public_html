@@ -1,4 +1,10 @@
-<?php include 'header.php'; ?>
+<?php include 'header.php'; 
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+?>
 
 <form id="searchForm">
     <input type="text" id="searchQuery" placeholder="Search users...">

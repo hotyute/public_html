@@ -110,5 +110,14 @@ function updateDevotion(userId, devotion) {
     .catch(error => console.error('There has been a problem with your fetch operation:', error));
 }
 
+// Fetch user role and then fetch the roster
+fetch('/includes/roster/get_user_role.php')
+    .then(response => response.json())
+    .then(data => {
+        currentUserRole = data.role;
+        fetchRoster();
+    })
+    .catch(error => console.error('There has been a problem with fetching the user role:', error));
+
 // Call fetchRoster on page load
 window.onload = fetchRoster;
