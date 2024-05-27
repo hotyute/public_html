@@ -2,7 +2,7 @@
     <?php if (!isset($_SESSION['username'])) : ?>
         <p>Not registered yet? <a href="register.php">Register here</a></p>
     <?php endif; ?>
-    <p>&copy; <?php echo date("Y"); ?> Christian Community. All rights reserved.</p>
+    <p>&copy; <?php echo date("Y"); ?> DivineWord Community. All rights reserved.</p>
 </footer>
 </body>
 
