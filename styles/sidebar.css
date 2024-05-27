@@ -25,7 +25,7 @@
 }
 
 .sidebar li {
-    margin-bottom: 10px; /* Add some space between list items */
+    margin-bottom: 5px; /* Add some space between list items */
     display: flex; /* Use flexbox to align thumbnail and text */
     align-items: center; /* Center align the items */
 }
