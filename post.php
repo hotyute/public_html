@@ -2,7 +2,10 @@
 include 'header.php';
 require 'includes/database.php';
 
-session_start();
+// Start the session if it hasn't been started already
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 $post_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
@@ -28,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_comment']) && i
 }
 
 if ($post_id > 0) {
-    // Increment views only if it has not been done in this session
+    // Check if the post has been viewed in the current session
     if (!isset($_SESSION['viewed_posts'])) {
         $_SESSION['viewed_posts'] = [];
     }
@@ -48,7 +51,6 @@ if ($post_id > 0) {
         $total_pages = count($pages);
         $content_page = isset($pages[$page - 1]) ? $pages[$page - 1] : '';
 
-        echo '<div class="wrapper">';
         echo '<div class="post-container">';
         echo '<h1 class="post-title">' . htmlspecialchars_decode($post['title']) . '</h1>';
         echo '<h4 class="post-author">By ' . htmlspecialchars_decode($post['author']) . ' | Views: ' . $post['views'] . '</h4>';
@@ -70,10 +72,6 @@ if ($post_id > 0) {
         }
         echo '</div>';
 
-        echo '</div>'; // Close post container
-
-        // Comments section
-        echo '<div class="comments-container">';
         if (isset($_SESSION['user_id'])) {
             echo '<form id="commentForm" class="comment-form">';
             echo '<textarea name="comment" required></textarea>';
@@ -98,9 +96,8 @@ if ($post_id > 0) {
             echo '<p>No Comments Yet.</p>';
         }
         echo '</div>'; // Close comments section
-        echo '</div>'; // Close comments container
 
-        echo '</div>'; // Close wrapper
+        echo '</div>'; // Close post container
     } else {
         echo '<p>Post not found.</p>';
     }
