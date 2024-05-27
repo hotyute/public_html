@@ -1,3 +1,5 @@
+let currentUserRole = 'member'; // Replace this with actual role fetching logic
+
 // Fetch and display the roster
 function fetchRoster() {
     fetch('/includes/roster/fetch_roster.php')
@@ -34,28 +36,44 @@ function fetchRoster() {
                 row.appendChild(roleCell);
 
                 let devotionCell = document.createElement('td');
-                if (user.role === 'admin') {
-                    let select = document.createElement('select');
-                    select.innerHTML = `
-                        <option value="red" ${user.devotion === 'red' ? 'selected' : ''}>Red</option>
-                        <option value="blue" ${user.devotion === 'blue' ? 'selected' : ''}>Blue</option>
-                        <option value="yellow" ${user.devotion === 'yellow' ? 'selected' : ''}>Yellow</option>
-                        <option value="green" ${user.devotion === 'green' ? 'selected' : ''}>Green</option>
-                    `;
+                if (currentUserRole === 'admin') {
+                    let select = createDevotionDropdown(user.devotion);
                     select.addEventListener('change', function () {
                         updateDevotion(user.id, select.value);
                     });
                     devotionCell.appendChild(select);
                 } else {
                     devotionCell.textContent = user.devotion;
+                    devotionCell.style.backgroundColor = getDevotionColor(user.devotion);
                 }
-                devotionCell.style.backgroundColor = getDevotionColor(user.devotion);
                 row.appendChild(devotionCell);
 
                 rosterTable.appendChild(row);
             });
         })
         .catch(error => console.error('There has been a problem with your fetch operation:', error));
+}
+
+function createDevotionDropdown(selectedValue) {
+    const select = document.createElement('select');
+    const options = ['red', 'blue', 'yellow', 'green'];
+    
+    options.forEach(option => {
+        const opt = document.createElement('option');
+        opt.value = option;
+        opt.textContent = option.charAt(0).toUpperCase() + option.slice(1);
+        if (option === selectedValue) {
+            opt.selected = true;
+        }
+        select.appendChild(opt);
+    });
+
+    select.style.backgroundColor = getDevotionColor(selectedValue);
+    select.addEventListener('change', function () {
+        select.style.backgroundColor = getDevotionColor(select.value);
+    });
+
+    return select;
 }
 
 function getDevotionColor(devotion) {
