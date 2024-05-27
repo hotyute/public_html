@@ -129,7 +129,7 @@ function toggleEditMode() {
 }
 
 // Fetch user role and then fetch the roster
-fetch('/includes/roster/get_user_role.php')
+fetch('/includes/roster/get_user_role_json.php')
     .then(response => response.json())
     .then(data => {
         currentUserRole = data.role;
