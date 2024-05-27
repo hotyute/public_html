@@ -36,7 +36,7 @@ function fetchRoster() {
                 row.appendChild(roleCell);
 
                 let devotionCell = document.createElement('td');
-                if (currentUserRole === 'admin') {
+                if (true) {
                     let select = createDevotionDropdown(user.devotion);
                     select.addEventListener('change', function () {
                         updateDevotion(user.id, select.value);
