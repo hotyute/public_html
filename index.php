@@ -49,7 +49,7 @@ function truncateContent($content, $limit = 100) {
                     echo '<h3>' . htmlspecialchars_decode($post['title']) . '</h3>';
                     echo '<p>By ' . htmlspecialchars_decode($post['author']) . '</p>';
                     $truncatedContent = truncateContent($post['content'], 100); // Adjust character limit as needed
-                    echo '<div class="content-preview" data-content="' . htmlspecialchars($truncatedContent) . '">' . htmlspecialchars($truncatedContent) . '</div>';
+                    echo '<div class="content-preview" data-content="' . htmlspecialchars_decode($truncatedContent) . '">' . htmlspecialchars($truncatedContent) . '</div>';
                     echo '<p class="comment-count">' . $post['comment_count'] . ' Comments</p>';
                     echo '</a>';
                     echo '</div>';
