@@ -20,6 +20,7 @@ $sidebarLinks = [
 ];
 
 function truncateContent($content, $limit = 100) {
+    $content = strip_tags($content); // Remove HTML tags
     return strlen($content) > $limit ? substr($content, 0, $limit) . '...' : $content;
 }
 ?>
@@ -91,11 +92,3 @@ function truncateContent($content, $limit = 100) {
 </div>
 
 <?php include 'footer.php'; ?>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Iterate through each content-preview div and set its innerHTML from data-content
-    document.querySelectorAll('.content-preview').forEach(function(element) {
-        element.innerHTML = element.getAttribute('data-content');
-    });
-});
-</script>
