@@ -4,6 +4,9 @@
     <?php endif; ?>
     <p>&copy; <?php echo date("Y"); ?> DivineWord Community. All rights reserved.</p>
 </footer>
+<?php if ($current_page == 'roster') : ?>
+    <script src="<?php echo BASE_URL; ?>js/roster.js"></script>
+<?php endif; ?>
 </body>
 
 </html>
@@ -13,7 +16,4 @@
 <?php endif; ?>
 <?php if ($current_page == 'manage_users') : ?>
     <script src="<?php echo BASE_URL; ?>js/manage_users.js"></script>
-<?php endif; ?>
-<?php if ($current_page == 'roster') : ?>
-    <script src="<?php echo BASE_URL; ?>js/roster.js"></script>
 <?php endif; ?>
