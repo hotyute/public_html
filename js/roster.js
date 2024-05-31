@@ -11,8 +11,8 @@ function fetchRoster() {
             return response.json();
         })
         .then(users => {
-            let rosterTableBody = document.querySelector('.roster-container #rosterTable tbody');
-            rosterTableBody.innerHTML = ''; // Clear the existing rows
+            let rosterTable = document.getElementById('rosterTable').querySelector('tbody');
+            rosterTable.innerHTML = '';
 
             users.forEach(user => {
                 let row = document.createElement('tr');
@@ -42,7 +42,7 @@ function fetchRoster() {
                 }
                 row.appendChild(devotionCell);
 
-                rosterTableBody.appendChild(row);
+                rosterTable.appendChild(row);
             });
         })
         .catch(error => console.error('There has been a problem with your fetch operation:', error));
@@ -131,7 +131,7 @@ fetch('/includes/users/get_user_role_json.php')
             editButton.id = 'editModeButton';
             editButton.textContent = 'Enter Edit Mode';
             editButton.addEventListener('click', toggleEditMode);
-            document.body.insertBefore(editButton, document.querySelector('.roster-container'));
+            document.body.insertBefore(editButton, document.getElementById('rosterTable'));
         }
         fetchRoster();
     })
