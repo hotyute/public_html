@@ -34,22 +34,25 @@ if (isset($_GET['query'])) {
 ?>
 
 <?php include 'header.php'; ?>
-<main>
-    <div class="search-results">
-        <h1>Search Results for "<?php echo htmlspecialchars($searchQuery); ?>"</h1>
-        <?php if (empty($results)) : ?>
-            <p>No results found.</p>
-        <?php else : ?>
-            <ul>
-                <?php foreach ($results as $result) : ?>
-                    <li>
-                        <h2><?php echo htmlspecialchars($result['title']); ?></h2>
-                        <p><em>Posted on: <?php echo htmlspecialchars($result['created_at']); ?></em></p>
-                        <p><?php echo htmlspecialchars_decode(substr($result['content'], 0, 200)) . '...'; ?></p>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        <?php endif; ?>
-    </div>
-</main>
+
+<div class="main-container">
+    <main>
+        <div class="search-results">
+            <h1>Search Results for "<?php echo htmlspecialchars($searchQuery); ?>"</h1>
+            <?php if (empty($results)) : ?>
+                <p>No results found.</p>
+            <?php else : ?>
+                <ul>
+                    <?php foreach ($results as $result) : ?>
+                        <li>
+                            <h2><?php echo htmlspecialchars($result['title']); ?></h2>
+                            <p><em>Posted on: <?php echo htmlspecialchars($result['created_at']); ?></em></p>
+                            <p><?php echo htmlspecialchars_decode(substr($result['content'], 0, 200)) . '...'; ?></p>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+        </div>
+    </main>
+</div>
 <?php include 'footer.php'; ?>
