@@ -1,17 +1,17 @@
 <?php
 require_once 'includes/database.php';
-//require_once 'base_config.php';
+require_once 'base_config.php';
 
 session_start();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 // Check if the request came from the search bar in the header
-if (!isset($_SERVER['HTTP_REFERER']) || strpos($_SERVER['HTTP_REFERER'], BASE_URL) !== 0) {
+/*if (!isset($_SERVER['HTTP_REFERER']) || strpos($_SERVER['HTTP_REFERER'], BASE_URL) !== 0) {
     // Redirect to home page or show an error message
     header("Location: " . BASE_URL . "index.php");
     exit;
-}
+}*/
 
 $searchQuery = '';
 $results = [];
