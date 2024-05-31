@@ -131,7 +131,8 @@ fetch('/includes/users/get_user_role_json.php')
             editButton.id = 'editModeButton';
             editButton.textContent = 'Enter Edit Mode';
             editButton.addEventListener('click', toggleEditMode);
-            document.body.insertBefore(editButton, document.querySelector('.roster-container'));
+            const rosterContainer = document.querySelector('.roster-container');
+            rosterContainer.insertBefore(editButton, rosterContainer.firstChild);
         }
         fetchRoster();
     })
