@@ -11,15 +11,8 @@ function fetchRoster() {
             return response.json();
         })
         .then(users => {
-            let rosterTable = document.getElementById('rosterTable');
-            rosterTable.innerHTML = `
-                <tr>
-                    <th>Username</th>
-                    <th>Display Name</th>
-                    <th>Role</th>
-                    <th>Devotion</th>
-                </tr>
-            `;
+            let rosterTable = document.getElementById('rosterTable').querySelector('tbody');
+            rosterTable.innerHTML = '';
 
             users.forEach(user => {
                 let row = document.createElement('tr');
