@@ -2,7 +2,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap; /* Allow wrapping for smaller screens */
 }
 
 .userinfo {
@@ -14,21 +13,17 @@
 
 .search-bar {
     margin-bottom: 10px; /* Add some space between the search bar and user info */
-    flex: 1; /* Allow search bar to grow */
-    text-align: center; /* Center align on smaller screens */
 }
 
 .search-bar form {
     display: flex;
-    justify-content: center; /* Center the form elements */
 }
 
 .search-bar input[type="text"] {
     padding: 5px;
     border: 1px solid #ccc;
     border-radius: 4px 0 0 4px;
-    width: 100%; /* Full width on smaller screens */
-    max-width: 200px; /* Limit maximum width */
+    width: 200px;
 }
 
 .search-bar button {
@@ -97,8 +92,7 @@ header {
 }
 
 .logo img {
-    width: 100%; /* Responsive width */
-    max-width: 300px; /* Limit maximum width */
+    width: 300px; /* Adjust size as needed */
     height: auto;
 }
 
@@ -161,19 +155,5 @@ nav ul li button.auth-button:hover {
 
     .logo {
         text-align: center;
-        margin-bottom: 10px; /* Space between logo and other elements */
-    }
-
-    .header-content {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .userinfo {
-        align-items: center;
-    }
-
-    .search-bar input[type="text"] {
-        width: 80%; /* Adjust width for smaller screens */
     }
 }
