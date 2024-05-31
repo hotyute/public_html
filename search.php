@@ -45,7 +45,7 @@ if (isset($_GET['query'])) {
                     <li>
                         <h2><?php echo htmlspecialchars($result['title']); ?></h2>
                         <p><em>Posted on: <?php echo htmlspecialchars($result['created_at']); ?></em></p>
-                        <p><?php echo htmlspecialchars(substr($result['content'], 0, 200)) . '...'; ?></p>
+                        <p><?php echo htmlspecialchars_decode(substr($result['content'], 0, 200)) . '...'; ?></p>
                     </li>
                 <?php endforeach; ?>
             </ul>
