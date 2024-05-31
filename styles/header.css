@@ -11,6 +11,37 @@
     color: #ffd700;
 }
 
+.search-bar {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.search-bar form {
+    display: flex;
+}
+
+.search-bar input[type="text"] {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+    width: 200px;
+}
+
+.search-bar button {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-left: none;
+    background-color: #333;
+    color: white;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+}
+
+.search-bar button:hover {
+    background-color: #555;
+}
+
 nav {
     background-color: #333;
     overflow: hidden;
