@@ -20,6 +20,6 @@ if (session_status() == PHP_SESSION_NONE) {
     </tr>
 </table>
 
-<p style="border:2px solid DodgerBlue; color:#FF0000; font-size: 80%;">Other members have been hidden for privacy purposes</p>
+<p style="border:2px solid DodgerBlue; color:#FF0000; font-size: 180%;">Other members have been hidden for privacy purposes</p>
 
 <?php include 'footer.php'; ?>
