@@ -20,4 +20,6 @@ if (session_status() == PHP_SESSION_NONE) {
     </tr>
 </table>
 
+<p>Other members have been hidden for privacy purposes</p>
+
 <?php include 'footer.php'; ?>
