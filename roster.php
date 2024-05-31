@@ -6,26 +6,20 @@ if (session_status() == PHP_SESSION_NONE) {
 
 ?>
 
-<main>
-    <form id="searchForm" class="search-form">
-        <input type="text" id="searchQuery" placeholder="Search users...">
-        <button type="submit">Search</button>
-    </form>
-    <div id="searchResults"></div>
-    <table id="rosterTable" class="roster-table">
-        <thead>
-            <tr>
-                <th>Username</th>
-                <th>Display Name</th>
-                <th>Role</th>
-                <th>Devotion</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Rows will be populated by JavaScript -->
-        </tbody>
-    </table>
-    <p class="notice">These members have been displayed for testing purposes. Other members have been hidden due to privacy concerns.</p>
-</main>
+<form id="searchForm">
+    <input type="text" id="searchQuery" placeholder="Search users...">
+    <button type="submit">Search</button>
+</form>
+<div id="searchResults"></div>
+<table id="rosterTable" border="1">
+    <tr>
+        <th>Username</th>
+        <th>Display Name</th>
+        <th>Role</th>
+        <th>Devotion</th>
+    </tr>
+</table>
+
+<p style="border:2px solid DodgerBlue; color:#FF0000; font-size: 180%; text-align: center;">These members have been displayed for testing purposes. Other members have been hidden due privacy concerns.</p>
 
 <?php include 'footer.php'; ?>
