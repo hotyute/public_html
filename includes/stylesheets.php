@@ -8,14 +8,16 @@
 <?php if ($current_page == 'login') : ?>
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/surplus.css">
 <?php endif; ?>
-<?php if (($current_page == 'admin_panel') || ($current_page ==  'edit_post') || ($current_page == 'create_post')
-    || ($current_page == 'roster')) : ?>
+<?php if (($current_page == 'admin_panel') || ($current_page ==  'edit_post') || ($current_page == 'create_post')) :?>
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/admin.css">
 <?php endif; ?>
 <?php if ($current_page == 'post') : ?>
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/post.css">
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/comments.css">
 <?php endif; ?>
+<?php if ($current_page == 'roster') : ?>
+    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/roster.css">
+    <?php endif; ?>
 <?php if ($current_page == 'contact') : ?>
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/surplus.css">
 <?php endif; ?>
