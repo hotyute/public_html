@@ -17,7 +17,7 @@ if (isset($_GET['logout'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <?php include 'includes/stylesheets.php'; ?>
 
     <script src="<?php echo BASE_URL; ?>js/script.js"></script>
@@ -36,13 +36,13 @@ if (isset($_GET['logout'])) {
             <div class="logo">
                 <img src="<?php echo BASE_URL; ?>images/logo.png" alt="Logo">
             </div>
-            <div class="search-bar">
-                <form action="<?php echo BASE_URL; ?>search.php" method="GET">
-                    <input type="text" name="query" placeholder="Search...">
-                    <button type="submit">Search</button>
-                </form>
-            </div>
             <div class="userinfo">
+                <div class="search-bar">
+                    <form action="<?php echo BASE_URL; ?>search.php" method="GET">
+                        <input type="text" name="query" placeholder="Search...">
+                        <button type="submit">Search</button>
+                    </form>
+                </div>
                 <?php if (isset($_SESSION['username'])) : ?>
                     <span>Hello, <?php echo $_SESSION['username']; ?></span>
                     <button class="auth-button" onclick="logout()">Logout</button>
