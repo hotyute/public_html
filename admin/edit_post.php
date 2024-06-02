@@ -1,5 +1,10 @@
 <?php
 session_start();
+// Check if admin is logged in
+if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+    header('Location: /login.php');
+    exit();
+}
 require_once '../base_config.php';
 require 'includes/database.php';
 
