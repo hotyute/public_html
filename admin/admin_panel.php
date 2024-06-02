@@ -1,7 +1,7 @@
 <?php
 // Start the session and check if the user is authenticated and is an admin.
 session_start();
-if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin' || $_SESSION['user_role'] !== 'editor') {
+if (!isset($_SESSION['user_role']) || !in_array($_SESSION['user_role'], ['admin', 'editor'])) {
     header('Location: /login.php'); // Redirect to login if not authenticated as admin.
     exit();
 }
