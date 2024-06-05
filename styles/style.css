@@ -129,10 +129,6 @@ hr::after {
     h1, h2, h3 {
         font-size: 1.2em;
     }
-
-    .login-form form {
-        width: 100%; /* Makes the form take up full width */
-    }
 }
 
 .hamburger {
