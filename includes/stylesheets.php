@@ -29,3 +29,4 @@
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/manage_users.css">
 <?php endif; ?>
 <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/header.css">
+<link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/footer.css">
