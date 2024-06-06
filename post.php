@@ -81,8 +81,6 @@ if ($post_id > 0) {
             echo '<p>Please <a href="login.php">Login</a> to make a comment.</p>';
         }
 
-        echo '</div>'; // Close post container
-
         echo '<h3 class="comments-title">Comments</h3>';
         echo '<div class="comments-section" id="commentsSection">';
         $comments_stmt = $pdo->prepare("SELECT comments.id, comments.content, comments.user_id, users.displayname AS author FROM comments JOIN users ON comments.user_id = users.id WHERE comments.post_id = ?");
@@ -98,6 +96,8 @@ if ($post_id > 0) {
             echo '<p>No Comments Yet.</p>';
         }
         echo '</div>'; // Close comments section
+
+        echo '</div>'; // Close post container
     } else {
         echo '<p>Post not found.</p>';
     }
