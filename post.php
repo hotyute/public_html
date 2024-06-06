@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function() {
         formData.append('user_id', <?php echo json_encode($_SESSION['user_id']); ?>);
         formData.append('post_id', <?php echo $post_id; ?>);
 
-        fetch('submit_comment.php', {
+        fetch('/includes/comments/submit_comment.php', {
             method: 'POST',
             body: formData
         })
