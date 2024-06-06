@@ -6,6 +6,7 @@
     height: 80vh;
     max-width: 90%;
     background-color: #f9f9f9;
+    margin: 0 auto;
 }
 
 .login-form form {
