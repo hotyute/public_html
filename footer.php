@@ -26,7 +26,6 @@ $footerLinks = [
 
     <!-- Footer Links with Design -->
     <div class="footer-links">
-        <h3>Footer Links</h3>
         <ul>
             <?php foreach ($footerLinks as $link) : ?>
                 <li>
