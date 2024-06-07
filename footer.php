@@ -24,16 +24,22 @@ $footerLinks = [
     <?php endif; ?>
     <p>&copy; <?php echo date("Y"); ?> DivineWord Community. All rights reserved.</p>
 
-    <!-- Sidebar Links moved to Footer -->
+    <!-- Footer Links with Design -->
     <div class="footer-links">
         <h3>Footer Links</h3>
         <ul>
             <?php foreach ($footerLinks as $link) : ?>
                 <li>
                     <?php if ($link['thumbnail']) : ?>
-                        <img src="<?php echo $link['thumbnail']; ?>" alt="<?php echo $link['text']; ?>" class="thumbnail">
+                        <div class="footer-link-item">
+                            <img src="<?php echo $link['thumbnail']; ?>" alt="<?php echo $link['text']; ?>" class="footer-thumbnail">
+                            <a href="#"><?php echo $link['text']; ?></a>
+                        </div>
+                    <?php else : ?>
+                        <div class="footer-link-item">
+                            <a href="#"><?php echo $link['text']; ?></a>
+                        </div>
                     <?php endif; ?>
-                    <a href="<?php echo $link['url']; ?>"><?php echo $link['text']; ?></a>
                 </li>
             <?php endforeach; ?>
         </ul>
