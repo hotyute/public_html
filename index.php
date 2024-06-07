@@ -3,9 +3,9 @@
 <?php
 $sidebarLinks = [
     [
-        'url' => BASE_URL . 'archive.php',
-        'text' => 'All Posts',
-        'thumbnail' => '/images/ALL_POSTS_thumb.png'
+        'url' => '#',
+        'text' => 'Link 1',
+        'thumbnail' => ''
     ],
     [
         'url' => '#',
