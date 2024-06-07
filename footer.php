@@ -32,7 +32,7 @@ $footerLinks = [
                     <?php if ($link['thumbnail']) : ?>
                         <div class="footer-link-item">
                             <img src="<?php echo $link['thumbnail']; ?>" alt="<?php echo $link['text']; ?>" class="footer-thumbnail">
-                            <a href="#"><?php echo $link['text']; ?></a>
+                            <a href="<?php echo $link['url']; ?>"><?php echo $link['text']; ?></a>
                         </div>
                     <?php else : ?>
                         <div class="footer-link-item">
