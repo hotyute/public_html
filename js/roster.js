@@ -1,6 +1,18 @@
 let currentUserRole = 'guest';
 let isEditMode = false; // State to track edit mode
 
+document.addEventListener('DOMContentLoaded', function() {
+    fetchRoster();
+
+    // Add click event listener to table cells
+    document.querySelector('.roster-table').addEventListener('click', function(event) {
+        if (event.target.tagName === 'TD') {
+            // Handle cell click, for example, you can toggle a class for a clicked state
+            event.target.classList.toggle('clicked');
+        }
+    });
+});
+
 // Fetch and display the roster
 function fetchRoster() {
     fetch('/includes/roster/fetch_roster.php')

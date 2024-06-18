@@ -20,10 +20,23 @@
     padding: 10px;
     border: 1px solid #ddd;
     text-align: center;
+    transition: background-color 0.3s, transform 0.3s;
 }
 
 .roster-table th {
     background-color: #f2f2f2;
+}
+
+.roster-table td {
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.roster-table td:hover {
+    background-color: #f0f0f0;
+    transform: translateY(-2px);
 }
 
 .notice {
