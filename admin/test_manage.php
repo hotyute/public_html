@@ -1,4 +1,6 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 session_start();
 require 'includes/config.php';
 
@@ -55,63 +57,57 @@ try {
 }
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Manage Tests</title>
-</head>
-<body>
-    <h1>Manage Tests and Questions</h1>
+<?php include '../header.php'; ?>
+<h1>Manage Tests and Questions</h1>
 
-    <!-- Form to add a new test -->
-    <h2>Add New Test</h2>
-    <form method="POST">
-        <input type="text" name="test_name" placeholder="Test Name" required>
-        <button type="submit" name="add_test">Add Test</button>
-    </form>
+<!-- Form to add a new test -->
+<h2>Add New Test</h2>
+<form method="POST">
+    <input type="text" name="test_name" placeholder="Test Name" required>
+    <button type="submit" name="add_test">Add Test</button>
+</form>
 
-    <!-- Form to delete a test -->
-    <h2>Delete Test</h2>
-    <form method="POST">
-        <select name="test_id" required>
-            <?php foreach ($tests as $test): ?>
-                <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
-            <?php endforeach; ?>
-        </select>
-        <button type="submit" name="delete_test">Delete Test</button>
-    </form>
+<!-- Form to delete a test -->
+<h2>Delete Test</h2>
+<form method="POST">
+    <select name="test_id" required>
+        <?php foreach ($tests as $test) : ?>
+            <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
+        <?php endforeach; ?>
+    </select>
+    <button type="submit" name="delete_test">Delete Test</button>
+</form>
 
-    <!-- Form to add a new question -->
-    <h2>Add New Question</h2>
-    <form method="POST">
-        <select name="test_id" required>
-            <?php foreach ($tests as $test): ?>
-                <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
-            <?php endforeach; ?>
-        </select><br>
-        <textarea name="question" placeholder="Question" required></textarea><br>
-        <input type="text" name="option_a" placeholder="Option A" required><br>
-        <input type="text" name="option_b" placeholder="Option B" required><br>
-        <input type="text" name="option_c" placeholder="Option C" required><br>
-        <input type="text" name="option_d" placeholder="Option D" required><br>
-        <select name="correct_option" required>
-            <option value="a">A</option>
-            <option value="b">B</option>
-            <option value="c">C</option>
-            <option value="d">D</option>
-        </select><br>
-        <button type="submit" name="add_question">Add Question</button>
-    </form>
+<!-- Form to add a new question -->
+<h2>Add New Question</h2>
+<form method="POST">
+    <select name="test_id" required>
+        <?php foreach ($tests as $test) : ?>
+            <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
+        <?php endforeach; ?>
+    </select><br>
+    <textarea name="question" placeholder="Question" required></textarea><br>
+    <input type="text" name="option_a" placeholder="Option A" required><br>
+    <input type="text" name="option_b" placeholder="Option B" required><br>
+    <input type="text" name="option_c" placeholder="Option C" required><br>
+    <input type="text" name="option_d" placeholder="Option D" required><br>
+    <select name="correct_option" required>
+        <option value="a">A</option>
+        <option value="b">B</option>
+        <option value="c">C</option>
+        <option value="d">D</option>
+    </select><br>
+    <button type="submit" name="add_question">Add Question</button>
+</form>
 
-    <!-- Form to delete a question -->
-    <h2>Delete Question</h2>
-    <form method="POST">
-        <select name="question_id" required>
-            <?php foreach ($questions as $question): ?>
-                <option value="<?= htmlspecialchars($question['id']) ?>"><?= htmlspecialchars($question['question']) ?></option>
-            <?php endforeach; ?>
-        </select>
-        <button type="submit" name="delete_question">Delete Question</button>
-    </form>
-</body>
-</html>
+<!-- Form to delete a question -->
+<h2>Delete Question</h2>
+<form method="POST">
+    <select name="question_id" required>
+        <?php foreach ($questions as $question) : ?>
+            <option value="<?= htmlspecialchars($question['id']) ?>"><?= htmlspecialchars($question['question']) ?></option>
+        <?php endforeach; ?>
+    </select>
+    <button type="submit" name="delete_question">Delete Question</button>
+</form>
+<?php include '../footer.php'; ?>
