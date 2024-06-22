@@ -68,11 +68,7 @@ try {
         <form method="POST" id="assignTestForm">
             <input type="hidden" name="user_id" id="assignTestUserId">
             <label for="test_id">Test:</label>
-            <select name="test_id" id="test_id" required>
-                <?php foreach ($tests as $test): ?>
-                    <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
-                <?php endforeach; ?>
-            </select>
+            <select name="test_id" id="assignTestId" required></select>
             <button type="submit" name="assign_test">Assign Test</button>
         </form>
 
@@ -80,11 +76,7 @@ try {
         <form method="POST" id="removeTestForm">
             <input type="hidden" name="user_id" id="removeTestUserId">
             <label for="test_id">Test:</label>
-            <select name="test_id" id="removeTestId" required>
-                <?php foreach ($tests as $test): ?>
-                    <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
-                <?php endforeach; ?>
-            </select>
+            <select name="test_id" id="removeTestId" required></select>
             <button type="submit" name="remove_test">Remove Test</button>
         </form>
 
@@ -111,7 +103,9 @@ document.getElementById('searchForm').addEventListener('submit', function(event)
                     document.getElementById('role').value = user.role;
                     document.getElementById('assignTestUserId').value = user.id;
                     document.getElementById('removeTestUserId').value = user.id;
-                    fetch(`/admin/get_assigned_tests.php?user_id=${user.id}`)
+
+                    // Fetch assigned tests for this user
+                    fetch(`/includes/tests/get_assigned_tests.php?user_id=${user.id}`)
                         .then(response => response.json())
                         .then(data => {
                             const assignedTestsDiv = document.getElementById('assignedTests');
@@ -120,6 +114,27 @@ document.getElementById('searchForm').addEventListener('submit', function(event)
                                 const testDiv = document.createElement('div');
                                 testDiv.textContent = test.test_name;
                                 assignedTestsDiv.appendChild(testDiv);
+                            });
+
+                            const assignTestSelect = document.getElementById('assignTestId');
+                            const removeTestSelect = document.getElementById('removeTestId');
+                            assignTestSelect.innerHTML = '';
+                            removeTestSelect.innerHTML = '';
+
+                            // Populate the assign test select box with tests not assigned to the user
+                            data.available_tests.forEach(test => {
+                                const option = document.createElement('option');
+                                option.value = test.id;
+                                option.textContent = test.test_name;
+                                assignTestSelect.appendChild(option);
+                            });
+
+                            // Populate the remove test select box with tests assigned to the user
+                            data.tests.forEach(test => {
+                                const option = document.createElement('option');
+                                option.value = test.id;
+                                option.textContent = test.test_name;
+                                removeTestSelect.appendChild(option);
                             });
                         });
                     document.getElementById('userDetails').style.display = 'block';
