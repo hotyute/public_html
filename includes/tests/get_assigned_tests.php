@@ -1,5 +1,5 @@
 <?php
-require '../includes/config.php';
+require '../database.php';
 
 if (!isset($_GET['user_id'])) {
     die("Invalid request.");
