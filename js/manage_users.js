@@ -1,8 +1,7 @@
 // JavaScript for handling search and user editing
 document.getElementById('searchForm').addEventListener('submit', function (event) {
     event.preventDefault();
-    let query = document.getElementById('searchQuery').value;
-
+    const query = document.getElementById('searchQuery').value;
     fetch(`/includes/users/search_users.php?query=${query}`)
         .then(response => {
             if (!response.ok) {
@@ -11,19 +10,57 @@ document.getElementById('searchForm').addEventListener('submit', function (event
             return response.json();
         })
         .then(data => {
-            let resultsDiv = document.getElementById('searchResults');
+            const resultsDiv = document.getElementById('searchResults');
             resultsDiv.innerHTML = '';
-
-            data.forEach(user => {
-                let userDiv = document.createElement('div');
+            data.users.forEach(user => {
+                const userDiv = document.createElement('div');
                 userDiv.textContent = `${user.username} (${user.displayname})`;
-                userDiv.addEventListener('click', function () {
-                    loadUserDetails(user.id);
+                userDiv.addEventListener('click', () => {
+                    document.getElementById('userId').value = user.id;
+                    document.getElementById('displayName').value = user.displayname;
+                    document.getElementById('role').value = user.role;
+                    document.getElementById('assignTestUserId').value = user.id;
+                    document.getElementById('removeTestUserId').value = user.id;
+
+                    // Fetch assigned tests for this user
+                    fetch(`/includes/tests/get_assigned_tests.php?user_id=${user.id}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const assignedTestsDiv = document.getElementById('assignedTests');
+                            assignedTestsDiv.innerHTML = '';
+                            data.tests.forEach(test => {
+                                const testDiv = document.createElement('div');
+                                testDiv.textContent = test.test_name;
+                                assignedTestsDiv.appendChild(testDiv);
+                            });
+
+                            const assignTestSelect = document.getElementById('assignTestId');
+                            const removeTestSelect = document.getElementById('removeTestId');
+                            assignTestSelect.innerHTML = '';
+                            removeTestSelect.innerHTML = '';
+
+                            // Populate the assign test select box with tests not assigned to the user
+                            data.available_tests.forEach(test => {
+                                const option = document.createElement('option');
+                                option.value = test.id;
+                                option.textContent = test.test_name;
+                                assignTestSelect.appendChild(option);
+                            });
+
+                            // Populate the remove test select box with tests assigned to the user
+                            data.tests.forEach(test => {
+                                const option = document.createElement('option');
+                                option.value = test.id;
+                                option.textContent = test.test_name;
+                                removeTestSelect.appendChild(option);
+                            });
+                        });
+                    document.getElementById('userDetails').style.display = 'block';
                 });
                 resultsDiv.appendChild(userDiv);
             });
         })
-        .catch(error => console.error('There has been a problem with your fetch operation:', error));
+        .catch(error => console.error('There has been a problem with your fetch operation:', error));;
 });
 
 function loadUserDetails(userId) {
