@@ -5,7 +5,7 @@ require 'includes/config.php';  // Include the configuration file
 
 try {
     // Create a new PDO instance to connect to MySQL
-    $pdo = new PDO("mysql:host=" . DB_HOST, DB_USER, DB_PASS);  // Make sure DB_PASSWORD is the correct constant name
+    $pdo = new PDO("mysql:host=" . DB_HOST, DB_USER, DB_PASS);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // Check if the database already exists
@@ -51,6 +51,49 @@ CREATE TABLE IF NOT EXISTS roster_data (
     user_id INT NOT NULL,
     devotion ENUM('red', 'blue', 'yellow', 'green') DEFAULT 'red',
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS questions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    question TEXT NOT NULL,
+    option_a VARCHAR(255) NOT NULL,
+    option_b VARCHAR(255) NOT NULL,
+    option_c VARCHAR(255) NOT NULL,
+    option_d VARCHAR(255) NOT NULL,
+    correct_option ENUM('a', 'b', 'c', 'd') NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS tests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    test_name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS test_questions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    test_id INT NOT NULL,
+    question_id INT NOT NULL,
+    FOREIGN KEY (test_id) REFERENCES tests(id) ON DELETE CASCADE,
+    FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS scores (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    test_id INT NOT NULL,
+    score INT NOT NULL,
+    taken_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (test_id) REFERENCES tests(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS user_tests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    test_id INT NOT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (test_id) REFERENCES tests(id) ON DELETE CASCADE
 );
 SQL;
 
