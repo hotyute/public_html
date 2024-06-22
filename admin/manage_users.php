@@ -35,10 +35,8 @@ try {
         }
     }
 
-    // Fetch existing users and tests
-    $users = $pdo->query("SELECT id, username FROM users")->fetchAll(PDO::FETCH_ASSOC);
+    // Fetch existing tests
     $tests = $pdo->query("SELECT id, test_name FROM tests")->fetchAll(PDO::FETCH_ASSOC);
-    $user_tests = $pdo->query("SELECT ut.user_id, ut.test_id, u.username, t.test_name FROM user_tests ut JOIN users u ON ut.user_id = u.id JOIN tests t ON ut.test_id = t.id")->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
 }
@@ -65,64 +63,72 @@ try {
             </select>
             <button type="submit">Update User</button>
         </form>
+
+        <h2>Assign Test to User</h2>
+        <form method="POST" id="assignTestForm">
+            <input type="hidden" name="user_id" id="assignTestUserId">
+            <label for="test_id">Test:</label>
+            <select name="test_id" id="test_id" required>
+                <?php foreach ($tests as $test): ?>
+                    <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
+                <?php endforeach; ?>
+            </select>
+            <button type="submit" name="assign_test">Assign Test</button>
+        </form>
+
+        <h2>Remove Test from User</h2>
+        <form method="POST" id="removeTestForm">
+            <input type="hidden" name="user_id" id="removeTestUserId">
+            <label for="test_id">Test:</label>
+            <select name="test_id" id="removeTestId" required>
+                <?php foreach ($tests as $test): ?>
+                    <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
+                <?php endforeach; ?>
+            </select>
+            <button type="submit" name="remove_test">Remove Test</button>
+        </form>
+
+        <h2>Assigned Tests</h2>
+        <div id="assignedTests"></div>
     </div>
-
-    <h2>Assign Test to User</h2>
-    <form method="POST">
-        <label for="user_id">User:</label>
-        <select name="user_id" id="user_id" required>
-            <?php foreach ($users as $user): ?>
-                <option value="<?= htmlspecialchars($user['id']) ?>"><?= htmlspecialchars($user['username']) ?></option>
-            <?php endforeach; ?>
-        </select>
-        <br>
-        <label for="test_id">Test:</label>
-        <select name="test_id" id="test_id" required>
-            <?php foreach ($tests as $test): ?>
-                <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
-            <?php endforeach; ?>
-        </select>
-        <br>
-        <button type="submit" name="assign_test">Assign Test</button>
-    </form>
-
-    <h2>Remove Test from User</h2>
-    <form method="POST">
-        <label for="user_id">User:</label>
-        <select name="user_id" id="user_id" required>
-            <?php foreach ($users as $user): ?>
-                <option value="<?= htmlspecialchars($user['id']) ?>"><?= htmlspecialchars($user['username']) ?></option>
-            <?php endforeach; ?>
-        </select>
-        <br>
-        <label for="test_id">Test:</label>
-        <select name="test_id" id="test_id" required>
-            <?php foreach ($tests as $test): ?>
-                <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
-            <?php endforeach; ?>
-        </select>
-        <br>
-        <button type="submit" name="remove_test">Remove Test</button>
-    </form>
-
-    <h2>Assigned Tests</h2>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>User</th>
-                <th>Test</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($user_tests as $user_test): ?>
-                <tr>
-                    <td><?= htmlspecialchars($user_test['username']) ?></td>
-                    <td><?= htmlspecialchars($user_test['test_name']) ?></td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
 </div>
+
+<script>
+document.getElementById('searchForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const query = document.getElementById('searchQuery').value;
+    fetch(`/admin/search_users.php?query=${query}`)
+        .then(response => response.json())
+        .then(data => {
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = '';
+            data.users.forEach(user => {
+                const userDiv = document.createElement('div');
+                userDiv.textContent = `${user.username} (${user.displayname})`;
+                userDiv.addEventListener('click', () => {
+                    document.getElementById('userId').value = user.id;
+                    document.getElementById('displayName').value = user.displayname;
+                    document.getElementById('role').value = user.role;
+                    document.getElementById('assignTestUserId').value = user.id;
+                    document.getElementById('removeTestUserId').value = user.id;
+                    fetch(`/admin/get_assigned_tests.php?user_id=${user.id}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const assignedTestsDiv = document.getElementById('assignedTests');
+                            assignedTestsDiv.innerHTML = '';
+                            data.tests.forEach(test => {
+                                const testDiv = document.createElement('div');
+                                testDiv.textContent = test.test_name;
+                                assignedTestsDiv.appendChild(testDiv);
+                            });
+                        });
+                    document.getElementById('userDetails').style.display = 'block';
+                });
+                resultsDiv.appendChild(userDiv);
+            });
+        });
+});
+</script>
 
 <?php
 include('../footer.php'); // Admin panel footer
