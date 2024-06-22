@@ -20,6 +20,7 @@ include '../header.php';
             <li><a href="edit_video.php">Edit Video of the Week</a></li>
             <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') : ?>
                 <li><a href="manage_users.php">Manage Users</a></li>
+                <li><a href="test_manage.php">Manage Tests</a></li>
             <?php endif; ?>
             <!-- Additional links for other admin tasks can be added here -->
         </ul>
