@@ -2,7 +2,7 @@
 session_start();
 require 'includes/config.php';
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     die("Unauthorized access.");
 }
 
