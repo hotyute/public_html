@@ -12,8 +12,8 @@ document.getElementById('searchForm').addEventListener('submit', function (event
         .then(data => {
             const resultsDiv = document.getElementById('searchResults');
             resultsDiv.innerHTML = '';
-            if (data) {
-                data.forEach(user => {
+            if (data.users) {
+                data.users.forEach(user => {
                     const userDiv = document.createElement('div');
                     userDiv.textContent = `${user.username} (${user.displayname})`;
                     userDiv.addEventListener('click', () => {

@@ -9,7 +9,7 @@ $stmt->execute([$searchQuery, $searchQuery]);
 $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 if ($results) {
-    $response = $results;
+    $response['users'] = $results;
 } else {
     $response['error'] = 'No results found';
 }
