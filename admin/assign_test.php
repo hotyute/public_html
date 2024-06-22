@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once '../base_config.php';
 require 'includes/config.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
@@ -27,29 +28,23 @@ try {
 }
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Assign Tests</title>
-</head>
-<body>
-    <h1>Assign Tests to Users</h1>
-    <form method="POST">
-        <label for="user_id">User:</label>
-        <select name="user_id" id="user_id" required>
-            <?php foreach ($users as $user): ?>
-                <option value="<?= htmlspecialchars($user['id']) ?>"><?= htmlspecialchars($user['username']) ?></option>
-            <?php endforeach; ?>
-        </select>
-        <br>
-        <label for="test_id">Test:</label>
-        <select name="test_id" id="test_id" required>
-            <?php foreach ($tests as $test): ?>
-                <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
-            <?php endforeach; ?>
-        </select>
-        <br>
-        <button type="submit">Assign Test</button>
-    </form>
-</body>
-</html>
+<?php include '../header.php'; ?>
+<h1>Assign Tests to Users</h1>
+<form method="POST">
+    <label for="user_id">User:</label>
+    <select name="user_id" id="user_id" required>
+        <?php foreach ($users as $user) : ?>
+            <option value="<?= htmlspecialchars($user['id']) ?>"><?= htmlspecialchars($user['username']) ?></option>
+        <?php endforeach; ?>
+    </select>
+    <br>
+    <label for="test_id">Test:</label>
+    <select name="test_id" id="test_id" required>
+        <?php foreach ($tests as $test) : ?>
+            <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
+        <?php endforeach; ?>
+    </select>
+    <br>
+    <button type="submit">Assign Test</button>
+</form>
+<?php include '../footer.php'; ?>
