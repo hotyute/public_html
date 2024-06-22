@@ -47,6 +47,10 @@ try {
             die("You are not assigned to this test.");
         }
 
+        // Remove the test assignment
+        $stmt = $pdo->prepare("DELETE FROM user_tests WHERE user_id = ? AND test_id = ?");
+        $stmt->execute([$_SESSION['user_id'], $test_id]);
+
         $stmt = $pdo->prepare("SELECT q.id, q.question, q.option_a, q.option_b, q.option_c, q.option_d FROM questions q 
                                JOIN test_questions tq ON q.id = tq.question_id WHERE tq.test_id = ?");
         $stmt->execute([$test_id]);
@@ -61,6 +65,7 @@ try {
         $test_duration = 60 * 5; // 5 minutes, adjust as needed
         $_SESSION['end_time'] = $_SESSION['start_time'] + $test_duration;
 
+        echo '<div id="timer"></div>';
         echo '<form method="POST">';
         echo '<input type="hidden" name="test_id" value="' . htmlspecialchars($test_id) . '">';
         foreach ($questions as $index => $question) {
@@ -79,3 +84,39 @@ try {
     die("Database error: " . $e->getMessage());
 }
 ?>
+
+<script>
+    function startTimer(duration, display) {
+        var timer = duration,
+            minutes, seconds;
+        setInterval(function() {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            display.textContent = minutes + ":" + seconds;
+
+            if (--timer < 0) {
+                timer = duration;
+                alert("Time's up! The test will be submitted automatically.");
+                document.querySelector('form').submit();
+            }
+        }, 1000);
+    }
+
+    window.onload = function() {
+        var endTime = <?= $_SESSION['end_time'] ?>;
+        var currentTime = Math.floor(Date.now() / 1000);
+        var timeLeft = endTime - currentTime;
+
+        if (timeLeft <= 0) {
+            alert("Time's up! The test will be submitted automatically.");
+            document.querySelector('form').submit();
+        } else {
+            var display = document.querySelector('#timer');
+            startTimer(timeLeft, display);
+        }
+    };
+</script>
