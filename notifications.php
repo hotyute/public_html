@@ -1,7 +1,10 @@
-<?php
-session_start();
-require_once('base_config.php');
-include_once('includes/notifications/get_notification_data.php');
+<?php 
+include 'header.php';
+include_once 'includes/notifications/get_notification_data.php';
+
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 if (!isset($_SESSION['username'])) {
     header('Location: login.php');
@@ -13,25 +16,16 @@ $notifications = get_notifications($user_id, true); // Fetch all notifications
 
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Notifications</title>
-    <link rel="stylesheet" type="text/css" href="styles.css"> <!-- Assume there's a CSS file -->
-</head>
-<body>
-    <?php include('header.php'); ?>
-    <div class="container">
-        <h2>Your Notifications</h2>
-        <?php
-        if (count($notifications) > 0) {
-            foreach ($notifications as $notification) {
-                echo "<div class='notification'>" . $notification['message'] . " - " . $notification['created_at'] . "</div>";
-            }
-        } else {
-            echo "<p>No notifications.</p>";
+<div class="container">
+    <h2>Your Notifications</h2>
+    <?php
+    if (count($notifications) > 0) {
+        foreach ($notifications as $notification) {
+            echo "<div class='notification'>" . $notification['message'] . " - " . $notification['created_at'] . "</div>";
         }
-        ?>
-    </div>
-</body>
-</html>
+    } else {
+        echo "<p>No notifications.</p>";
+    }
+    ?>
+</div>
+<?php include 'footer.php'; ?>
