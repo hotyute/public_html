@@ -95,6 +95,14 @@ CREATE TABLE IF NOT EXISTS user_tests (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (test_id) REFERENCES tests(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    message VARCHAR(255) NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 SQL;
 
         // Replace placeholders with actual constant values
