@@ -1,26 +1,21 @@
 <?php
-require __DIR__ .'/../database.php';
+require __DIR__ . '/../database.php'; // Ensure the path is correct
 
 function add_notification($user_id, $message) {
-    global $conn;
-    $stmt = $conn->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)");
-    $stmt->bind_param("is", $user_id, $message);
-    $stmt->execute();
-    $stmt->close();
+    global $pdo;
+    $stmt = $pdo->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)");
+    $stmt->execute([$user_id, $message]);
 }
 
 function get_notifications($user_id, $all = false) {
-    global $conn;
+    global $pdo;
     if ($all) {
-        $stmt = $conn->prepare("SELECT * FROM notifications WHERE user_id = ?");
+        $stmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = ?");
     } else {
-        $stmt = $conn->prepare("SELECT * FROM notifications WHERE user_id = ? AND is_read = FALSE");
+        $stmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = ? AND is_read = FALSE");
     }
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $notifications = $result->fetch_all(MYSQLI_ASSOC);
-    $stmt->close();
+    $stmt->execute([$user_id]);
+    $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
     if (!$all) {
         mark_notifications_as_read($user_id);
     }
@@ -28,10 +23,8 @@ function get_notifications($user_id, $all = false) {
 }
 
 function mark_notifications_as_read($user_id) {
-    global $conn;
-    $stmt = $conn->prepare("UPDATE notifications SET is_read = TRUE WHERE user_id = ?");
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $stmt->close();
+    global $pdo;
+    $stmt = $pdo->prepare("UPDATE notifications SET is_read = TRUE WHERE user_id = ?");
+    $stmt->execute([$user_id]);
 }
 ?>
