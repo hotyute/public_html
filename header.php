@@ -1,6 +1,6 @@
 <?php
 require_once 'base_config.php';
-include_once 'notifications.php';
+include_once 'includes/notifications/get_notification_data.php';
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -55,7 +55,7 @@ if (isset($_GET['logout'])) {
                 ?>
                     <span>Hello, <?php echo $_SESSION['username']; ?></span>
                     <button class="auth-button" onclick="logout()">Logout</button>
-                    <div class="notifications">
+                    <!-- <div class="notifications">
                         <a class="notifications-button" href="notifications.php">Notifications (<?php echo count($notifications); ?>)</a>
                         <div class="notifications-dropdown" style="display:none;">
                             <?php
@@ -70,7 +70,7 @@ if (isset($_GET['logout'])) {
                             const dropdown = document.querySelector('.notifications-dropdown');
                             dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
                         }
-                    </script>
+                    </script> -->
                 <?php
                 } else {
                 ?>
