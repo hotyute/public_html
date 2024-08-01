@@ -1,6 +1,6 @@
 <?php
 require_once 'base_config.php';
-include('notifications.php');
+include_once 'notifications.php';
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -47,12 +47,37 @@ if (isset($_GET['logout'])) {
                         <button type="submit">Search</button>
                     </form>
                 </div>
-                <?php if (isset($_SESSION['username'])) : ?>
+                <?php
+
+                if (isset($_SESSION['username'])) {
+                    $user_id = $_SESSION['user_id']; // Assuming user_id is stored in session
+                    $notifications = get_notifications($user_id);
+                ?>
                     <span>Hello, <?php echo $_SESSION['username']; ?></span>
                     <button class="auth-button" onclick="logout()">Logout</button>
-                <?php else : ?>
+                    <div class="notifications">
+                        <a class="notifications-button" href="notifications.php">Notifications (<?php echo count($notifications); ?>)</a>
+                        <div class="notifications-dropdown" style="display:none;">
+                            <?php
+                            foreach ($notifications as $notification) {
+                                echo "<div class='notification'>" . $notification['message'] . "</div>";
+                            }
+                            ?>
+                        </div>
+                    </div>
+                    <script>
+                        function toggleNotifications() {
+                            const dropdown = document.querySelector('.notifications-dropdown');
+                            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+                        }
+                    </script>
+                <?php
+                } else {
+                ?>
                     <button class="auth-button" onclick="window.location.href='<?php echo BASE_URL; ?>login.php'">Login</button>
-                <?php endif; ?>
+                <?php
+                }
+                ?>
             </div>
         </div>
         <div class="hamburger">☰</div> <!-- Hamburger Icon -->
