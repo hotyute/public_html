@@ -1,5 +1,6 @@
 <?php
 require_once 'base_config.php';
+include_once 'includes/notifications/get_notification_data.php';
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -50,7 +51,7 @@ if (isset($_GET['logout'])) {
 
                 if (isset($_SESSION['username'])) {
                     $user_id = $_SESSION['user_id']; // Assuming user_id is stored in session
-                    //$notifications = get_notifications($user_id);
+                    $notifications = get_notifications($user_id);
                 ?>
                     <span>Hello, <?php echo $_SESSION['username']; ?></span>
                     <button class="auth-button" onclick="logout()">Logout</button>
