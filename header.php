@@ -31,6 +31,21 @@ if (isset($_GET['logout'])) {
         function logout() {
             window.location.href = '?logout=true';
         }
+
+        // Function to toggle notifications dropdown
+        function toggleNotifications() {
+            const dropdown = document.querySelector('.notifications-dropdown');
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.querySelector('.notifications-dropdown');
+            const button = document.querySelector('.notifications-button');
+            if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
     </script>
 </head>
 
@@ -48,28 +63,25 @@ if (isset($_GET['logout'])) {
                     </form>
                 </div>
                 <?php
-
                 if (isset($_SESSION['username'])) {
                     $user_id = $_SESSION['user_id']; // Assuming user_id is stored in session
                     $notifications = get_notifications($user_id);
                 ?>
                     <span>Hello, <?php echo $_SESSION['username']; ?></span>
                     <div class="notifications">
-                        <a class="notifications-button" href="notifications.php">Notifications (<?php echo count($notifications); ?>)</a>
-                        <div class="notifications-dropdown" style="display:none;">
+                        <a class="notifications-button" href="javascript:void(0);" onclick="toggleNotifications()">Notifications (<?php echo count($notifications); ?>)</a>
+                        <div class="notifications-dropdown">
                             <?php
-                            foreach ($notifications as $notification) {
-                                echo "<div class='notification'>" . $notification['message'] . "</div>";
+                            if (count($notifications) > 0) {
+                                foreach ($notifications as $notification) {
+                                    echo "<div class='notification'>" . $notification['message'] . "</div>";
+                                }
+                            } else {
+                                echo "<div class='notification'>No new notifications</div>";
                             }
                             ?>
                         </div>
                     </div>
-                    <script>
-                        function toggleNotifications() {
-                            const dropdown = document.querySelector('.notifications-dropdown');
-                            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-                        }
-                    </script>
                     <button class="auth-button" onclick="logout()">Logout</button>
                 <?php
                 } else {
