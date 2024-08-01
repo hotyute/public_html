@@ -1,5 +1,5 @@
 <?php
-require '../database.php';
+require_once '../database.php';
 
 function add_notification($user_id, $message) {
     global $conn;
