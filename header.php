@@ -1,6 +1,6 @@
 <?php
 require_once 'base_config.php';
-include('notifications.php');
+include_once('notifications.php');
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
