@@ -1,7 +1,7 @@
 <?php
 session_start();
-include('base_config.php');
-include('includes/notifications/get_notification_data.php');
+require_once('base_config.php');
+include_once('includes/notifications/get_notification_data.php');
 
 if (!isset($_SESSION['username'])) {
     header('Location: login.php');
