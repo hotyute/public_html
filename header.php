@@ -54,7 +54,6 @@ if (isset($_GET['logout'])) {
                     $notifications = get_notifications($user_id);
                 ?>
                     <span>Hello, <?php echo $_SESSION['username']; ?></span>
-                    <button class="auth-button" onclick="logout()">Logout</button>
                     <div class="notifications">
                         <a class="notifications-button" href="notifications.php">Notifications (<?php echo count($notifications); ?>)</a>
                         <div class="notifications-dropdown" style="display:none;">
@@ -71,6 +70,7 @@ if (isset($_GET['logout'])) {
                             dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
                         }
                     </script>
+                    <button class="auth-button" onclick="logout()">Logout</button>
                 <?php
                 } else {
                 ?>
