@@ -51,8 +51,6 @@ header a, footer a {
     color: white;
 }
 
-
-
 /* Button Styling */
 button.auth-button {
     background-color: #0044cc; /* Blue background */
@@ -91,7 +89,6 @@ hr::after {
     color: #999;
     font-size: 1.5em;
 }
-
 
 /* Responsive design adjustments for screen only devices */
 @media only screen and (max-width: 768px) {

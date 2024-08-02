@@ -66,21 +66,23 @@ if (isset($_GET['logout'])) {
                 if (isset($_SESSION['username'])) {
                     $user_id = $_SESSION['user_id']; // Assuming user_id is stored in session
                     $notifications = get_notifications($user_id);
+                    $notification_count = count($notifications);
                 ?>
-                    <span>Hello, <?php echo $_SESSION['username']; ?></span>
-                    <div class="notifications">
-                        <a class="notifications-button" href="javascript:void(0);" onclick="toggleNotifications()">Notifications (<?php echo count($notifications); ?>)</a>
-                        <div class="notifications-dropdown">
-                            <?php
-                            if (count($notifications) > 0) {
-                                foreach ($notifications as $notification) {
-                                    echo "<div class='notification'>" . $notification['message'] . "</div>";
-                                }
-                            } else {
-                                echo "<div class='notification'>No new notifications</div>";
+                    <span class="user-info">Hello, <?php echo $_SESSION['username']; ?>
+                        <a class="notifications-button" href="javascript:void(0);" onclick="toggleNotifications()">
+                            <span class="notification-count">(<?php echo $notification_count; ?>)</span>
+                        </a>
+                    </span>
+                    <div class="notifications-dropdown">
+                        <?php
+                        if ($notification_count > 0) {
+                            foreach ($notifications as $notification) {
+                                echo "<div class='notification'>" . $notification['message'] . "</div>";
                             }
-                            ?>
-                        </div>
+                        } else {
+                            echo "<div class='notification'>No new notifications</div>";
+                        }
+                        ?>
                     </div>
                     <button class="auth-button" onclick="logout()">Logout</button>
                 <?php
@@ -92,7 +94,7 @@ if (isset($_GET['logout'])) {
                 ?>
             </div>
         </div>
-        <div class="hamburger">☰</div> <!-- Hamburger Icon -->
+        <div class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('active')">☰</div> <!-- Hamburger Icon -->
         <nav>
             <ul class="nav-links">
                 <li><a href="<?php echo BASE_URL; ?>index.php">Home</a></li>
@@ -105,3 +107,5 @@ if (isset($_GET['logout'])) {
             </ul>
         </nav>
     </header>
+</body>
+</html>

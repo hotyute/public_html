@@ -5,11 +5,12 @@
     flex-wrap: wrap; /* Allow wrapping for smaller screens */
 }
 
-.userinfo {
+.user-info {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     color: #ffd700;
+    margin-bottom: 10px; /* Add space between username and notifications */
 }
 
 .search-bar {
@@ -132,7 +133,7 @@ nav ul li button.auth-button:hover {
 
 .notifications {
     position: relative;
-    margin-left: 20px;
+    margin-left: 10px;
 }
 
 .notifications-button {
@@ -210,7 +211,7 @@ nav ul li button.auth-button:hover {
         align-items: center;
     }
 
-    .userinfo {
+    .user-info {
         align-items: center;
     }
 
