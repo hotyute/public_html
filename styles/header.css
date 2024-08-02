@@ -10,7 +10,6 @@
     flex-direction: column;
     align-items: flex-end;
     color: #ffd700;
-    margin-bottom: 10px; /* Add space between username and notifications */
 }
 
 .search-bar {

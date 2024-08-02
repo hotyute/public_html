@@ -55,7 +55,7 @@ if (isset($_GET['logout'])) {
             <div class="logo">
                 <img src="<?php echo BASE_URL; ?>images/logo.png" alt="Logo">
             </div>
-            <div class="userinfo">
+            <div class="user-info">
                 <div class="search-bar">
                     <form action="<?php echo BASE_URL; ?>search.php" method="GET">
                         <input type="text" name="query" placeholder="Search...">
@@ -68,7 +68,7 @@ if (isset($_GET['logout'])) {
                     $notifications = get_notifications($user_id);
                     $notification_count = count($notifications);
                 ?>
-                    <span class="user-info">Hello, <?php echo $_SESSION['username']; ?>
+                    <span>Hello, <?php echo $_SESSION['username']; ?> 
                         <a class="notifications-button" href="javascript:void(0);" onclick="toggleNotifications()">
                             <span class="notification-count">(<?php echo $notification_count; ?>)</span>
                         </a>
