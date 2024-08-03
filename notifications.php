@@ -24,6 +24,7 @@ $notifications = get_notifications($user_id, true); // Fetch all notifications
 <div class="container">
     <h2>Your Notifications</h2>
     <?php
+    echo 'Notifications: ' . count($notifications);
     if (count($notifications) > 0) {
         foreach ($notifications as $notification) {
             echo "<div class='notification-main'>";
