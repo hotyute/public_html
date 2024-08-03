@@ -1,5 +1,4 @@
 <?php 
-include 'header.php';
 include_once 'includes/notifications/notification_data.php';
 
 if (session_status() == PHP_SESSION_NONE) {
@@ -18,16 +17,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_notification_id
     remove_notification($notification_id, $user_id);
 }
 
-$notifications = get_notifications($user_id, true); // Fetch all notifications
+$notifications_list = get_notifications($user_id, true); // Fetch all notifications
 echo 'Notifications: ' . $user_id . ' ' . count($notifications);
 ?>
 
+<?php include 'header.php'; ?>
 <div class="container">
     <h2>Your Notifications</h2>
     <?php
-    echo 'Notifications: ' . $user_id . ' ' . count($notifications);
-    if (count($notifications) > 0) {
-        foreach ($notifications as $notification) {
+    echo 'Notifications: ' . $user_id . ' ' . count($notifications_list);
+    if (count($notifications_list) > 0) {
+        foreach ($notifications_list as $notification) {
             echo "<div class='notification-main'>";
             echo "<strong>" . htmlspecialchars($notification['title']) . "</strong><br>";
             echo htmlspecialchars($notification['message']) . " - " . htmlspecialchars($notification['created_at']);
