@@ -27,18 +27,15 @@ if (isset($_GET['logout'])) {
     <script src="<?php echo BASE_URL; ?>js/script.js"></script>
     <title>Divine Word</title>
     <script>
-        // Function to handle logout redirection
         function logout() {
             window.location.href = '?logout=true';
         }
 
-        // Function to toggle notifications dropdown
         function toggleNotifications() {
             const dropdown = document.querySelector('.notifications-dropdown');
             dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
         }
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
             const dropdown = document.querySelector('.notifications-dropdown');
             const button = document.querySelector('.notifications-button');
@@ -47,6 +44,14 @@ if (isset($_GET['logout'])) {
             }
         });
     </script>
+
+    <style>
+        /* Add debugging outline to see the affected elements */
+        .notifications-dropdown, .notifications-dropdown * {
+            color: black !important; /* Force color to black */
+            outline: 1px solid red;  /* Debugging outline */
+        }
+    </style>
 </head>
 
 <body>
@@ -77,15 +82,15 @@ if (isset($_GET['logout'])) {
                         <?php
                         if ($notification_count > 0) {
                             foreach ($notifications as $notification) {
-                                echo "<div class='notification' style='color: black;'>";
-                                echo "<a href='notifications.php'>";
-                                echo "<strong>" . htmlspecialchars($notification['title']) . "</strong><br>";
+                                echo "<div class='notification' style='color: black;'>"; // Inline style for debugging
+                                echo "<a href='notifications.php' style='color: black;'>"; // Inline style for debugging
+                                echo "<strong style='color: black;'>" . htmlspecialchars($notification['title']) . "</strong><br>"; // Inline style for debugging
                                 echo htmlspecialchars($notification['message']);
                                 echo "</a>";
                                 echo "</div>";
                             }
                         } else {
-                            echo "<div class='notification'>No new notifications</div>";
+                            echo "<div class='notification' style='color: black;'>No new notifications</div>"; // Inline style for debugging
                         }
                         ?>
                     </div>
@@ -106,9 +111,9 @@ if (isset($_GET['logout'])) {
                 <?php if (isset($_SESSION['user_role']) && ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'editor')) : ?>
                     <li><a href="<?php echo BASE_URL; ?>admin/admin_panel.php">Admin</a></li>
                 <?php endif; ?>
-                <li><a href="<?php echo BASE_URL; ?>roster.php">Roster</a></li>
-                <li><a href="<?php echo BASE_URL; ?>contact.php">Contact Us</a></li>
-                <li><a href="<?php echo BASE_URL; ?>about.php">About</a></li>
+                <li><a href="<?php echo BASE_URL; ?>roster.php'>Roster</a></li>
+                <li><a href="<?php echo BASE_URL; ?>contact.php'>Contact Us</a></li>
+                <li><a href="<?php echo BASE_URL; ?>about.php'>About</a></li>
             </ul>
         </nav>
     </header>
