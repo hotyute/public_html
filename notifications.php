@@ -1,4 +1,5 @@
 <?php 
+include 'header.php';
 include_once 'includes/notifications/notification_data.php';
 
 if (session_status() == PHP_SESSION_NONE) {
@@ -21,7 +22,6 @@ $notifications = get_notifications($user_id, true); // Fetch all notifications
 echo 'Notifications: ' . $user_id . ' ' . count($notifications);
 ?>
 
-<?php include 'header.php'; ?>
 <div class="container">
     <h2>Your Notifications</h2>
     <?php
