@@ -1,7 +1,7 @@
 <?php
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
-require '../header.php'; // Admin panel header
+include '../header.php'; // Admin panel header
 include_once('../includes/config.php'); // Database connection and other configuration
 
 // Check if admin is logged in
@@ -90,5 +90,5 @@ try {
 </script>
 
 <?php
-include('../footer.php'); // Admin panel footer
+include '../footer.php'; // Admin panel footer
 ?>
