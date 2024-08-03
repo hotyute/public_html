@@ -147,7 +147,7 @@ nav ul li button.auth-button:hover {
     position: absolute;
     right: 0;
     top: 30px;
-    background-color: white;
+    background-color: rgb(19, 17, 17);
     color: black;
     border: 1px solid #ccc;
     border-radius: 3px;
@@ -160,7 +160,7 @@ nav ul li button.auth-button:hover {
 
 .notification {
     padding: 10px;
-    border-bottom: 1px solid #000000;
+    border-bottom: 1px solid #eee;
 }
 
 .notification:last-child {
