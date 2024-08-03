@@ -1,10 +1,10 @@
 <?php
 require __DIR__ . '/../database.php'; // Ensure the path is correct
 
-function add_notification($user_id, $message) {
+function add_notification($user_id, $title, $message) {
     global $pdo;
-    $stmt = $pdo->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)");
-    $stmt->execute([$user_id, $message]);
+    $stmt = $pdo->prepare("INSERT INTO notifications (user_id, title, message) VALUES (?, ?)");
+    $stmt->execute([$user_id, $title, $message]);
 }
 
 function get_notifications($user_id, $all = false) {

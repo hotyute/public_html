@@ -2,7 +2,8 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 include '../header.php'; // Admin panel header
-include_once('../includes/config.php'); // Database connection and other configuration
+include_once '../includes/config.php'; // Database connection and other configuration
+include_once '../includes/notifications/notification_data.php';
 
 // Check if admin is logged in
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
@@ -22,6 +23,8 @@ try {
 
             $stmt = $pdo->prepare("INSERT INTO user_tests (user_id, test_id) VALUES (?, ?)");
             $stmt->execute([$user_id, $test_id]);
+
+            add_notification($user_id, 'Test ' . $test_id, 'Test ' . $test_id . 'assigned successfully!');
 
             echo "Test assigned successfully!";
         } elseif (isset($_POST['remove_test'])) {
