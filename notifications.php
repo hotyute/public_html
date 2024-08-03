@@ -18,13 +18,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_notification_id
 }
 
 $notifications = get_notifications($user_id, true); // Fetch all notifications
+echo 'Notifications: ' . $user_id . ' ' . count($notifications);
 ?>
 
 <?php include 'header.php'; ?>
 <div class="container">
     <h2>Your Notifications</h2>
     <?php
-    echo 'Notifications: ' . count($notifications);
     if (count($notifications) > 0) {
         foreach ($notifications as $notification) {
             echo "<div class='notification-main'>";
