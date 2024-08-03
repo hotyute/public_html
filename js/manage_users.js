@@ -1,4 +1,3 @@
-// JavaScript for handling search and user editing
 document.getElementById('searchForm').addEventListener('submit', function (event) {
     event.preventDefault();
     const query = document.getElementById('searchQuery').value;
@@ -57,6 +56,17 @@ document.getElementById('searchForm').addEventListener('submit', function (event
                                         option.value = test.id;
                                         option.textContent = test.test_name;
                                         removeTestSelect.appendChild(option);
+                                    });
+
+                                    // Add event listeners to update the hidden test name fields
+                                    assignTestSelect.addEventListener('change', function () {
+                                        const selectedOption = assignTestSelect.options[assignTestSelect.selectedIndex];
+                                        document.getElementById('assignTestName').value = selectedOption.textContent;
+                                    });
+
+                                    removeTestSelect.addEventListener('change', function () {
+                                        const selectedOption = removeTestSelect.options[removeTestSelect.selectedIndex];
+                                        document.getElementById('removeTestName').value = selectedOption.textContent;
                                     });
                                 } else {
                                     console.error('No tests data found:', data);

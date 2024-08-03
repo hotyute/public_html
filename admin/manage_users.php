@@ -20,19 +20,23 @@ try {
         if (isset($_POST['assign_test'])) {
             $user_id = $_POST['user_id'];
             $test_id = $_POST['test_id'];
+            $test_name = $_POST['test_name'];
 
             $stmt = $pdo->prepare("INSERT INTO user_tests (user_id, test_id) VALUES (?, ?)");
             $stmt->execute([$user_id, $test_id]);
 
-            add_notification($user_id, 'Test ' . $test_id, 'Test ' . $test_id . 'assigned successfully!');
+            add_notification($user_id, "Test Assigned", "Test '{$test_name}' assigned successfully! Take the test at /test.php?test_id={$test_id}");
 
             echo "Test assigned successfully!";
         } elseif (isset($_POST['remove_test'])) {
             $user_id = $_POST['user_id'];
             $test_id = $_POST['test_id'];
+            $test_name = $_POST['test_name'];
 
             $stmt = $pdo->prepare("DELETE FROM user_tests WHERE user_id = ? AND test_id = ?");
             $stmt->execute([$user_id, $test_id]);
+
+            add_notification($user_id, "Test Removed", "Test '{$test_name}' removed successfully.");
 
             echo "Test removed successfully!";
         }
@@ -72,6 +76,7 @@ try {
             <input type="hidden" name="user_id" id="assignTestUserId">
             <label for="test_id">Test:</label>
             <select name="test_id" id="assignTestId" required></select>
+            <input type="hidden" name="test_name" id="assignTestName">
             <button type="submit" name="assign_test">Assign Test</button>
         </form>
 
@@ -80,6 +85,7 @@ try {
             <input type="hidden" name="user_id" id="removeTestUserId">
             <label for="test_id">Test:</label>
             <select name="test_id" id="removeTestId" required></select>
+            <input type="hidden" name="test_name" id="removeTestName">
             <button type="submit" name="remove_test">Remove Test</button>
         </form>
 
