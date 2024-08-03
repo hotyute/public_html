@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_notification_id
 }
 
 $notifications_list = get_notifications($user_id, true); // Fetch all notifications
-echo 'Notifications: ' . $user_id . ' ' . count($notifications);
+echo 'Notifications: ' . $user_id . ' ' . count($notifications_list);
 ?>
 
 <?php include 'header.php'; ?>
