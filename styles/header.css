@@ -158,6 +158,14 @@ nav ul li button.auth-button:hover {
     z-index: 1000;
 }
 
+.notifications-dropdown a {
+    color: black; /* Ensure links have black text */
+}
+
+.notifications-dropdown .notification {
+    color: black; /* Ensure individual notifications have black text */
+}
+
 .notification {
     padding: 10px;
     border-bottom: 1px solid #eee;
