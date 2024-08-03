@@ -11,8 +11,13 @@ if (!isset($_SESSION['username'])) {
 }
 
 $user_id = $_SESSION['user_id'];
-$notifications = get_notifications($user_id, true); // Fetch all notifications
 
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_notification_id'])) {
+    $notification_id = $_POST['remove_notification_id'];
+    remove_notification($notification_id, $user_id);
+}
+
+$notifications = get_notifications($user_id, true); // Fetch all notifications
 ?>
 
 <?php include 'header.php'; ?>
@@ -21,7 +26,14 @@ $notifications = get_notifications($user_id, true); // Fetch all notifications
     <?php
     if (count($notifications) > 0) {
         foreach ($notifications as $notification) {
-            echo "<div class='notification'>" . $notification['message'] . " - " . $notification['created_at'] . "</div>";
+            echo "<div class='notification-main'>";
+            echo "<strong>" . htmlspecialchars($notification['title']) . "</strong><br>";
+            echo htmlspecialchars($notification['message']) . " - " . htmlspecialchars($notification['created_at']);
+            echo "<form method='POST' style='display:inline;'>
+                    <input type='hidden' name='remove_notification_id' value='" . $notification['id'] . "'>
+                    <button type='submit'>Remove</button>
+                  </form>";
+            echo "</div>";
         }
     } else {
         echo "<p>No notifications.</p>";

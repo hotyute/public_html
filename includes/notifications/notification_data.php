@@ -27,4 +27,10 @@ function mark_notifications_as_read($user_id) {
     $stmt = $pdo->prepare("UPDATE notifications SET is_read = TRUE WHERE user_id = ?");
     $stmt->execute([$user_id]);
 }
+
+function remove_notification($notification_id, $user_id) {
+    global $pdo;
+    $stmt = $pdo->prepare("DELETE FROM notifications WHERE id = ? AND user_id = ?");
+    $stmt->execute([$notification_id, $user_id]);
+}
 ?>
