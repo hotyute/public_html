@@ -27,7 +27,7 @@ try {
 
             add_notification($user_id, "Test Assigned", "Test '{$test_name}' assigned successfully! Take the test at /test.php?test_id={$test_id}");
 
-            echo "Test assigned successfully!";
+            echo "Test {$test_name} assigned successfully!";
         } elseif (isset($_POST['remove_test'])) {
             $user_id = $_POST['user_id'];
             $test_id = $_POST['test_id'];
