@@ -25,7 +25,8 @@ try {
             $stmt = $pdo->prepare("INSERT INTO user_tests (user_id, test_id) VALUES (?, ?)");
             $stmt->execute([$user_id, $test_id]);
 
-            $message = "Test '{$test_name}' assigned successfully! Take the test at <a href='/test.php?test_id={$test_id}' style='color: blue;'>this link</a>";
+            $message = "Test '{$test_name}' assigned successfully! Take the test at <a href='/test.php?test_id={$test_id}'";
+            $message .= " style='color: blue; font-size: 1.0em; font-weight: bold;'>this link</a>";
             add_notification($user_id, "Test Assigned", $message);
 
             echo "Test {$test_name} assigned successfully!";
