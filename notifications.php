@@ -28,7 +28,7 @@ $notifications_list = get_notifications($user_id, true); // Fetch all notificati
         foreach ($notifications_list as $notification) {
             echo "<div class='notification-main'>";
             echo "<strong>" . htmlspecialchars($notification['title']) . "</strong><br>";
-            echo htmlspecialchars($notification['message']) . " - " . htmlspecialchars($notification['created_at']);
+            echo htmlspecialchars_decode($notification['message']) . " - " . htmlspecialchars($notification['created_at']);
             echo "<form method='POST' style='display:inline;'>
                     <input type='hidden' name='remove_notification_id' value='" . $notification['id'] . "'>
                     <button type='submit'>Delete</button>

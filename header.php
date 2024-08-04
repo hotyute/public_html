@@ -80,7 +80,7 @@ if (isset($_GET['logout'])) {
                                 echo "<div class='notification'>";
                                 echo "<a href='/notifications.php'>";
                                 echo "<strong>" . htmlspecialchars($notification['title']) . "</strong><br>";
-                                echo htmlspecialchars($notification['message']);
+                                echo htmlspecialchars_decode($notification['message']);
                                 echo "</a>";
                                 echo "</div>";
                             }
