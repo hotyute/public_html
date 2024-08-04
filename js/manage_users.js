@@ -38,6 +38,7 @@ document.getElementById('searchForm').addEventListener('submit', function (event
                                     const assignTestSelect = document.getElementById('assignTestId');
                                     const removeTestSelect = document.getElementById('removeTestId');
                                     const assignTestName = document.getElementById('assignTestName');
+                                    const removeTestName = document.getElementById('removeTestName');
                                     assignTestSelect.innerHTML = '';
                                     removeTestSelect.innerHTML = '';
 
@@ -58,17 +59,18 @@ document.getElementById('searchForm').addEventListener('submit', function (event
                                         option.value = test.id;
                                         option.textContent = test.test_name;
                                         removeTestSelect.appendChild(option);
+                                        removeTestName.value = option.textContent;
                                     });
 
                                     // Add event listeners to update the hidden test name fields
                                     assignTestSelect.addEventListener('change', function () {
                                         const selectedOption = assignTestSelect.options[assignTestSelect.selectedIndex];
-                                        document.getElementById('assignTestName').value = selectedOption.textContent;
+                                        assignTestName.value = selectedOption.textContent;
                                     });
 
                                     removeTestSelect.addEventListener('change', function () {
                                         const selectedOption = removeTestSelect.options[removeTestSelect.selectedIndex];
-                                        document.getElementById('removeTestName').value = selectedOption.textContent;
+                                        removeTestName.value = selectedOption.textContent;
                                     });
                                 } else {
                                     console.error('No tests data found:', data);
