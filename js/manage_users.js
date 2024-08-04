@@ -47,9 +47,11 @@ document.getElementById('searchForm').addEventListener('submit', function (event
                                             option.value = test.id;
                                             option.textContent = test.test_name;
                                             assignTestSelect.appendChild(option);
-                                            document.getElementById('assignTestName').innerHTML = test.test_name;
+                                            assignTestSelect.value = option.textContent;
                                         });
                                     }
+
+                                    console.log(assignTestSelect.value);
 
                                     // Populate the remove test select box with tests assigned to the user
                                     data.tests.forEach(test => {
@@ -57,7 +59,6 @@ document.getElementById('searchForm').addEventListener('submit', function (event
                                         option.value = test.id;
                                         option.textContent = test.test_name;
                                         removeTestSelect.appendChild(option);
-                                        document.getElementById('removeTestName').innerHTML = test.test_name;
                                     });
 
                                     // Add event listeners to update the hidden test name fields
