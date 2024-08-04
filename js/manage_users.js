@@ -35,8 +35,9 @@ document.getElementById('searchForm').addEventListener('submit', function (event
                                         assignedTestsDiv.appendChild(testDiv);
                                     });
 
-                                    const assignTestSelect = document.getElementById('assignTestName');
-                                    const removeTestSelect = document.getElementById('removeTestName');
+                                    const assignTestSelect = document.getElementById('assignTestId');
+                                    const removeTestSelect = document.getElementById('removeTestId');
+                                    const assignTestName = document.getElementById('assignTestName');
                                     assignTestSelect.innerHTML = '';
                                     removeTestSelect.innerHTML = '';
 
@@ -47,6 +48,7 @@ document.getElementById('searchForm').addEventListener('submit', function (event
                                             option.value = test.id;
                                             option.textContent = test.test_name;
                                             assignTestSelect.appendChild(option);
+                                            assignTestName.value = option.textContent;
                                         });
                                     }
 
