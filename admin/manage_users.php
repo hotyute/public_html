@@ -25,7 +25,8 @@ try {
             $stmt = $pdo->prepare("INSERT INTO user_tests (user_id, test_id) VALUES (?, ?)");
             $stmt->execute([$user_id, $test_id]);
 
-            add_notification($user_id, "Test Assigned", "Test '{$test_name}' assigned successfully! Take the test at /test.php?test_id={$test_id}");
+            $message = "Test '{$test_name}' assigned successfully! Take the test at <a href='/test.php?test_id={$test_id}' style='color: blue;'>this link</a>";
+            add_notification($user_id, "Test Assigned", $message);
 
             echo "Test {$test_name} assigned successfully!";
         } elseif (isset($_POST['remove_test'])) {
@@ -36,7 +37,8 @@ try {
             $stmt = $pdo->prepare("DELETE FROM user_tests WHERE user_id = ? AND test_id = ?");
             $stmt->execute([$user_id, $test_id]);
 
-            add_notification($user_id, "Test Removed", "Test '{$test_name}' removed successfully.");
+            $message = "Test '{$test_name}' removed successfully.";
+            add_notification($user_id, "Test Removed", $message);
 
             echo "Test removed successfully!";
         }
