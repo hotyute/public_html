@@ -86,9 +86,9 @@ if (isset($_GET['logout'])) {
                             }
                         } else {
                             echo "<div class='notification'>";
-                            //echo "<a href='notifications.php'>";
+                            echo "<a href='notifications.php'>";
                             echo "No new notifications";
-                            //echo "</a>";
+                            echo "</a>";
                             echo "</div>";
                         }
                         ?>
