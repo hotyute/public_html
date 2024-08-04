@@ -78,7 +78,7 @@ if (isset($_GET['logout'])) {
                         if ($notification_count > 0) {
                             foreach ($notifications as $notification) {
                                 echo "<div class='notification'>";
-                                echo "<a href='notifications.php'>";
+                                echo "<a href='/notifications.php'>";
                                 echo "<strong>" . htmlspecialchars($notification['title']) . "</strong><br>";
                                 echo htmlspecialchars($notification['message']);
                                 echo "</a>";
@@ -86,7 +86,7 @@ if (isset($_GET['logout'])) {
                             }
                         } else {
                             echo "<div class='notification'>";
-                            echo "<a href='notifications.php'>";
+                            echo "<a href='/notifications.php'>";
                             echo "No new notifications";
                             echo "</a>";
                             echo "</div>";
