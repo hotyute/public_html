@@ -47,7 +47,7 @@ document.getElementById('searchForm').addEventListener('submit', function (event
                                             option.value = test.id;
                                             option.textContent = test.test_name;
                                             assignTestSelect.appendChild(option);
-                                            document.getElementById('assignTestName').value = option.textContent;
+                                            document.getElementById('assignTestName').innerHTML = test.test_name;
                                         });
                                     }
 
@@ -57,7 +57,7 @@ document.getElementById('searchForm').addEventListener('submit', function (event
                                         option.value = test.id;
                                         option.textContent = test.test_name;
                                         removeTestSelect.appendChild(option);
-                                        document.getElementById('removeTestName').value = option.textContent;
+                                        document.getElementById('removeTestName').innerHTML = test.test_name;
                                     });
 
                                     // Add event listeners to update the hidden test name fields
