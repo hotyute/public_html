@@ -35,8 +35,8 @@ document.getElementById('searchForm').addEventListener('submit', function (event
                                         assignedTestsDiv.appendChild(testDiv);
                                     });
 
-                                    const assignTestSelect = document.getElementById('assignTestId');
-                                    const removeTestSelect = document.getElementById('removeTestId');
+                                    const assignTestSelect = document.getElementById('assignTestName');
+                                    const removeTestSelect = document.getElementById('removeTestName');
                                     assignTestSelect.innerHTML = '';
                                     removeTestSelect.innerHTML = '';
 
