@@ -68,7 +68,7 @@ if (isset($_GET['logout'])) {
                     $notifications = get_notifications($user_id);
                     $notification_count = count($notifications);
                 ?>
-                    <span>Hello, <?php echo $_SESSION['username']; ?> 
+                    <span>Hello, <?php echo $_SESSION['username']; ?>
                         <a class="notifications-button" href="javascript:void(0);" onclick="toggleNotifications()">
                             <span class="notification-count">(<?php echo $notification_count; ?>)</span>
                         </a>
@@ -85,7 +85,11 @@ if (isset($_GET['logout'])) {
                                 echo "</div>";
                             }
                         } else {
-                            echo "<div class='notification'>No new notifications</div>";
+                            echo "<div class='notification'>'";
+                            echo "<a href='notifications.php'>";
+                            echo "No new notifications";
+                            echo "</a>";
+                            echo "</div>";
                         }
                         ?>
                     </div>
@@ -113,4 +117,5 @@ if (isset($_GET['logout'])) {
         </nav>
     </header>
 </body>
+
 </html>
