@@ -31,7 +31,7 @@ $notifications_list = get_notifications($user_id, true); // Fetch all notificati
             echo htmlspecialchars($notification['message']) . " - " . htmlspecialchars($notification['created_at']);
             echo "<form method='POST' style='display:inline;'>
                     <input type='hidden' name='remove_notification_id' value='" . $notification['id'] . "'>
-                    <button type='submit'>Remove</button>
+                    <button type='submit'>Delete</button>
                   </form>";
             echo "</div>";
         }

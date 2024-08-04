@@ -47,6 +47,7 @@ document.getElementById('searchForm').addEventListener('submit', function (event
                                             option.value = test.id;
                                             option.textContent = test.test_name;
                                             assignTestSelect.appendChild(option);
+                                            assignTestSelect.value = option.textContent;
                                         });
                                     }
 
@@ -56,6 +57,7 @@ document.getElementById('searchForm').addEventListener('submit', function (event
                                         option.value = test.id;
                                         option.textContent = test.test_name;
                                         removeTestSelect.appendChild(option);
+                                        removeTestSelect.value = option.textContent;
                                     });
 
                                     // Add event listeners to update the hidden test name fields
