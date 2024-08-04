@@ -159,6 +159,7 @@ nav ul li button.auth-button:hover {
 }
 
 .notifications-dropdown a {
+    font-size: 1.2em;
     color: black; /* Ensure links have black text */
 }
 
