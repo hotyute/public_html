@@ -51,7 +51,7 @@ try {
         $stmt = $pdo->prepare("DELETE FROM user_tests WHERE user_id = ? AND test_id = ?");
         $stmt->execute([$_SESSION['user_id'], $test_id]);
 
-        $stmt = $pdo->prepare("SELECT q.id, q.question, q.option_a, q.option_b, q.option_c, q.option_d FROM questions q 
+        $stmt = $pdo->prepare("SELECT q.id, q.question, q.options FROM questions q 
                                JOIN test_questions tq ON q.id = tq.question_id WHERE tq.test_id = ?");
         $stmt->execute([$test_id]);
         $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -69,12 +69,12 @@ try {
         echo '<form method="POST">';
         echo '<input type="hidden" name="test_id" value="' . htmlspecialchars($test_id) . '">';
         foreach ($questions as $index => $question) {
+            $options = json_decode($question['options'], true);
             echo '<div>';
             echo '<p>' . ($index + 1) . '. ' . htmlspecialchars($question['question']) . '</p>';
-            echo '<label><input type="radio" name="answers[' . $question['id'] . ']" value="a">' . htmlspecialchars($question['option_a']) . '</label><br>';
-            echo '<label><input type="radio" name="answers[' . $question['id'] . ']" value="b">' . htmlspecialchars($question['option_b']) . '</label><br>';
-            echo '<label><input type="radio" name="answers[' . $question['id'] . ']" value="c">' . htmlspecialchars($question['option_c']) . '</label><br>';
-            echo '<label><input type="radio" name="answers[' . $question['id'] . ']" value="d">' . htmlspecialchars($question['option_d']) . '</label>';
+            foreach ($options as $key => $option) {
+                echo '<label><input type="radio" name="answers[' . $question['id'] . ']" value="' . $key . '">' . htmlspecialchars($option) . '</label><br>';
+            }
             echo '</div>';
         }
         echo '<input type="submit" value="Submit">';

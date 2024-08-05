@@ -26,14 +26,14 @@ try {
         } elseif (isset($_POST['add_question'])) {
             $test_id = $_POST['test_id'];
             $question = $_POST['question'];
-            $option_a = $_POST['option_a'];
-            $option_b = $_POST['option_b'];
-            $option_c = $_POST['option_c'];
-            $option_d = $_POST['option_d'];
+            $options = $_POST['options'];
             $correct_option = $_POST['correct_option'];
+            $num_options = count($options);
+            $option_struct = str_repeat('s', $num_options); // Dynamic option structure
+            $options_json = json_encode($options);
 
-            $stmt = $pdo->prepare("INSERT INTO questions (question, option_a, option_b, option_c, option_d, correct_option) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$question, $option_a, $option_b, $option_c, $option_d, $correct_option]);
+            $stmt = $pdo->prepare("INSERT INTO questions (question, num_options, option_struct, options, correct_option) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([$question, $num_options, $option_struct, $options_json, $correct_option]);
 
             $question_id = $pdo->lastInsertId();
             $stmt = $pdo->prepare("INSERT INTO test_questions (test_id, question_id) VALUES (?, ?)");
@@ -79,18 +79,30 @@ try {
 
 <!-- Form to add a new question -->
 <h2>Add New Question</h2>
-<form method="POST">
+<form method="POST" id="questionForm">
     <select name="test_id" required>
         <?php foreach ($tests as $test) : ?>
             <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
         <?php endforeach; ?>
     </select><br>
     <textarea name="question" placeholder="Question" required></textarea><br>
-    <input type="text" name="option_a" placeholder="Option A" required><br>
-    <input type="text" name="option_b" placeholder="Option B" required><br>
-    <input type="text" name="option_c" placeholder="Option C" required><br>
-    <input type="text" name="option_d" placeholder="Option D" required><br>
-    <select name="correct_option" required>
+    <div id="options">
+        <div class="option">
+            <input type="text" name="options[a]" placeholder="Option A" required>
+        </div>
+        <div class="option">
+            <input type="text" name="options[b]" placeholder="Option B" required>
+        </div>
+        <div class="option">
+            <input type="text" name="options[c]" placeholder="Option C" required>
+        </div>
+        <div class="option">
+            <input type="text" name="options[d]" placeholder="Option D" required>
+        </div>
+    </div>
+    <button type="button" id="addOption">Add Option</button><br>
+    <label for="correct_option">Correct Option:</label>
+    <select name="correct_option" id="correct_option" required>
         <option value="a">A</option>
         <option value="b">B</option>
         <option value="c">C</option>
@@ -110,3 +122,28 @@ try {
     <button type="submit" name="delete_question">Delete Question</button>
 </form>
 <?php include '../footer.php'; ?>
+
+<script>
+document.getElementById('addOption').addEventListener('click', function() {
+    var optionsDiv = document.getElementById('options');
+    var optionCount = optionsDiv.getElementsByClassName('option').length;
+    var optionLetter = String.fromCharCode(97 + optionCount); // a, b, c, d, ...
+
+    var newOptionDiv = document.createElement('div');
+    newOptionDiv.className = 'option';
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.name = 'options[' + optionLetter + ']';
+    input.placeholder = 'Option ' + optionLetter.toUpperCase();
+    input.required = true;
+
+    newOptionDiv.appendChild(input);
+    optionsDiv.appendChild(newOptionDiv);
+
+    var correctOptionSelect = document.getElementById('correct_option');
+    var newOption = document.createElement('option');
+    newOption.value = optionLetter;
+    newOption.textContent = optionLetter.toUpperCase();
+    correctOptionSelect.appendChild(newOption);
+});
+</script>
