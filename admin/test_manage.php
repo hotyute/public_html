@@ -87,17 +87,21 @@ try {
     </select><br>
     <textarea name="question" placeholder="Question" required></textarea><br>
     <div id="options">
-        <div class="option">
+        <div class="option" data-option="a">
             <input type="text" name="options[a]" placeholder="Option A" required>
+            <button type="button" class="removeOption">Remove Option</button>
         </div>
-        <div class="option">
+        <div class="option" data-option="b">
             <input type="text" name="options[b]" placeholder="Option B" required>
+            <button type="button" class="removeOption">Remove Option</button>
         </div>
-        <div class="option">
+        <div class="option" data-option="c">
             <input type="text" name="options[c]" placeholder="Option C" required>
+            <button type="button" class="removeOption">Remove Option</button>
         </div>
-        <div class="option">
+        <div class="option" data-option="d">
             <input type="text" name="options[d]" placeholder="Option D" required>
+            <button type="button" class="removeOption">Remove Option</button>
         </div>
     </div>
     <button type="button" id="addOption">Add Option</button><br>
@@ -131,13 +135,25 @@ document.getElementById('addOption').addEventListener('click', function() {
 
     var newOptionDiv = document.createElement('div');
     newOptionDiv.className = 'option';
+    newOptionDiv.setAttribute('data-option', optionLetter);
+
     var input = document.createElement('input');
     input.type = 'text';
     input.name = 'options[' + optionLetter + ']';
     input.placeholder = 'Option ' + optionLetter.toUpperCase();
     input.required = true;
 
+    var removeButton = document.createElement('button');
+    removeButton.type = 'button';
+    removeButton.className = 'removeOption';
+    removeButton.textContent = 'Remove Option';
+    removeButton.addEventListener('click', function() {
+        optionsDiv.removeChild(newOptionDiv);
+        updateCorrectOptions();
+    });
+
     newOptionDiv.appendChild(input);
+    newOptionDiv.appendChild(removeButton);
     optionsDiv.appendChild(newOptionDiv);
 
     var correctOptionSelect = document.getElementById('correct_option');
@@ -146,4 +162,26 @@ document.getElementById('addOption').addEventListener('click', function() {
     newOption.textContent = optionLetter.toUpperCase();
     correctOptionSelect.appendChild(newOption);
 });
+
+document.querySelectorAll('.removeOption').forEach(function(button) {
+    button.addEventListener('click', function() {
+        var optionDiv = button.parentElement;
+        optionDiv.parentElement.removeChild(optionDiv);
+        updateCorrectOptions();
+    });
+});
+
+function updateCorrectOptions() {
+    var optionsDiv = document.getElementById('options');
+    var correctOptionSelect = document.getElementById('correct_option');
+    correctOptionSelect.innerHTML = '';
+
+    optionsDiv.querySelectorAll('.option').forEach(function(optionDiv) {
+        var optionLetter = optionDiv.getAttribute('data-option');
+        var newOption = document.createElement('option');
+        newOption.value = optionLetter;
+        newOption.textContent = optionLetter.toUpperCase();
+        correctOptionSelect.appendChild(newOption);
+    });
+}
 </script>
