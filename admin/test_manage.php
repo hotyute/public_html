@@ -149,35 +149,37 @@ document.getElementById('addOption').addEventListener('click', function() {
     removeButton.textContent = 'Remove Option';
     removeButton.addEventListener('click', function() {
         optionsDiv.removeChild(newOptionDiv);
-        updateCorrectOptions();
+        updateOptions();
     });
 
     newOptionDiv.appendChild(input);
     newOptionDiv.appendChild(removeButton);
     optionsDiv.appendChild(newOptionDiv);
 
-    var correctOptionSelect = document.getElementById('correct_option');
-    var newOption = document.createElement('option');
-    newOption.value = optionLetter;
-    newOption.textContent = optionLetter.toUpperCase();
-    correctOptionSelect.appendChild(newOption);
+    updateOptions();
 });
 
 document.querySelectorAll('.removeOption').forEach(function(button) {
     button.addEventListener('click', function() {
         var optionDiv = button.parentElement;
         optionDiv.parentElement.removeChild(optionDiv);
-        updateCorrectOptions();
+        updateOptions();
     });
 });
 
-function updateCorrectOptions() {
+function updateOptions() {
     var optionsDiv = document.getElementById('options');
     var correctOptionSelect = document.getElementById('correct_option');
     correctOptionSelect.innerHTML = '';
+    
+    var optionLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+    optionsDiv.querySelectorAll('.option').forEach(function(optionDiv, index) {
+        var optionLetter = optionLetters[index];
+        optionDiv.setAttribute('data-option', optionLetter);
+        var input = optionDiv.querySelector('input');
+        input.name = 'options[' + optionLetter + ']';
+        input.placeholder = 'Option ' + optionLetter.toUpperCase();
 
-    optionsDiv.querySelectorAll('.option').forEach(function(optionDiv) {
-        var optionLetter = optionDiv.getAttribute('data-option');
         var newOption = document.createElement('option');
         newOption.value = optionLetter;
         newOption.textContent = optionLetter.toUpperCase();
