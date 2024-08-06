@@ -57,6 +57,7 @@ try {
 ?>
 
 <?php include '../header.php'; ?>
+<div class="admin-container">
 <h1>Manage Tests and Questions</h1>
 
 <!-- Form to add a new test -->
@@ -125,6 +126,9 @@ try {
     </select>
     <button type="submit" name="delete_question">Delete Question</button>
 </form>
+
+</div>
+
 <?php include '../footer.php'; ?>
 
 <script>

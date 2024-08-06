@@ -2,8 +2,6 @@
 session_start();
 require 'includes/config.php';
 
-include 'header.php';
-
 if (!isset($_SESSION['user_id'])) {
     die("Unauthorized access.");
 }
@@ -85,9 +83,6 @@ try {
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
 }
-
-include 'footer.php';
-
 ?>
 
 <script>
