@@ -52,7 +52,7 @@ try {
 }
 ?>
 
-<div class="admin-container">
+<div class="musers-container">
     <h2>User Management</h2>
     <form id="searchForm">
         <input type="text" id="searchQuery" placeholder="Search by username or display name">

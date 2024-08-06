@@ -1,6 +1,6 @@
 /* styles/manage_users.css */
 
-.admin-container {
+.musers-container {
     max-width: 800px;
     margin: auto;
     padding: 20px;
@@ -9,7 +9,7 @@
     border-radius: 10px;
 }
 
-.admin-container h2 {
+.musers-container h2 {
     text-align: center;
     margin-bottom: 20px;
     color: #333;
