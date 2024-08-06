@@ -1,6 +1,7 @@
 <?php
 session_start();
 require 'includes/config.php';
+require_once 'base_config.php';
 ?>
 
 <!DOCTYPE html>
