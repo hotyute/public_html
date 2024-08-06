@@ -1,6 +1,23 @@
 <?php
 session_start();
 require 'includes/config.php';
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/tests.css">
+
+</head>
+
+<body>
+<header></header>
+
+<?php
 
 if (!isset($_SESSION['user_id'])) {
     die("Unauthorized access.");
@@ -84,6 +101,11 @@ try {
     die("Database error: " . $e->getMessage());
 }
 ?>
+
+<footer></footer>
+</body>
+
+</html>
 
 <script>
     function startTimer(duration, display) {
