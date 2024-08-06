@@ -16,7 +16,7 @@ require_once 'base_config.php';
 </head>
 
 <body>
-<header></header>
+<header>Test</header>
 
 <?php
 
@@ -88,10 +88,10 @@ try {
         echo '<input type="hidden" name="test_id" value="' . htmlspecialchars($test_id) . '">';
         foreach ($questions as $index => $question) {
             $options = json_decode($question['options'], true);
-            echo '<div>';
+            echo '<div class="question">';
             echo '<p>' . ($index + 1) . '. ' . htmlspecialchars($question['question']) . '</p>';
             foreach ($options as $key => $option) {
-                echo '<label><input type="radio" name="answers[' . $question['id'] . ']" value="' . $key . '">' . htmlspecialchars($option) . '</label><br>';
+                echo '<label class="answer"><input type="radio" name="answers[' . $question['id'] . ']" value="' . $key . '">' . htmlspecialchars($option) . '</label><br>';
             }
             echo '</div>';
         }
@@ -110,11 +110,6 @@ try {
         return "Are you sure you want to leave? Your progress will be lost.";
     };
 </script>
-
-
-</body>
-
-</html>
 
 <script>
     function startTimer(duration, display) {
@@ -151,3 +146,7 @@ try {
         }
     };
 </script>
+
+</body>
+
+</html>
