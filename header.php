@@ -116,6 +116,4 @@ if (isset($_GET['logout'])) {
             </ul>
         </nav>
     </header>
-</body>
 
-</html>
