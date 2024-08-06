@@ -103,6 +103,14 @@ try {
 ?>
 
 <footer></footer>
+
+<script>
+    window.onbeforeunload = function() {
+        return "Are you sure you want to leave? Your progress will be lost.";
+    };
+</script>
+
+
 </body>
 
 </html>

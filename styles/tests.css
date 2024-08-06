@@ -1,0 +1,123 @@
+/* tests.css */
+
+/* Body and Form Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+header, footer {
+    background-color: #003366;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+}
+
+header {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+footer {
+    font-size: 14px;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+form div {
+    margin-bottom: 15px;
+}
+
+form p {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+form input[type="radio"] {
+    margin-right: 10px;
+}
+
+form input[type="submit"] {
+    background-color: #006699;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+form input[type="submit"]:hover {
+    background-color: #004466;
+}
+
+/* Timer Styles */
+#timer {
+    font-size: 20px;
+    color: #cc0000;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Prevent Navigation Warning */
+body::before {
+    content: "Please do not navigate away from this page. Your progress will be lost.";
+    display: block;
+    background-color: #ffcc00;
+    color: #333;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 16px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+}
+
+header, footer {
+    padding-top: 40px; /* Adjust for warning banner */
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    form {
+        padding: 15px;
+    }
+
+    form p {
+        font-size: 16px;
+    }
+
+    form input[type="submit"] {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
