@@ -18,7 +18,7 @@ error_reporting(E_ALL);
 </head>
 
 <body>
-    <header>Test</header>
+    <header>DivineWord Test</header>
 
     <?php
 
