@@ -64,9 +64,9 @@ error_reporting(E_ALL);
 
                 echo "Your score: $score";
 
-                $stmt = $pdo->prepare("SELECT COUNT(*) FROM tests WHERE id = ?");
+                $stmt = $pdo->prepare("SELECT test_name FROM tests WHERE id = ?");
                 $stmt->execute([$test_id]);
-                $test_info = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $test_info = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if (!empty($test_info)) {
 
