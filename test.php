@@ -62,7 +62,7 @@ error_reporting(E_ALL);
                 $stmt = $pdo->prepare("INSERT INTO scores (user_id, test_id, score) VALUES (?, ?, ?)");
                 $stmt->execute([$_SESSION['user_id'], $test_id, $score]);
 
-                echo "Your score: $score";
+                echo "<p>Your score is : $score.</p>";
 
                 $stmt = $pdo->prepare("SELECT test_name FROM tests WHERE id = ?");
                 $stmt->execute([$test_id]);
@@ -80,9 +80,9 @@ error_reporting(E_ALL);
                         'X-Mailer: PHP/' . phpversion();
 
                     if (mail($to, $subject, $message, $headers)) {
-                        echo 'Email sent successfully.';
+                        echo '<p>The Administrator has been notified successfully.</p>';
                     } else {
-                        echo 'Email sending failed.';
+                        echo '<p>Failed to notify Administrator.</p>';
                     }
                 }
 
