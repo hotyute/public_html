@@ -64,7 +64,7 @@ error_reporting(E_ALL);
 
                 echo "Your score: $score";
 
-                $stmt = $pdo->prepare("SELECT * FROM tests WHERE id = ?");
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM tests WHERE id = ?");
                 $stmt->execute([$test_id]);
                 $test_info = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -171,6 +171,22 @@ error_reporting(E_ALL);
             xhr.send();
         });
 
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.addEventListener('copy', (e) => {
+                e.preventDefault();
+                alert('Copying is not allowed.');
+            });
+
+            document.addEventListener('cut', (e) => {
+                e.preventDefault();
+                alert('Cutting is not allowed.');
+            });
+
+            document.addEventListener('paste', (e) => {
+                e.preventDefault();
+                alert('Pasting is not allowed.');
+            });
+        });
 
         function startTimer(duration, display) {
             var timer = duration,
