@@ -32,12 +32,8 @@ try {
             $option_struct = str_repeat('s', $num_options); // Dynamic option structure
             $options_json = json_encode($options);
 
-            $stmt = $pdo->prepare("INSERT INTO questions (question, num_options, option_struct, options, correct_option) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$question, $num_options, $option_struct, $options_json, $correct_option]);
-
-            $question_id = $pdo->lastInsertId();
-            $stmt = $pdo->prepare("INSERT INTO test_questions (test_id, question_id) VALUES (?, ?)");
-            $stmt->execute([$test_id, $question_id]);
+            $stmt = $pdo->prepare("INSERT INTO questions (question, num_options, option_struct, options, correct_option, test_ids) VALUES (?, ?, ?, ?, ?, JSON_ARRAY(?))");
+            $stmt->execute([$question, $num_options, $option_struct, $options_json, $correct_option, $test_id]);
 
             echo "Question added successfully!";
         } elseif (isset($_POST['delete_question'])) {
