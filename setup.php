@@ -59,7 +59,8 @@ CREATE TABLE IF NOT EXISTS questions (
     num_options TINYINT NOT NULL DEFAULT 4,
     option_struct VARCHAR(255) NOT NULL DEFAULT 'ssss',
     options JSON NOT NULL,
-    correct_option VARCHAR(255) NOT NULL
+    correct_option VARCHAR(255) NOT NULL,
+    test_ids JSON NOT NULL
 );
 
 
