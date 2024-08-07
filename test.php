@@ -12,7 +12,6 @@ require_once 'base_config.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/tests.css">
-
 </head>
 
 <body>
@@ -59,6 +58,7 @@ try {
     } else {
         // Display the test
         $test_id = $_GET['test_id'];
+
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM user_tests WHERE user_id = ? AND test_id = ?");
         $stmt->execute([$_SESSION['user_id'], $test_id]);
         if ($stmt->fetchColumn() == 0) {
@@ -69,9 +69,20 @@ try {
         $stmt = $pdo->prepare("DELETE FROM user_tests WHERE user_id = ? AND test_id = ?");
         $stmt->execute([$_SESSION['user_id'], $test_id]);
 
-        // Fetch questions assigned to the test using JSON search
-        $stmt = $pdo->prepare("SELECT id, question, options FROM questions WHERE JSON_CONTAINS(test_ids, :test_id, '$')");
-        $stmt->execute([':test_id' => json_encode((int)$test_id)]);
+        // Fetch the number of questions for the test
+        $stmt = $pdo->prepare("SELECT num_questions FROM tests WHERE id = ?");
+        $stmt->execute([$test_id]);
+        $num_questions = $stmt->fetchColumn();
+
+        if (!$num_questions) {
+            die("Invalid test configuration.");
+        }
+
+        // Fetch questions assigned to the test using JSON search and random selection
+        $stmt = $pdo->prepare("SELECT id, question, options FROM questions WHERE JSON_CONTAINS(test_ids, :test_id, '$') ORDER BY RAND() LIMIT :num_questions");
+        $stmt->bindValue(':test_id', json_encode((int)$test_id), PDO::PARAM_STR);
+        $stmt->bindValue(':num_questions', $num_questions, PDO::PARAM_INT);
+        $stmt->execute();
         $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if (empty($questions)) {

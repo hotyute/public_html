@@ -15,8 +15,9 @@ try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_POST['add_test'])) {
             $test_name = $_POST['test_name'];
-            $stmt = $pdo->prepare("INSERT INTO tests (test_name) VALUES (?)");
-            $stmt->execute([$test_name]);
+            $num_questions = $_POST['num_questions'];
+            $stmt = $pdo->prepare("INSERT INTO tests (test_name, num_questions) VALUES (?, ?)");
+            $stmt->execute([$test_name, $num_questions]);
             echo "Test added successfully!";
         } elseif (isset($_POST['delete_test'])) {
             $test_id = $_POST['test_id'];
@@ -60,6 +61,7 @@ try {
 <h2>Add New Test</h2>
 <form method="POST">
     <input type="text" name="test_name" placeholder="Test Name" required>
+    <input type="number" name="num_questions" placeholder="Number of Questions" required>
     <button type="submit" name="add_test">Add Test</button>
 </form>
 
