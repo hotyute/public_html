@@ -10,7 +10,6 @@ require_once 'base_config.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/tests.css">
 </head>
 
@@ -28,33 +27,40 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Handle form submission
-        $answers = $_POST['answers'];
-        $test_id = $_POST['test_id'];
+        if (isset($_SESSION['test_started'], $_SESSION['test_completed']) && $_SESSION['test_started'] && $_SESSION['test_completed']) {
+            // Handle form submission
+            $answers = $_POST['answers'];
+            $test_id = $_POST['test_id'];
 
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM user_tests WHERE user_id = ? AND test_id = ?");
-        $stmt->execute([$_SESSION['user_id'], $test_id]);
-        if ($stmt->fetchColumn() == 0) {
-            die("You are not assigned to this test.");
-        }
-
-        $correct_count = 0;
-        foreach ($answers as $question_id => $user_answer) {
-            $stmt = $pdo->prepare("SELECT correct_option FROM questions WHERE id = ?");
-            $stmt->execute([$question_id]);
-            $correct_answer = $stmt->fetchColumn();
-
-            if ($user_answer === $correct_answer) {
-                $correct_count++;
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM user_tests WHERE user_id = ? AND test_id = ?");
+            $stmt->execute([$_SESSION['user_id'], $test_id]);
+            if ($stmt->fetchColumn() == 0) {
+                die("You are not assigned to this test.");
             }
+
+            $correct_count = 0;
+            foreach ($answers as $question_id => $user_answer) {
+                $stmt = $pdo->prepare("SELECT correct_option FROM questions WHERE id = ?");
+                $stmt->execute([$question_id]);
+                $correct_answer = $stmt->fetchColumn();
+
+                if ($user_answer === $correct_answer) {
+                    $correct_count++;
+                }
+            }
+
+            $score = $correct_count; // Modify scoring logic if needed
+
+            $stmt = $pdo->prepare("INSERT INTO scores (user_id, test_id, score) VALUES (?, ?, ?)");
+            $stmt->execute([$_SESSION['user_id'], $test_id, $score]);
+
+            echo "Your score: $score";
+
+            // Unset session variables related to the test
+            unset($_SESSION['test_started'], $_SESSION['test_completed']);
+        } else {
+            die("Test session is invalid or has not been properly started.");
         }
-
-        $score = $correct_count; // Modify scoring logic if needed
-
-        $stmt = $pdo->prepare("INSERT INTO scores (user_id, test_id, score) VALUES (?, ?, ?)");
-        $stmt->execute([$_SESSION['user_id'], $test_id, $score]);
-
-        echo "Your score: $score";
     } else {
         // Display the test
         $test_id = $_GET['test_id'];
@@ -68,6 +74,10 @@ try {
         // Remove the test assignment
         $stmt = $pdo->prepare("DELETE FROM user_tests WHERE user_id = ? AND test_id = ?");
         $stmt->execute([$_SESSION['user_id'], $test_id]);
+
+        // Set the session flag indicating the test has started
+        $_SESSION['test_started'] = true;
+        $_SESSION['test_completed'] = false;
 
         // Fetch the number of questions for the test
         $stmt = $pdo->prepare("SELECT num_questions FROM tests WHERE id = ?");
@@ -108,6 +118,9 @@ try {
         }
         echo '<input type="submit" value="Submit">';
         echo '</form>';
+
+        // Set the session flag indicating the test can be completed
+        $_SESSION['test_completed'] = true;
     }
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
