@@ -70,7 +70,7 @@ try {
         $stmt->execute([$_SESSION['user_id'], $test_id]);
 
         // Fetch questions assigned to the test using JSON search
-        $stmt = $pdo->prepare("SELECT id, question, options FROM questions WHERE JSON_CONTAINS(test_ids, [1], '$')");
+        $stmt = $pdo->prepare("SELECT id, question, options FROM questions WHERE JSON_CONTAINS(test_ids, '1', '$')");
         $stmt->execute();
         $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
