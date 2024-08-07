@@ -70,25 +70,9 @@ try {
         $stmt->execute([$_SESSION['user_id'], $test_id]);
 
         // Fetch questions assigned to the test using JSON search
-        // Encode the test ID as JSON
-$json_test_id = json_encode((int)$test_id);
-
-// Debugging: Output the JSON-encoded test ID
-echo "JSON-encoded test ID: " . $json_test_id . "\n";
-
-// SQL query with JSON_CONTAINS
-$sql = "SELECT id, question, options FROM questions WHERE JSON_CONTAINS(test_ids, :test_id, '$')";
-
-$stmt = $pdo->prepare($sql);
-$stmt->bindValue(':test_id', $json_test_id);
-$stmt->execute();
-
-// Fetch all matching rows
-$questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Debugging: Output the fetched questions
-echo "Fetched questions: \n";
-print_r($questions);
+        $stmt = $pdo->prepare("SELECT id, question, options FROM questions WHERE JSON_CONTAINS(test_ids, :test_id, '$')");
+        $stmt->execute([':test_id' => json_encode((int)$test_id)]);
+        $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if (empty($questions)) {
             die("No questions found for this test.");
