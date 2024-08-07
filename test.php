@@ -72,7 +72,7 @@ error_reporting(E_ALL);
 
                     $test_name = $test_info['test_name'];
 
-                    $to = 'samuel.mason011@gmail.com';
+                    $to = 'admin@divineword.co.uk';
                     $subject = "{$username} has completed the test '{$test_name}'";
                     $message = "{$username} has completed the test '{$test_name}' with a score of {$score}";
                     $headers = 'From: admin@divineword.co.uk' . "\r\n" .
