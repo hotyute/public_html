@@ -136,7 +136,7 @@ error_reporting(E_ALL);
             $_SESSION['end_time'] = $_SESSION['start_time'] + $test_duration;
 
             echo '<div id="timer"></div>';
-            echo '<form method="POST">';
+            echo '<form method="POST" onsubmit="window.formSubmitting = true;">';
             echo '<input type="hidden" name="test_id" value="' . htmlspecialchars($test_id) . '">';
             foreach ($questions as $index => $question) {
                 $options = json_decode($question['options'], true);
@@ -161,14 +161,20 @@ error_reporting(E_ALL);
     <footer></footer>
 
     <script>
+        window.formSubmitting = false;
+
         window.onbeforeunload = function() {
-            return "Are you sure you want to leave? Your progress will be lost.";
+            if (!window.formSubmitting) {
+                return "Are you sure you want to leave? Your progress will be lost.";
+            }
         };
 
         window.addEventListener('beforeunload', function(e) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', '/includes/testsunset_test_session.php', true);
-            xhr.send();
+            if (!window.formSubmitting) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '/includes/tests/unset_test_session.php', true);
+                xhr.send();
+            }
         });
 
         document.addEventListener('DOMContentLoaded', (event) => {
