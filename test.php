@@ -69,9 +69,9 @@ try {
         $stmt = $pdo->prepare("DELETE FROM user_tests WHERE user_id = ? AND test_id = ?");
         $stmt->execute([$_SESSION['user_id'], $test_id]);
 
-        $stmt = $pdo->prepare("SELECT q.id, q.question, q.options FROM questions q 
-                               JOIN test_questions tq ON q.id = tq.question_id WHERE tq.test_id = ?");
-        $stmt->execute([$test_id]);
+        // Fetch questions assigned to the test using JSON search
+        $stmt = $pdo->prepare("SELECT id, question, options FROM questions WHERE JSON_CONTAINS(test_ids, :test_id)");
+        $stmt->execute([':test_id' => json_encode($test_id)]);
         $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if (empty($questions)) {
