@@ -44,7 +44,7 @@ form {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
+    width: 80%;
 }
 
 form div {
@@ -120,7 +120,6 @@ header, footer {
     padding: 15px;
     border-radius: 5px;
     margin-bottom: 10px;
-    width: 100%;
 }
 
 .answer {
