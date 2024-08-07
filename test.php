@@ -32,11 +32,11 @@ try {
             $answers = $_POST['answers'];
             $test_id = $_POST['test_id'];
 
-            $stmt = $pdo->prepare("SELECT COUNT(*) FROM user_tests WHERE user_id = ? AND test_id = ?");
-            $stmt->execute([$_SESSION['user_id'], $test_id]);
-            if ($stmt->fetchColumn() == 0) {
-                die("You are not assigned to this test.");
-            }
+            // $stmt = $pdo->prepare("SELECT COUNT(*) FROM user_tests WHERE user_id = ? AND test_id = ?");
+            // $stmt->execute([$_SESSION['user_id'], $test_id]);
+            // if ($stmt->fetchColumn() == 0) {
+            //     die("You are not assigned to this test.");
+            // }
 
             $correct_count = 0;
             foreach ($answers as $question_id => $user_answer) {
@@ -59,6 +59,7 @@ try {
             // Unset session variables related to the test
             unset($_SESSION['test_started'], $_SESSION['test_completed']);
         } else {
+            unset($_SESSION['test_started'], $_SESSION['test_completed']);
             die("Test session is invalid or has not been properly started.");
         }
     } else {
