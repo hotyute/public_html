@@ -64,13 +64,22 @@ error_reporting(E_ALL);
 
                 echo "<p>Your score is : $score.</p>";
 
-                $stmt = $pdo->prepare("SELECT test_name FROM tests WHERE id = ?");
+                $stmt = $pdo->prepare("SELECT test_name, num_questions FROM tests WHERE id = ?");
                 $stmt->execute([$test_id]);
                 $test_info = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if (!empty($test_info)) {
 
                     $test_name = $test_info['test_name'];
+                    $total_questions = $test_info['num_questions'];
+
+                    $percentage = ((int)$score / (int)$total_questions) * 100;
+
+                    if ($percentage < 80) {
+                        echo '<p>You <span style="color:red;">FAILED</span> with an overall rate of: <span style="color:red;">' . $percentage . '%</span>.</p>';
+                    } else {
+                        echo '<p>You <span style="color:green;">PASSED</span> with an overall rate of: <span style="color:green;">' . $percentage . '%</span>.</p>';
+                    }
 
                     $to = 'admin@divineword.co.uk';
                     $subject = "{$username} has completed the test '{$test_name}'";
