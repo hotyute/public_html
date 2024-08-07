@@ -71,7 +71,7 @@ try {
 
         // Fetch questions assigned to the test using JSON search
         // Encode the test ID as JSON
-$json_test_id = json_encode($test_id);
+$json_test_id = json_encode((int)$test_id);
 
 // Debugging: Output the JSON-encoded test ID
 echo "JSON-encoded test ID: " . $json_test_id . "\n";
