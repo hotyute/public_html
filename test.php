@@ -186,6 +186,17 @@ error_reporting(E_ALL);
                 e.preventDefault();
                 alert('Pasting is not allowed.');
             });
+
+            // Disable text selection
+            document.addEventListener('selectstart', (e) => {
+                e.preventDefault();
+            });
+
+            // Disable right-click context menu
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                alert('Right-click is not allowed.');
+            });
         });
 
         function startTimer(duration, display) {

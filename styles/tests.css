@@ -10,9 +10,19 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
+
+    -webkit-user-select: none;
+    /* Safari */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
+    user-select: none;
+    /* Standard syntax */
 }
 
-header, footer {
+header,
+footer {
     background-color: #003366;
     color: white;
     text-align: center;
@@ -110,8 +120,10 @@ body::before {
     z-index: 1000;
 }
 
-header, footer {
-    padding-top: 40px; /* Adjust for warning banner */
+header,
+footer {
+    padding-top: 40px;
+    /* Adjust for warning banner */
 }
 
 /* Question and Answer Styles */
