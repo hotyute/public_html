@@ -6,9 +6,6 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], ['admin', 
     exit();
 }
 
-// Include header file
-include 'header.php';
-
 // Include database connection
 require 'includes/database.php';
 
@@ -32,6 +29,11 @@ $assignedTestsQuery = "
 $stmt = $pdo->prepare($assignedTestsQuery);
 $stmt->execute(['userId' => $userId]);
 $assignedTestsResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<?php 
+// Include header file
+include 'header.php'; 
 ?>
 
 <div class="test-container">
