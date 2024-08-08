@@ -158,9 +158,8 @@ try {
                 <option value="<?= htmlspecialchars($question['id']) ?>"><?= htmlspecialchars($question['question']) ?></option>
             <?php endforeach; ?>
         </select><br><br>
-
-        <label for="edit_question_text">Question Text:</label>
-        <textarea name="question" id="edit_question_text" placeholder="Question" required></textarea><br><br>
+        
+        <textarea name="question" id="edit_question_text" placeholder="Question" required></textarea><br>
 
         <div id="edit_options">
             <!-- Options will be dynamically loaded here based on the selected question -->
