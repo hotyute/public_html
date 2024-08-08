@@ -56,8 +56,8 @@ try {
 <?php include '../header.php'; ?>
 <style>
     .admin-container textarea {
-        width: 100%;
-        padding-left: 100px;
+        width: 800px;
+        padding: 10px;
         margin-bottom: 10px;
         border: 1px solid #ccc;
         border-radius: 5px;
