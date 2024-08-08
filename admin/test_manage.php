@@ -57,7 +57,7 @@ try {
 <style>
     .admin-container textarea {
         width: 100%;
-        padding-right: 100px;
+        padding-left: 100px;
         margin-bottom: 10px;
         border: 1px solid #ccc;
         border-radius: 5px;
