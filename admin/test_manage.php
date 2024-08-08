@@ -245,7 +245,7 @@ try {
 
     // Fetch question details via AJAX and populate the edit form
     function fetchQuestionDetails(questionId) {
-        fetch('fetch_question.php?question_id=' + questionId)
+        fetch('/includes/tests/fetch_question.php?question_id=' + questionId)
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
