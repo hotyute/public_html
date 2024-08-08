@@ -7,5 +7,19 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], ['admin', 
 }
 
 // Include header file
-include '../header.php';
+include 'header.php';
+?>
+
+<div class="uportal-container">
+    <h1>Admin Dashboard</h1>
+    <p>Welcome to the admin dashboard. Use the links below to manage the site:</p>
+    <ul class="uportal-links">
+        <li><a href="test_history.php">Test History</a></li>
+        <!-- Additional links for other admin tasks can be added here -->
+    </ul>
+</div>
+
+<?php
+// Include footer file
+include '../footer.php';
 ?>
