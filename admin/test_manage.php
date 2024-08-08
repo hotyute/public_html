@@ -246,6 +246,7 @@ try {
     document.getElementById('edit_question_id').addEventListener('change', function() {
         var questionId = this.value;
         if (questionId) {
+            console.log("questionId: " + questionId);
             fetchQuestionDetails(questionId);
         }
     });
