@@ -54,7 +54,7 @@ include 'header.php';
                     <td><?php echo htmlspecialchars($row['test_name']); ?></td>
                     <td><?php echo htmlspecialchars($row['score']); ?></td>
                     <td><?php echo '<span style="color:' . ($row['percent'] >= 80 ? 'green;">PASS' : 'red;">FAIL') . '</span>'; ?></td>
-                    <td><?php echo '<span style="color:' . ($row['percent'] >= 80 ? 'green;">' : 'red;">') . $row['score'] . '</span>'; ?></td>
+                    <td><?php echo '<span style="color:' . ($row['percent'] >= 80 ? 'green;">' : 'red;">') . $row['percent'] . '</span>'; ?></td>
                     <td><?php echo htmlspecialchars($row['taken_at']); ?></td>
                 </tr>
             <?php endforeach; ?>
