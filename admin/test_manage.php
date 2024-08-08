@@ -173,6 +173,7 @@ try {
 <?php include '../footer.php'; ?>
 
 <script>
+    // Adding new options dynamically in the "Add Question" form
     document.getElementById('addOption').addEventListener('click', function() {
         var optionsDiv = document.getElementById('options');
         var optionCount = optionsDiv.getElementsByClassName('option').length;
@@ -204,6 +205,7 @@ try {
         updateOptions();
     });
 
+    // Removing options in the "Add Question" form
     document.querySelectorAll('.removeOption').forEach(function(button) {
         button.addEventListener('click', function() {
             var optionDiv = button.parentElement;
@@ -212,6 +214,7 @@ try {
         });
     });
 
+    // Update options in the "Add Question" form to keep them consistent
     function updateOptions() {
         var optionsDiv = document.getElementById('options');
         var correctOptionSelect = document.getElementById('correct_option');
@@ -232,52 +235,70 @@ try {
         });
     }
 
-    // Edit question functionality
+    // Edit question functionality: Fetching and populating the selected question's details
     document.getElementById('edit_question_id').addEventListener('change', function() {
         var questionId = this.value;
-        fetchQuestionDetails(questionId);
+        if (questionId) {
+            fetchQuestionDetails(questionId);
+        }
     });
 
+    // Fetch question details via AJAX and populate the edit form
     function fetchQuestionDetails(questionId) {
-        var question = <?= json_encode($questions) ?>.find(q => q.id == questionId);
-        if (question) {
-            document.getElementById('edit_question_text').value = question.question;
-            var options = JSON.parse(question.options);
-            var optionsDiv = document.getElementById('edit_options');
-            optionsDiv.innerHTML = '';
-            var optionLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
-            options.forEach(function(option, index) {
-                var optionLetter = optionLetters[index];
-                var optionDiv = document.createElement('div');
-                optionDiv.className = 'option';
-                optionDiv.setAttribute('data-option', optionLetter);
-
-                var input = document.createElement('input');
-                input.type = 'text';
-                input.name = 'options[' + optionLetter + ']';
-                input.value = option;
-                input.placeholder = 'Option ' + optionLetter.toUpperCase();
-                input.required = true;
-
-                var removeButton = document.createElement('button');
-                removeButton.type = 'button';
-                removeButton.className = 'removeOption';
-                removeButton.textContent = 'Remove Option';
-                removeButton.addEventListener('click', function() {
-                    optionsDiv.removeChild(optionDiv);
-                    updateEditOptions();
-                });
-
-                optionDiv.appendChild(input);
-                optionDiv.appendChild(removeButton);
-                optionsDiv.appendChild(optionDiv);
-            });
-
-            updateEditOptions();
-            document.getElementById('edit_correct_option').value = question.correct_option;
-        }
+        fetch('fetch_question.php?question_id=' + questionId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    populateEditForm(data);
+                }
+            })
+            .catch(error => console.error('Error fetching question details:', error));
     }
 
+    // Populate the edit form with the fetched question details
+    function populateEditForm(question) {
+        document.getElementById('edit_question_text').value = question.question;
+
+        var options = JSON.parse(question.options);
+        var optionsDiv = document.getElementById('edit_options');
+        optionsDiv.innerHTML = ''; // Clear current options
+
+        var optionLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+        options.forEach(function(option, index) {
+            var optionLetter = optionLetters[index];
+
+            var optionDiv = document.createElement('div');
+            optionDiv.className = 'option';
+            optionDiv.setAttribute('data-option', optionLetter);
+
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.name = 'options[' + optionLetter + ']';
+            input.value = option;
+            input.placeholder = 'Option ' + optionLetter.toUpperCase();
+            input.required = true;
+
+            var removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'removeOption';
+            removeButton.textContent = 'Remove Option';
+            removeButton.addEventListener('click', function() {
+                optionsDiv.removeChild(optionDiv);
+                updateEditOptions();
+            });
+
+            optionDiv.appendChild(input);
+            optionDiv.appendChild(removeButton);
+            optionsDiv.appendChild(optionDiv);
+        });
+
+        updateEditOptions();
+        document.getElementById('edit_correct_option').value = question.correct_option;
+    }
+
+    // Update the edit form's correct option dropdown
     function updateEditOptions() {
         var optionsDiv = document.getElementById('edit_options');
         var correctOptionSelect = document.getElementById('edit_correct_option');
