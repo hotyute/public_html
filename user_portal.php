@@ -10,10 +10,10 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], ['admin', 
 include 'header.php';
 ?>
 
-<div class="uportal-container">
+<div class="admin-container">
     <h1>Portal Dashboard</h1>
     <p>Welcome to the portal dashboard. Use the links below to access your data:</p>
-    <ul class="uportal-links">
+    <ul class="admin-links">
         <li><a href="test_history.php">Test History</a></li>
         <!-- Additional links for other admin tasks can be added here -->
     </ul>

@@ -8,7 +8,7 @@
 <?php if ($current_page == 'login') : ?>
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/surplus.css">
 <?php endif; ?>
-<?php if (($current_page == 'admin_panel') || ($current_page ==  'edit_post') || ($current_page == 'create_post') || ($current_page == 'test_manage')) : ?>
+<?php if (($current_page == 'admin_panel') || ($current_page ==  'edit_post') || ($current_page == 'create_post') || ($current_page == 'test_manage') || $current_page == 'user_portal') : ?>
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/admin.css">
 <?php endif; ?>
 <?php if ($current_page == 'post') : ?>
@@ -30,9 +30,6 @@
 <?php endif; ?>
 <?php if ($current_page == 'notifications') : ?>
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/notifications.css">
-<?php endif; ?>
-<?php if ($current_page == 'user_portal') : ?>
-    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/user_portal.css">
 <?php endif; ?>
 <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/header.css">
 <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/footer.css">
