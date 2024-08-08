@@ -12,7 +12,7 @@ require 'includes/database.php';
 // Fetch test history
 $userId = $_SESSION['user_id'];
 $testHistoryQuery = "
-    SELECT th.id, th.score, th.taken_at, t.test_name AS test_name 
+    SELECT th.id, th.score, th.percent, th.taken_at, t.test_name AS test_name 
     FROM scores th 
     JOIN tests t ON th.test_id = t.id 
     WHERE th.user_id = :userId";
@@ -52,7 +52,7 @@ include 'header.php';
                 <tr>
                     <td><?php echo htmlspecialchars($row['test_name']); ?></td>
                     <td><?php echo htmlspecialchars($row['score']); ?></td>
-                    <td><?php echo '<span style="color:' . ($row['score'] >= 80 ? 'green;">PASS' : 'red;">FAIL') . '</span>'; ?></td>
+                    <td><?php echo '<span style="color:' . ($row['percent'] >= 80 ? 'green;">PASS' : 'red;">FAIL') . '</span>'; ?></td>
                     <td><?php echo htmlspecialchars($row['taken_at']); ?></td>
                 </tr>
             <?php endforeach; ?>
