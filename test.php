@@ -83,7 +83,7 @@ error_reporting(E_ALL);
 
                     $to = 'admin@divineword.co.uk';
                     $subject = "{$username} has completed the test '{$test_name}'";
-                    $message = "{$username} has completed the test '{$test_name}' with a score of {$score}";
+                    $message = "{$username} has completed the test '{$test_name}' with a score of {$score} ({$percentage}%)";
                     $headers = 'From: admin@divineword.co.uk' . "\r\n" .
                         'Reply-To: admin@divineword.co.uk' . "\r\n" .
                         'X-Mailer: PHP/' . phpversion();

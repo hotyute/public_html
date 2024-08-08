@@ -107,7 +107,7 @@ form input[type="submit"]:hover {
 
 /* Prevent Navigation Warning */
 body::before {
-    content: "Please do not navigate away from this page. Your progress will be lost.";
+    content: "Please do not refresh or navigate away from this page. Your progress will be lost.";
     display: block;
     background-color: #ffcc00;
     color: #333;
