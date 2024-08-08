@@ -30,7 +30,7 @@ try {
             add_notification($user_id, "Test Assigned", $message);
 
             echo "Test {$test_name} assigned successfully!";
-        } elseif (isset($_POST['remove_test'])) {
+        } else if (isset($_POST['remove_test'])) {
             $user_id = $_POST['user_id'];
             $test_id = $_POST['test_id'];
             $test_name = $_POST['test_name'];
