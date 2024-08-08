@@ -1,0 +1,56 @@
+.test-container {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.test-container h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.test-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.test-table th, .test-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.test-table th {
+    background-color: #007bff;
+    color: white;
+}
+
+.test-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.test-table tr:hover {
+    background-color: #ddd;
+}
+
+.test-table td {
+    color: #333;
+}
+
+.test-table h1, h2, p {
+    margin: 0 0 20px 0;
+}
+
+.test-table a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.test-table a:hover {
+    text-decoration: underline;
+}

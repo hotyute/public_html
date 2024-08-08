@@ -31,5 +31,8 @@
 <?php if ($current_page == 'notifications') : ?>
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/notifications.css">
 <?php endif; ?>
+<?php if ($current_page == 'test_history') : ?>
+    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/test_history.css">
+<?php endif; ?>
 <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/header.css">
 <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/footer.css">
