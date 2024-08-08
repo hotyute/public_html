@@ -12,7 +12,7 @@ require 'includes/database.php';
 // Fetch test history
 $userId = $_SESSION['user_id'];
 $testHistoryQuery = "
-    SELECT th.id, th.score, th.taken_at, t.name AS test_name 
+    SELECT th.id, th.score, th.taken_at, t.test_name AS test_name 
     FROM scores th 
     JOIN tests t ON th.test_id = t.id 
     WHERE th.user_id = :userId";
@@ -22,7 +22,7 @@ $testHistoryResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Fetch currently assigned tests
 $assignedTestsQuery = "
-    SELECT at.id, at.assigned_at, t.name AS test_name 
+    SELECT at.id, at.assigned_at, t.test_name AS test_name 
     FROM user_tests at 
     JOIN tests t ON at.test_id = t.id 
     WHERE at.user_id = :userId";
