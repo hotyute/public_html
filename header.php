@@ -107,8 +107,11 @@ if (isset($_GET['logout'])) {
         <nav>
             <ul class="nav-links">
                 <li><a href="<?php echo BASE_URL; ?>index.php">Home</a></li>
-                <?php if (isset($_SESSION['user_role']) && ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'editor')) : ?>
-                    <li><a href='<?php echo BASE_URL; ?>admin/admin_panel.php'>Admin</a></li>
+                <?php if (isset($_SESSION['user_role']) && in_array($_SESSION['user_role'], ['admin', 'editor'])) : ?>
+                    <li><a href='/admin/admin_panel.php'>Admin</a></li>
+                <?php endif; ?>
+                <?php if (isset($_SESSION['user_id']) && in_array($_SESSION['user_role'], ['admin', 'editor', 'member'])) : ?>
+                    <li><a href='/user_portal.php'>Admin</a></li>
                 <?php endif; ?>
                 <li><a href='<?php echo BASE_URL; ?>roster.php'>Roster</a></li>
                 <li><a href='<?php echo BASE_URL; ?>contact.php'>Contact Us</a></li>
