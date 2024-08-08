@@ -55,10 +55,7 @@ try {
 
 <?php include '../header.php'; ?>
 <style>
-    .admin-container input[type="text"],
-    .admin-container input[type="number"],
-    .admin-container textarea,
-    .admin-container select {
+    .admin-container textarea {
         width: 100%;
         padding: 10px;
         margin-bottom: 10px;
