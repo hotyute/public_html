@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], ['admin', 
 include 'header.php';
 
 // Include database connection
-require 'database.php';
+require 'includes/database.php';
 
 // Fetch test history
 $userId = $_SESSION['user_id'];
