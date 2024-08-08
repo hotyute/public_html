@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], ['admin', 
 }
 
 // Include header file
-include '/header.php';
+include 'header.php';
 ?>
 
 <div class="uportal-container">
@@ -21,5 +21,5 @@ include '/header.php';
 
 <?php
 // Include footer file
-include '/footer.php';
+include 'footer.php';
 ?>
