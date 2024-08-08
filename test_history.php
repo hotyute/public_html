@@ -52,7 +52,7 @@ include 'header.php';
                 <tr>
                     <td><?php echo htmlspecialchars($row['test_name']); ?></td>
                     <td><?php echo htmlspecialchars($row['score']); ?></td>
-                    <td><?php echo $row['score'] >= 50 ? 'PASS' : 'FAIL'; ?></td>
+                    <td><?php echo '<p><span style="color:' . ($row['score'] >= 80 ? 'green;">PASS' : 'red;">FAIL') . '</span>.</p>'; ?></td>
                     <td><?php echo htmlspecialchars($row['taken_at']); ?></td>
                 </tr>
             <?php endforeach; ?>
