@@ -43,27 +43,6 @@ error_reporting(E_ALL);
                 //     die("You are not assigned to this test.");
                 // }
 
-                $correct_count = 0;
-
-                if (!empty($answers)) {
-                    foreach ($answers as $question_id => $user_answer) {
-                        $stmt = $pdo->prepare("SELECT correct_option FROM questions WHERE id = ?");
-                        $stmt->execute([$question_id]);
-                        $correct_answer = $stmt->fetchColumn();
-
-                        if ($user_answer === $correct_answer) {
-                            $correct_count++;
-                        }
-                    }
-                }
-
-                $score = $correct_count; // Modify scoring logic if needed
-
-                $stmt = $pdo->prepare("INSERT INTO scores (user_id, test_id, score) VALUES (?, ?, ?)");
-                $stmt->execute([$_SESSION['user_id'], $test_id, $score]);
-
-                echo "<p>Your score is : $score.</p>";
-
                 $stmt = $pdo->prepare("SELECT test_name, num_questions FROM tests WHERE id = ?");
                 $stmt->execute([$test_id]);
                 $test_info = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -73,7 +52,27 @@ error_reporting(E_ALL);
                     $test_name = $test_info['test_name'];
                     $total_questions = $test_info['num_questions'];
 
+                    $correct_count = 0;
+
+                    if (!empty($answers)) {
+                        foreach ($answers as $question_id => $user_answer) {
+                            $stmt = $pdo->prepare("SELECT correct_option FROM questions WHERE id = ?");
+                            $stmt->execute([$question_id]);
+                            $correct_answer = $stmt->fetchColumn();
+
+                            if ($user_answer === $correct_answer) {
+                                $correct_count++;
+                            }
+                        }
+                    }
+
+                    $score = $correct_count; // Modify scoring logic if needed
                     $percentage = ((int)$score / (int)$total_questions) * 100;
+
+                    $stmt = $pdo->prepare("INSERT INTO scores (user_id, test_id, score, percent) VALUES (?, ?, ?. ?)");
+                    $stmt->execute([$_SESSION['user_id'], $test_id, $score, $percentage]);
+
+                    echo "<p>Your score is : $score.</p>";
 
                     if ($percentage < 80) {
                         echo '<p>You <span style="color:red;">FAILED</span> with an overall rate of: <span style="color:red;">' . $percentage . '%</span>.</p>';
@@ -93,6 +92,8 @@ error_reporting(E_ALL);
                     } else {
                         echo '<p>Failed to notify Administrator.</p>';
                     }
+                } else {
+                    echo("Test Unknown or Invalid.");
                 }
 
                 // Unset session variables related to the test
