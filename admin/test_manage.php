@@ -54,138 +54,150 @@ try {
 ?>
 
 <?php include '../header.php'; ?>
+<style>
+    .admin-container input[type="text"],
+    .admin-container input[type="number"],
+    .admin-container textarea,
+    .admin-container select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+</style>
 <div class="admin-container">
-<h1>Manage Tests and Questions</h1>
+    <h1>Manage Tests and Questions</h1>
 
-<!-- Form to add a new test -->
-<h2>Add New Test</h2>
-<form method="POST">
-    <input type="text" name="test_name" placeholder="Test Name" required>
-    <input type="number" name="num_questions" placeholder="Number of Questions" required>
-    <button type="submit" name="add_test">Add Test</button>
-</form>
+    <!-- Form to add a new test -->
+    <h2>Add New Test</h2>
+    <form method="POST">
+        <input type="text" name="test_name" placeholder="Test Name" required>
+        <input type="number" name="num_questions" placeholder="Number of Questions" required>
+        <button type="submit" name="add_test">Add Test</button>
+    </form>
 
-<!-- Form to delete a test -->
-<h2>Delete Test</h2>
-<form method="POST">
-    <select name="test_id" required>
-        <?php foreach ($tests as $test) : ?>
-            <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
-        <?php endforeach; ?>
-    </select>
-    <button type="submit" name="delete_test">Delete Test</button>
-</form>
+    <!-- Form to delete a test -->
+    <h2>Delete Test</h2>
+    <form method="POST">
+        <select name="test_id" required>
+            <?php foreach ($tests as $test) : ?>
+                <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
+            <?php endforeach; ?>
+        </select>
+        <button type="submit" name="delete_test">Delete Test</button>
+    </form>
 
-<!-- Form to add a new question -->
-<h2>Add New Question</h2>
-<form method="POST" id="questionForm">
-    <select name="test_id" required>
-        <?php foreach ($tests as $test) : ?>
-            <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
-        <?php endforeach; ?>
-    </select><br>
-    <textarea name="question" placeholder="Question" required></textarea><br>
-    <div id="options">
-        <div class="option" data-option="a">
-            <input type="text" name="options[a]" placeholder="Option A" required>
-            <button type="button" class="removeOption">Remove Option</button>
+    <!-- Form to add a new question -->
+    <h2>Add New Question</h2>
+    <form method="POST" id="questionForm">
+        <select name="test_id" required>
+            <?php foreach ($tests as $test) : ?>
+                <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
+            <?php endforeach; ?>
+        </select><br>
+        <textarea name="question" placeholder="Question" required></textarea><br>
+        <div id="options">
+            <div class="option" data-option="a">
+                <input type="text" name="options[a]" placeholder="Option A" required>
+                <button type="button" class="removeOption">Remove Option</button>
+            </div>
+            <div class="option" data-option="b">
+                <input type="text" name="options[b]" placeholder="Option B" required>
+                <button type="button" class="removeOption">Remove Option</button>
+            </div>
+            <div class="option" data-option="c">
+                <input type="text" name="options[c]" placeholder="Option C" required>
+                <button type="button" class="removeOption">Remove Option</button>
+            </div>
+            <div class="option" data-option="d">
+                <input type="text" name="options[d]" placeholder="Option D" required>
+                <button type="button" class="removeOption">Remove Option</button>
+            </div>
         </div>
-        <div class="option" data-option="b">
-            <input type="text" name="options[b]" placeholder="Option B" required>
-            <button type="button" class="removeOption">Remove Option</button>
-        </div>
-        <div class="option" data-option="c">
-            <input type="text" name="options[c]" placeholder="Option C" required>
-            <button type="button" class="removeOption">Remove Option</button>
-        </div>
-        <div class="option" data-option="d">
-            <input type="text" name="options[d]" placeholder="Option D" required>
-            <button type="button" class="removeOption">Remove Option</button>
-        </div>
-    </div>
-    <button type="button" id="addOption">Add Option</button><br>
-    <label for="correct_option">Correct Option:</label>
-    <select name="correct_option" id="correct_option" required>
-        <option value="a">A</option>
-        <option value="b">B</option>
-        <option value="c">C</option>
-        <option value="d">D</option>
-    </select><br>
-    <button type="submit" name="add_question">Add Question</button>
-</form>
+        <button type="button" id="addOption">Add Option</button><br>
+        <label for="correct_option">Correct Option:</label>
+        <select name="correct_option" id="correct_option" required>
+            <option value="a">A</option>
+            <option value="b">B</option>
+            <option value="c">C</option>
+            <option value="d">D</option>
+        </select><br>
+        <button type="submit" name="add_question">Add Question</button>
+    </form>
 
-<!-- Form to delete a question -->
-<h2>Delete Question</h2>
-<form method="POST">
-    <select name="question_id" required>
-        <?php foreach ($questions as $question) : ?>
-            <option value="<?= htmlspecialchars($question['id']) ?>"><?= htmlspecialchars($question['question']) ?></option>
-        <?php endforeach; ?>
-    </select>
-    <button type="submit" name="delete_question">Delete Question</button>
-</form>
+    <!-- Form to delete a question -->
+    <h2>Delete Question</h2>
+    <form method="POST">
+        <select name="question_id" required>
+            <?php foreach ($questions as $question) : ?>
+                <option value="<?= htmlspecialchars($question['id']) ?>"><?= htmlspecialchars($question['question']) ?></option>
+            <?php endforeach; ?>
+        </select>
+        <button type="submit" name="delete_question">Delete Question</button>
+    </form>
 
 </div>
 
 <?php include '../footer.php'; ?>
 
 <script>
-document.getElementById('addOption').addEventListener('click', function() {
-    var optionsDiv = document.getElementById('options');
-    var optionCount = optionsDiv.getElementsByClassName('option').length;
-    var optionLetter = String.fromCharCode(97 + optionCount); // a, b, c, d, ...
+    document.getElementById('addOption').addEventListener('click', function() {
+        var optionsDiv = document.getElementById('options');
+        var optionCount = optionsDiv.getElementsByClassName('option').length;
+        var optionLetter = String.fromCharCode(97 + optionCount); // a, b, c, d, ...
 
-    var newOptionDiv = document.createElement('div');
-    newOptionDiv.className = 'option';
-    newOptionDiv.setAttribute('data-option', optionLetter);
+        var newOptionDiv = document.createElement('div');
+        newOptionDiv.className = 'option';
+        newOptionDiv.setAttribute('data-option', optionLetter);
 
-    var input = document.createElement('input');
-    input.type = 'text';
-    input.name = 'options[' + optionLetter + ']';
-    input.placeholder = 'Option ' + optionLetter.toUpperCase();
-    input.required = true;
-
-    var removeButton = document.createElement('button');
-    removeButton.type = 'button';
-    removeButton.className = 'removeOption';
-    removeButton.textContent = 'Remove Option';
-    removeButton.addEventListener('click', function() {
-        optionsDiv.removeChild(newOptionDiv);
-        updateOptions();
-    });
-
-    newOptionDiv.appendChild(input);
-    newOptionDiv.appendChild(removeButton);
-    optionsDiv.appendChild(newOptionDiv);
-
-    updateOptions();
-});
-
-document.querySelectorAll('.removeOption').forEach(function(button) {
-    button.addEventListener('click', function() {
-        var optionDiv = button.parentElement;
-        optionDiv.parentElement.removeChild(optionDiv);
-        updateOptions();
-    });
-});
-
-function updateOptions() {
-    var optionsDiv = document.getElementById('options');
-    var correctOptionSelect = document.getElementById('correct_option');
-    correctOptionSelect.innerHTML = '';
-    
-    var optionLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
-    optionsDiv.querySelectorAll('.option').forEach(function(optionDiv, index) {
-        var optionLetter = optionLetters[index];
-        optionDiv.setAttribute('data-option', optionLetter);
-        var input = optionDiv.querySelector('input');
+        var input = document.createElement('input');
+        input.type = 'text';
         input.name = 'options[' + optionLetter + ']';
         input.placeholder = 'Option ' + optionLetter.toUpperCase();
+        input.required = true;
 
-        var newOption = document.createElement('option');
-        newOption.value = optionLetter;
-        newOption.textContent = optionLetter.toUpperCase();
-        correctOptionSelect.appendChild(newOption);
+        var removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'removeOption';
+        removeButton.textContent = 'Remove Option';
+        removeButton.addEventListener('click', function() {
+            optionsDiv.removeChild(newOptionDiv);
+            updateOptions();
+        });
+
+        newOptionDiv.appendChild(input);
+        newOptionDiv.appendChild(removeButton);
+        optionsDiv.appendChild(newOptionDiv);
+
+        updateOptions();
     });
-}
+
+    document.querySelectorAll('.removeOption').forEach(function(button) {
+        button.addEventListener('click', function() {
+            var optionDiv = button.parentElement;
+            optionDiv.parentElement.removeChild(optionDiv);
+            updateOptions();
+        });
+    });
+
+    function updateOptions() {
+        var optionsDiv = document.getElementById('options');
+        var correctOptionSelect = document.getElementById('correct_option');
+        correctOptionSelect.innerHTML = '';
+
+        var optionLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+        optionsDiv.querySelectorAll('.option').forEach(function(optionDiv, index) {
+            var optionLetter = optionLetters[index];
+            optionDiv.setAttribute('data-option', optionLetter);
+            var input = optionDiv.querySelector('input');
+            input.name = 'options[' + optionLetter + ']';
+            input.placeholder = 'Option ' + optionLetter.toUpperCase();
+
+            var newOption = document.createElement('option');
+            newOption.value = optionLetter;
+            newOption.textContent = optionLetter.toUpperCase();
+            correctOptionSelect.appendChild(newOption);
+        });
+    }
 </script>
