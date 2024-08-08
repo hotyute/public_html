@@ -151,22 +151,30 @@ try {
     <!-- Form to edit a question -->
     <h2>Edit Question</h2>
     <form method="POST" id="editQuestionForm">
+        <label for="edit_question_id">Select Question:</label>
         <select name="question_id" id="edit_question_id" required>
+            <option value="">-- Select a Question --</option>
             <?php foreach ($questions as $question) : ?>
                 <option value="<?= htmlspecialchars($question['id']) ?>"><?= htmlspecialchars($question['question']) ?></option>
             <?php endforeach; ?>
-        </select><br>
-        <textarea name="question" id="edit_question_text" placeholder="Question" required></textarea><br>
+        </select><br><br>
+
+        <label for="edit_question_text">Question Text:</label>
+        <textarea name="question" id="edit_question_text" placeholder="Question" required></textarea><br><br>
+
         <div id="edit_options">
             <!-- Options will be dynamically loaded here based on the selected question -->
         </div>
-        <button type="button" id="edit_addOption">Add Option</button><br>
+        <button type="button" id="edit_addOption">Add Option</button><br><br>
+
         <label for="edit_correct_option">Correct Option:</label>
         <select name="correct_option" id="edit_correct_option" required>
-            <!-- Correct options will be dynamically populated based on selected question -->
-        </select><br>
+            <!-- Correct options will be dynamically populated based on the selected question -->
+        </select><br><br>
+
         <button type="submit" name="edit_question">Edit Question</button>
     </form>
+
 
 </div>
 
