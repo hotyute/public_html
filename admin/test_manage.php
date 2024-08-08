@@ -42,6 +42,19 @@ try {
             $stmt = $pdo->prepare("DELETE FROM questions WHERE id = ?");
             $stmt->execute([$question_id]);
             echo "Question deleted successfully!";
+        } elseif (isset($_POST['edit_question'])) {
+            $question_id = $_POST['question_id'];
+            $question = $_POST['question'];
+            $options = $_POST['options'];
+            $correct_option = $_POST['correct_option'];
+            $num_options = count($options);
+            $option_struct = str_repeat('s', $num_options);
+            $options_json = json_encode($options);
+
+            $stmt = $pdo->prepare("UPDATE questions SET question = ?, num_options = ?, option_struct = ?, options = ?, correct_option = ? WHERE id = ?");
+            $stmt->execute([$question, $num_options, $option_struct, $options_json, $correct_option, $question_id]);
+
+            echo "Question edited successfully!";
         }
     }
 
@@ -135,6 +148,26 @@ try {
         <button type="submit" name="delete_question">Delete Question</button>
     </form>
 
+    <!-- Form to edit a question -->
+    <h2>Edit Question</h2>
+    <form method="POST" id="editQuestionForm">
+        <select name="question_id" id="edit_question_id" required>
+            <?php foreach ($questions as $question) : ?>
+                <option value="<?= htmlspecialchars($question['id']) ?>"><?= htmlspecialchars($question['question']) ?></option>
+            <?php endforeach; ?>
+        </select><br>
+        <textarea name="question" id="edit_question_text" placeholder="Question" required></textarea><br>
+        <div id="edit_options">
+            <!-- Options will be dynamically loaded here based on the selected question -->
+        </div>
+        <button type="button" id="edit_addOption">Add Option</button><br>
+        <label for="edit_correct_option">Correct Option:</label>
+        <select name="correct_option" id="edit_correct_option" required>
+            <!-- Correct options will be dynamically populated based on selected question -->
+        </select><br>
+        <button type="submit" name="edit_question">Edit Question</button>
+    </form>
+
 </div>
 
 <?php include '../footer.php'; ?>
@@ -182,6 +215,72 @@ try {
     function updateOptions() {
         var optionsDiv = document.getElementById('options');
         var correctOptionSelect = document.getElementById('correct_option');
+        correctOptionSelect.innerHTML = '';
+
+        var optionLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+        optionsDiv.querySelectorAll('.option').forEach(function(optionDiv, index) {
+            var optionLetter = optionLetters[index];
+            optionDiv.setAttribute('data-option', optionLetter);
+            var input = optionDiv.querySelector('input');
+            input.name = 'options[' + optionLetter + ']';
+            input.placeholder = 'Option ' + optionLetter.toUpperCase();
+
+            var newOption = document.createElement('option');
+            newOption.value = optionLetter;
+            newOption.textContent = optionLetter.toUpperCase();
+            correctOptionSelect.appendChild(newOption);
+        });
+    }
+
+    // Edit question functionality
+    document.getElementById('edit_question_id').addEventListener('change', function() {
+        var questionId = this.value;
+        fetchQuestionDetails(questionId);
+    });
+
+    function fetchQuestionDetails(questionId) {
+        var question = <?= json_encode($questions) ?>.find(q => q.id == questionId);
+        if (question) {
+            document.getElementById('edit_question_text').value = question.question;
+            var options = JSON.parse(question.options);
+            var optionsDiv = document.getElementById('edit_options');
+            optionsDiv.innerHTML = '';
+            var optionLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+            options.forEach(function(option, index) {
+                var optionLetter = optionLetters[index];
+                var optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.setAttribute('data-option', optionLetter);
+
+                var input = document.createElement('input');
+                input.type = 'text';
+                input.name = 'options[' + optionLetter + ']';
+                input.value = option;
+                input.placeholder = 'Option ' + optionLetter.toUpperCase();
+                input.required = true;
+
+                var removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.className = 'removeOption';
+                removeButton.textContent = 'Remove Option';
+                removeButton.addEventListener('click', function() {
+                    optionsDiv.removeChild(optionDiv);
+                    updateEditOptions();
+                });
+
+                optionDiv.appendChild(input);
+                optionDiv.appendChild(removeButton);
+                optionsDiv.appendChild(optionDiv);
+            });
+
+            updateEditOptions();
+            document.getElementById('edit_correct_option').value = question.correct_option;
+        }
+    }
+
+    function updateEditOptions() {
+        var optionsDiv = document.getElementById('edit_options');
+        var correctOptionSelect = document.getElementById('edit_correct_option');
         correctOptionSelect.innerHTML = '';
 
         var optionLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
