@@ -93,7 +93,7 @@ error_reporting(E_ALL);
                         echo '<p>Failed to notify Administrator.</p>';
                     }
                 } else {
-                    echo("Test Unknown or Invalid.");
+                    echo 'Test Unknown or Invalid.';
                 }
 
                 // Unset session variables related to the test
