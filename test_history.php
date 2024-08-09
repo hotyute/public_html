@@ -71,12 +71,10 @@ include 'header.php';
         </thead>
         <tbody>
             <?php foreach ($assignedTestsResult as $row): ?>
-                <a href='/test.php?test_id=<?php echo $row['id']; ?>'>
-                    <tr>
-                        <td><?php echo htmlspecialchars($row['test_name']); ?></td>
-                        <td><?php echo htmlspecialchars($row['assigned_at']); ?></td>
-                    </tr>
-                </a>
+                <tr onclick="window.location.href='/test.php?test_id=<?php echo $row['id']; ?>';" style="cursor:pointer;">
+                    <td><?php echo htmlspecialchars($row['test_name']); ?></td>
+                    <td><?php echo htmlspecialchars($row['assigned_at']); ?></td>
+                </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
