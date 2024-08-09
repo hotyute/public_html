@@ -31,9 +31,9 @@ $stmt->execute(['userId' => $userId]);
 $assignedTestsResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<?php 
+<?php
 // Include header file
-include 'header.php'; 
+include 'header.php';
 ?>
 
 <div class="test-container">
@@ -71,10 +71,12 @@ include 'header.php';
         </thead>
         <tbody>
             <?php foreach ($assignedTestsResult as $row): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($row['test_name']); ?></td>
-                    <td><?php echo htmlspecialchars($row['assigned_at']); ?></td>
-                </tr>
+                <a href='/test.php?test_id=<?php echo $row['id']; ?>'>
+                    <tr>
+                        <td><?php echo htmlspecialchars($row['test_name']); ?></td>
+                        <td><?php echo htmlspecialchars($row['assigned_at']); ?></td>
+                    </tr>
+                </a>
             <?php endforeach; ?>
         </tbody>
     </table>
