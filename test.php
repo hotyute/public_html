@@ -37,12 +37,6 @@ error_reporting(E_ALL);
                 $test_id = $_POST['test_id'];
                 $username = $_SESSION['username'];
 
-                // $stmt = $pdo->prepare("SELECT COUNT(*) FROM user_tests WHERE user_id = ? AND test_id = ?");
-                // $stmt->execute([$_SESSION['user_id'], $test_id]);
-                // if ($stmt->fetchColumn() == 0) {
-                //     die("You are not assigned to this test.");
-                // }
-
                 $stmt = $pdo->prepare("SELECT test_name, num_questions FROM tests WHERE id = ?");
                 $stmt->execute([$test_id]);
                 $test_info = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -69,7 +63,7 @@ error_reporting(E_ALL);
                     $score = $correct_count; // Modify scoring logic if needed
                     $percentage = ((int)$score / (int)$total_questions) * 100;
 
-                    $stmt = $pdo->prepare("INSERT INTO scores (user_id, test_id, score, percent) VALUES (?, ?, ?. ?)");
+                    $stmt = $pdo->prepare("INSERT INTO scores (user_id, test_id, score, percent) VALUES (?, ?, ?, ?)");
                     $stmt->execute([$_SESSION['user_id'], $test_id, $score, $percentage]);
 
                     echo "<p>Your score is : $score.</p>";
