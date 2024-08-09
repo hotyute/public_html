@@ -158,7 +158,7 @@ try {
                 <option value="<?= htmlspecialchars($question['id']) ?>"><?= htmlspecialchars($question['question']) ?></option>
             <?php endforeach; ?>
         </select><br><br>
-        
+
         <textarea name="question" id="edit_question_text" placeholder="Question" required></textarea><br>
 
         <div id="edit_options">
@@ -269,15 +269,23 @@ try {
     function populateEditForm(question) {
         document.getElementById('edit_question_text').value = question.question;
 
-        console.log(question.options);
-
-        var options = JSON.parse(question.options);
         var optionsDiv = document.getElementById('edit_options');
         optionsDiv.innerHTML = ''; // Clear current options
 
-        var optionLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
-        options.forEach(function(option, index) {
-            var optionLetter = optionLetters[index];
+        var options = {};
+        try {
+            options = JSON.parse(question.options);
+            if (typeof options !== 'object' || options === null) {
+                throw new Error('Options is not a valid object');
+            }
+        } catch (e) {
+            console.error('Error parsing options:', e);
+            alert('Failed to load options. Please check the question data.');
+            return;
+        }
+
+        Object.keys(options).forEach(function(optionLetter) {
+            var optionValue = options[optionLetter];
 
             var optionDiv = document.createElement('div');
             optionDiv.className = 'option';
@@ -286,7 +294,7 @@ try {
             var input = document.createElement('input');
             input.type = 'text';
             input.name = 'options[' + optionLetter + ']';
-            input.value = option;
+            input.value = optionValue;
             input.placeholder = 'Option ' + optionLetter.toUpperCase();
             input.required = true;
 
