@@ -320,15 +320,20 @@ try {
     function updateEditOptions() {
         var optionsDiv = document.getElementById('edit_options');
         var correctOptionSelect = document.getElementById('edit_correct_option');
-        correctOptionSelect.innerHTML = ''; // Clear the current dropdown options
+        correctOptionSelect.innerHTML = '';
 
-        optionsDiv.querySelectorAll('.option').forEach(function(optionDiv) {
-            var optionLetter = optionDiv.getAttribute('data-option'); // Get the option letter (e.g., 'a', 'b', etc.)
+        var optionLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+        optionsDiv.querySelectorAll('.option').forEach(function(optionDiv, index) {
+            var optionLetter = optionLetters[index];
+            optionDiv.setAttribute('data-option', optionLetter);
+            var input = optionDiv.querySelector('input');
+            input.name = 'options[' + optionLetter + ']';
+            input.placeholder = 'Option ' + optionLetter.toUpperCase();
 
             var newOption = document.createElement('option');
-            newOption.value = optionLetter; // Set the option value
-            newOption.textContent = optionLetter.toUpperCase(); // Set the option display text (e.g., 'A', 'B', etc.)
-            correctOptionSelect.appendChild(newOption); // Add the option to the select dropdown
+            newOption.value = optionLetter;
+            newOption.textContent = optionLetter.toUpperCase();
+            correctOptionSelect.appendChild(newOption);
         });
     }
 </script>
