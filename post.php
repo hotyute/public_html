@@ -9,7 +9,8 @@ if (session_status() == PHP_SESSION_NONE) {
 $post_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 
-function time_ago($datetime) {
+function time_ago($datetime)
+{
     $time = strtotime($datetime);
     $time_difference = time() - $time;
 
@@ -140,11 +141,12 @@ if ($post_id > 0) {
             echo '<strong>' . htmlspecialchars_decode($comment['author']) . '</strong> <span class="time-ago">' . $timeAgo . '</span>';
             echo '<p>' . htmlspecialchars_decode($comment['content']) . '</p>';
 
-            // Display edit and delete buttons if the user is the owner or an admin
-            if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $comment['user_id'] || $_SESSION['user_role'] === 'admin')) {
+            // Display edit and delete buttons if the user is the comment owner or an admin
+            if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $comment['user_id'] || $_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'owner')) {
                 echo '<button type="button" class="editComment" data-comment-id="' . $comment['id'] . '">Edit</button>';
                 echo '<button type="button" class="deleteComment" data-comment-id="' . $comment['id'] . '">Delete</button>';
             }
+
 
             // Display reply form for logged-in users
             if (isset($_SESSION['user_id'])) {
@@ -167,7 +169,7 @@ if ($post_id > 0) {
                 echo '<div class="comment reply" data-comment-id="' . $reply['id'] . '">';
                 echo '<strong>' . htmlspecialchars_decode($reply['author']) . '</strong> <span class="time-ago">' . $replyTimeAgo . '</span>';
                 echo '<p>' . htmlspecialchars_decode($reply['content']) . '</p>';
-                
+
                 // Display edit and delete buttons for replies if the user is the owner or an admin
                 if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $reply['user_id'] || $_SESSION['user_role'] === 'admin')) {
                     echo '<button type="button" class="editComment" data-comment-id="' . $reply['id'] . '">Edit</button>';
@@ -196,175 +198,177 @@ include 'footer.php';
 ?>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Handle main comment submission
-    document.getElementById('submitComment').addEventListener('click', function() {
-        const commentText = document.querySelector('#commentForm textarea').value;
-        if (!commentText) {
-            alert('Please enter a comment.');
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('comment', commentText);
-        formData.append('user_id', <?php echo json_encode($_SESSION['user_id']); ?>);
-        formData.append('post_id', <?php echo $post_id; ?>);
-
-        fetch('/includes/comments/submit_comment.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const commentsSection = document.getElementById('commentsSection');
-                const noCommentsMsg = commentsSection.querySelector('p');
-                if (noCommentsMsg && noCommentsMsg.textContent === 'No Comments Yet.') {
-                    commentsSection.removeChild(noCommentsMsg);
-                }
-
-                const newComment = document.createElement('div');
-                newComment.classList.add('comment');
-                newComment.innerHTML = `<strong>You</strong><span class="time-ago">just now</span><p>${commentText}</p>`;
-                commentsSection.appendChild(newComment);
-
-                document.querySelector('#commentForm textarea').value = '';
-            } else {
-                alert('Failed to add comment.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error submitting comment.');
-        });
-    });
-
-    // Handle reply submission
-    document.querySelectorAll('.submitReply').forEach(function(button) {
-        button.addEventListener('click', function() {
-            const replyForm = this.closest('.reply-form');
-            const replyText = replyForm.querySelector('textarea').value;
-            const parentId = this.dataset.parentId;
-
-            if (!replyText) {
-                alert('Please enter a reply.');
+    document.addEventListener("DOMContentLoaded", function() {
+        // Handle main comment submission
+        document.getElementById('submitComment').addEventListener('click', function() {
+            const commentText = document.querySelector('#commentForm textarea').value;
+            if (!commentText) {
+                alert('Please enter a comment.');
                 return;
             }
 
             const formData = new FormData();
-            formData.append('comment', replyText);
+            formData.append('comment', commentText);
             formData.append('user_id', <?php echo json_encode($_SESSION['user_id']); ?>);
             formData.append('post_id', <?php echo $post_id; ?>);
-            formData.append('parent_id', parentId);
 
             fetch('/includes/comments/submit_comment.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const replySection = replyForm.parentElement;
-                    const newReply = document.createElement('div');
-                    newReply.classList.add('comment', 'reply');
-                    newReply.innerHTML = `<strong>You</strong><span class="time-ago">just now</span><p>${replyText}</p>`;
-                    replySection.appendChild(newReply);
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const commentsSection = document.getElementById('commentsSection');
+                        const noCommentsMsg = commentsSection.querySelector('p');
+                        if (noCommentsMsg && noCommentsMsg.textContent === 'No Comments Yet.') {
+                            commentsSection.removeChild(noCommentsMsg);
+                        }
 
-                    replyForm.querySelector('textarea').value = '';
-                } else {
-                    alert('Failed to add reply.');
+                        const newComment = document.createElement('div');
+                        newComment.classList.add('comment');
+                        newComment.innerHTML = `<strong>You</strong><span class="time-ago">just now</span><p>${commentText}</p>`;
+                        commentsSection.appendChild(newComment);
+
+                        document.querySelector('#commentForm textarea').value = '';
+                    } else {
+                        alert('Failed to add comment.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error submitting comment.');
+                });
+        });
+
+        // Handle reply submission
+        document.querySelectorAll('.submitReply').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const replyForm = this.closest('.reply-form');
+                const replyText = replyForm.querySelector('textarea').value;
+                const parentId = this.dataset.parentId;
+
+                if (!replyText) {
+                    alert('Please enter a reply.');
+                    return;
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error submitting reply.');
+
+                const formData = new FormData();
+                formData.append('comment', replyText);
+                formData.append('user_id', <?php echo json_encode($_SESSION['user_id']); ?>);
+                formData.append('post_id', <?php echo $post_id; ?>);
+                formData.append('parent_id', parentId);
+
+                fetch('/includes/comments/submit_comment.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const replySection = replyForm.parentElement;
+                            const newReply = document.createElement('div');
+                            newReply.classList.add('comment', 'reply');
+                            newReply.innerHTML = `<strong>You</strong><span class="time-ago">just now</span><p>${replyText}</p>`;
+                            replySection.appendChild(newReply);
+
+                            replyForm.querySelector('textarea').value = '';
+                        } else {
+                            alert('Failed to add reply.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error submitting reply.');
+                    });
+            });
+        });
+
+        // Handle comment deletion
+        document.querySelectorAll('.deleteComment').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const commentId = this.dataset.commentId;
+
+                if (confirm('Are you sure you want to delete this comment?')) {
+                    const formData = new FormData();
+                    formData.append('comment_id', commentId);
+                    formData.append('delete_comment', true);
+
+                    fetch('post.php?id=<?php echo $post_id; ?>', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.text())
+                        .then(data => {
+                            if (data.includes('Comment deleted successfully!')) {
+                                const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+                                if (commentElement) {
+                                    commentElement.remove();
+                                }
+                            } else {
+                                alert('Failed to delete comment.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Error deleting comment.');
+                        });
+                }
+            });
+        });
+
+        // Handle comment editing
+        document.querySelectorAll('.editComment').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const commentId = this.dataset.commentId;
+                const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+                const commentTextElement = commentElement.querySelector('p');
+
+                // Convert the comment text to a textarea
+                const textarea = document.createElement('textarea');
+                textarea.value = commentTextElement.textContent;
+                commentElement.replaceChild(textarea, commentTextElement);
+
+                // Change the edit button to a save button
+                this.textContent = 'Save';
+                this.classList.add('saveEdit');
+
+                // Handle the save action
+                this.addEventListener('click', function() {
+                    const newText = textarea.value;
+
+                    const formData = new FormData();
+                    formData.append('comment_id', commentId);
+                    formData.append('edit_comment', true);
+                    formData.append('content', newText);
+
+                    fetch('post.php?id=<?php echo $post_id; ?>', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.text())
+                        .then(data => {
+                            if (data.includes('Comment updated successfully!')) {
+                                // Replace the textarea with the updated text
+                                const updatedTextElement = document.createElement('p');
+                                updatedTextElement.textContent = newText;
+                                commentElement.replaceChild(updatedTextElement, textarea);
+
+                                // Change the save button back to an edit button
+                                this.textContent = 'Edit';
+                                this.classList.remove('saveEdit');
+                            } else {
+                                alert('Failed to update comment.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Error updating comment.');
+                        });
+                }, {
+                    once: true
+                }); // Ensure the event listener runs only once
             });
         });
     });
-
-    // Handle comment deletion
-    document.querySelectorAll('.deleteComment').forEach(function(button) {
-        button.addEventListener('click', function() {
-            const commentId = this.dataset.commentId;
-
-            if (confirm('Are you sure you want to delete this comment?')) {
-                const formData = new FormData();
-                formData.append('comment_id', commentId);
-                formData.append('delete_comment', true);
-
-                fetch('post.php?id=<?php echo $post_id; ?>', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.text())
-                .then(data => {
-                    if (data.includes('Comment deleted successfully!')) {
-                        const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
-                        if (commentElement) {
-                            commentElement.remove();
-                        }
-                    } else {
-                        alert('Failed to delete comment.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error deleting comment.');
-                });
-            }
-        });
-    });
-
-    // Handle comment editing
-    document.querySelectorAll('.editComment').forEach(function(button) {
-        button.addEventListener('click', function() {
-            const commentId = this.dataset.commentId;
-            const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
-            const commentTextElement = commentElement.querySelector('p');
-
-            // Convert the comment text to a textarea
-            const textarea = document.createElement('textarea');
-            textarea.value = commentTextElement.textContent;
-            commentElement.replaceChild(textarea, commentTextElement);
-
-            // Change the edit button to a save button
-            this.textContent = 'Save';
-            this.classList.add('saveEdit');
-
-            // Handle the save action
-            this.addEventListener('click', function() {
-                const newText = textarea.value;
-
-                const formData = new FormData();
-                formData.append('comment_id', commentId);
-                formData.append('edit_comment', true);
-                formData.append('content', newText);
-
-                fetch('post.php?id=<?php echo $post_id; ?>', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.text())
-                .then(data => {
-                    if (data.includes('Comment updated successfully!')) {
-                        // Replace the textarea with the updated text
-                        const updatedTextElement = document.createElement('p');
-                        updatedTextElement.textContent = newText;
-                        commentElement.replaceChild(updatedTextElement, textarea);
-
-                        // Change the save button back to an edit button
-                        this.textContent = 'Edit';
-                        this.classList.remove('saveEdit');
-                    } else {
-                        alert('Failed to update comment.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error updating comment.');
-                });
-            }, { once: true }); // Ensure the event listener runs only once
-        });
-    });
-});
 </script>
