@@ -119,7 +119,7 @@ if ($post_id > 0) {
         if (isset($_SESSION['user_id'])) {
             echo '<form id="commentForm" class="comment-form">';
             echo '<textarea name="comment" required placeholder="Add a comment..."></textarea>';
-            echo '<button type="button" id="submitComment">Submit Comment</button>';
+            echo '<button type="button" id="submitComment">Comment</button>';
             echo '</form>';
         } else {
             echo '<p>Please <a href="login.php">Login</a> to make a comment.</p>';
