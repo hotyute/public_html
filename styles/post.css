@@ -116,6 +116,15 @@
     border-radius: 5px;
 }
 
+.comment .admin-owner {
+    color: red; /* Red color for owners and admins */
+}
+
+.comment .regular-user {
+    color: #007BFF; /* Regular color for standard users */
+}
+
+
 /* Reply Form Styling */
 .reply-form {
     margin-top: 10px;
