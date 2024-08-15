@@ -131,7 +131,7 @@
 }
 
 .reply-form textarea {
-    width: 95%;
+    width: calc(100% - 30px);
     padding: 8px;
     font-size: 1em;
     margin-bottom: 5px;
