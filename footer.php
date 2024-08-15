@@ -36,7 +36,7 @@ $footerLinks = [
                         </div>
                     <?php else : ?>
                         <div class="footer-link-item">
-                            <a href="#"><?php echo $link['text']; ?></a>
+                            <a href="<?php echo $link['url']; ?>"><?php echo $link['text']; ?></a>
                         </div>
                     <?php endif; ?>
                 </li>
