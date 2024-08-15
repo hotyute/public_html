@@ -1,7 +1,7 @@
 <?php
 $footerLinks = [
     [
-        'url' => BASE_URL . 'archive.php',
+        'url' => '/archive.php',
         'text' => 'All Posts',
         'thumbnail' => ''
     ],
