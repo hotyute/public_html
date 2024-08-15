@@ -9,6 +9,32 @@ if (session_status() == PHP_SESSION_NONE) {
 $post_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 
+function time_ago($datetime) {
+    $time = strtotime($datetime);
+    $time_difference = time() - $time;
+
+    if ($time_difference < 1) {
+        return 'just now';
+    }
+    $condition = array(
+        12 * 30 * 24 * 60 * 60 => 'year',
+        30 * 24 * 60 * 60 => 'month',
+        24 * 60 * 60 => 'day',
+        60 * 60 => 'hour',
+        60 => 'minute',
+        1 => 'second'
+    );
+
+    foreach ($condition as $secs => $str) {
+        $d = $time_difference / $secs;
+
+        if ($d >= 1) {
+            $r = round($d);
+            return $r . ' ' . $str . ($r > 1 ? 's' : '') . ' ago';
+        }
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_comment']) && isset($_POST['comment_id'])) {
     $comment_id = $_POST['comment_id'];
     $comment_owner_query = $pdo->prepare("SELECT user_id FROM comments WHERE id = ?");
@@ -18,13 +44,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_comment']) && i
     if ($_SESSION['user_id'] == $comment_owner_id || $_SESSION['user_role'] === 'admin') {
         $delete_stmt = $pdo->prepare("DELETE FROM comments WHERE id = ?");
         if ($delete_stmt->execute([$comment_id])) {
-            echo "<p>Comment deleted successfully!</p>";
+            echo "Comment deleted successfully!";
         } else {
-            echo "<p>Failed to delete comment.</p>";
+            echo "Failed to delete comment.";
         }
     } else {
-        echo "<p>You do not have permission to delete this comment.</p>";
+        echo "You do not have permission to delete this comment.";
     }
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_comment']) && isset($_POST['comment_id']) && isset($_POST['content'])) {
+    $comment_id = $_POST['comment_id'];
+    $content = htmlspecialchars($_POST['content']);
+    $comment_owner_query = $pdo->prepare("SELECT user_id FROM comments WHERE id = ?");
+    $comment_owner_query->execute([$comment_id]);
+    $comment_owner_id = $comment_owner_query->fetchColumn();
+
+    if ($_SESSION['user_id'] == $comment_owner_id || $_SESSION['user_role'] === 'admin') {
+        $update_stmt = $pdo->prepare("UPDATE comments SET content = ? WHERE id = ?");
+        if ($update_stmt->execute([$content, $comment_id])) {
+            echo "Comment updated successfully!";
+        } else {
+            echo "Failed to update comment.";
+        }
+    } else {
+        echo "You do not have permission to edit this comment.";
+    }
+    exit;
 }
 
 if ($post_id > 0) {
@@ -79,16 +126,23 @@ if ($post_id > 0) {
 
         echo '<h3 class="comments-title">Comments</h3>';
         echo '<div class="comments-section" id="commentsSection">';
-        $comments_stmt = $pdo->prepare("SELECT comments.id, comments.content, comments.user_id, users.displayname AS author FROM comments JOIN users ON comments.user_id = users.id WHERE comments.post_id = ? AND comments.parent_id IS NULL");
+        $comments_stmt = $pdo->prepare("
+            SELECT comments.id, comments.content, comments.user_id, comments.created_at, users.displayname AS author 
+            FROM comments 
+            JOIN users ON comments.user_id = users.id 
+            WHERE comments.post_id = ? AND comments.parent_id IS NULL
+        ");
         $comments_stmt->execute([$post_id]);
 
         while ($comment = $comments_stmt->fetch(PDO::FETCH_ASSOC)) {
+            $timeAgo = time_ago($comment['created_at']);
             echo '<div class="comment" data-comment-id="' . $comment['id'] . '">';
-            echo '<strong>' . htmlspecialchars_decode($comment['author']) . '</strong>';
+            echo '<strong>' . htmlspecialchars_decode($comment['author']) . '</strong> <span class="time-ago">' . $timeAgo . '</span>';
             echo '<p>' . htmlspecialchars_decode($comment['content']) . '</p>';
 
-            // Display delete button if the user is the owner or an admin
+            // Display edit and delete buttons if the user is the owner or an admin
             if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $comment['user_id'] || $_SESSION['user_role'] === 'admin')) {
+                echo '<button type="button" class="editComment" data-comment-id="' . $comment['id'] . '">Edit</button>';
                 echo '<button type="button" class="deleteComment" data-comment-id="' . $comment['id'] . '">Delete</button>';
             }
 
@@ -101,15 +155,22 @@ if ($post_id > 0) {
             }
 
             // Fetch and display replies to this comment
-            $replies_stmt = $pdo->prepare("SELECT comments.id, comments.content, comments.user_id, users.displayname AS author FROM comments JOIN users ON comments.user_id = users.id WHERE comments.parent_id = ?");
+            $replies_stmt = $pdo->prepare("
+                SELECT comments.id, comments.content, comments.user_id, comments.created_at, users.displayname AS author 
+                FROM comments 
+                JOIN users ON comments.user_id = users.id 
+                WHERE comments.parent_id = ?
+            ");
             $replies_stmt->execute([$comment['id']]);
             while ($reply = $replies_stmt->fetch(PDO::FETCH_ASSOC)) {
+                $replyTimeAgo = time_ago($reply['created_at']);
                 echo '<div class="comment reply" data-comment-id="' . $reply['id'] . '">';
-                echo '<strong>' . htmlspecialchars_decode($reply['author']) . '</strong>';
+                echo '<strong>' . htmlspecialchars_decode($reply['author']) . '</strong> <span class="time-ago">' . $replyTimeAgo . '</span>';
                 echo '<p>' . htmlspecialchars_decode($reply['content']) . '</p>';
                 
-                // Display delete button for replies if the user is the owner or an admin
+                // Display edit and delete buttons for replies if the user is the owner or an admin
                 if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $reply['user_id'] || $_SESSION['user_role'] === 'admin')) {
+                    echo '<button type="button" class="editComment" data-comment-id="' . $reply['id'] . '">Edit</button>';
                     echo '<button type="button" class="deleteComment" data-comment-id="' . $reply['id'] . '">Delete</button>';
                 }
 
@@ -164,7 +225,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 const newComment = document.createElement('div');
                 newComment.classList.add('comment');
-                newComment.innerHTML = `<strong>You</strong><p>${commentText}</p>`;
+                newComment.innerHTML = `<strong>You</strong><span class="time-ago">just now</span><p>${commentText}</p>`;
                 commentsSection.appendChild(newComment);
 
                 document.querySelector('#commentForm textarea').value = '';
@@ -206,7 +267,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     const replySection = replyForm.parentElement;
                     const newReply = document.createElement('div');
                     newReply.classList.add('comment', 'reply');
-                    newReply.innerHTML = `<strong>You</strong><p>${replyText}</p>`;
+                    newReply.innerHTML = `<strong>You</strong><span class="time-ago">just now</span><p>${replyText}</p>`;
                     replySection.appendChild(newReply);
 
                     replyForm.querySelector('textarea').value = '';
@@ -249,6 +310,40 @@ document.addEventListener("DOMContentLoaded", function() {
                 .catch(error => {
                     console.error('Error:', error);
                     alert('Error deleting comment.');
+                });
+            }
+        });
+    });
+
+    // Handle comment editing
+    document.querySelectorAll('.editComment').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const commentId = this.dataset.commentId;
+            const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+            const commentText = commentElement.querySelector('p').textContent;
+
+            const newText = prompt('Edit your comment:', commentText);
+            if (newText !== null) {
+                const formData = new FormData();
+                formData.append('comment_id', commentId);
+                formData.append('edit_comment', true);
+                formData.append('content', newText);
+
+                fetch('post.php?id=<?php echo $post_id; ?>', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    if (data.includes('Comment updated successfully!')) {
+                        commentElement.querySelector('p').textContent = newText;
+                    } else {
+                        alert('Failed to update comment.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error updating comment.');
                 });
             }
         });
