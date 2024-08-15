@@ -137,7 +137,7 @@ if ($post_id > 0) {
 
         while ($comment = $comments_stmt->fetch(PDO::FETCH_ASSOC)) {
             $timeAgo = time_ago($comment['created_at']);
-            $userClass = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'owner') && ($_SESSION['user_id'] == $comment['user_id']) ? 'admin-owner' : 'regular-user';
+            $userClass = (isset($_SESSION['user_id']) && ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'owner') && $_SESSION['user_id'] == $comment['user_id']) ? 'admin-owner' : 'regular-user';
 
             echo '<div class="comment" data-comment-id="' . $comment['id'] . '">';
             echo '<strong class="' . $userClass . '">' . htmlspecialchars_decode($comment['author']) . '</strong> <span class="time-ago">' . $timeAgo . '</span>';
@@ -167,7 +167,7 @@ if ($post_id > 0) {
             $replies_stmt->execute([$comment['id']]);
             while ($reply = $replies_stmt->fetch(PDO::FETCH_ASSOC)) {
                 $replyTimeAgo = time_ago($reply['created_at']);
-                $replyUserClass = ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'owner') && ($_SESSION['user_id'] == $reply['user_id']) ? 'admin-owner' : 'regular-user';
+                $replyUserClass = (isset($_SESSION['user_id']) && ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'owner') && $_SESSION['user_id'] == $reply['user_id']) ? 'admin-owner' : 'regular-user';
 
                 echo '<div class="comment reply" data-comment-id="' . $reply['id'] . '">';
                 echo '<strong class="' . $replyUserClass . '">' . htmlspecialchars_decode($reply['author']) . '</strong> <span class="time-ago">' . $replyTimeAgo . '</span>';
