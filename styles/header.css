@@ -102,6 +102,11 @@ header {
     height: auto;
 }
 
+/* Ensure that padding and border are included in the width and height calculations */
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+
 nav ul li a,
 nav ul li button.auth-button {
     display: block;

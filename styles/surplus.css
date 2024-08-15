@@ -43,11 +43,6 @@
     background-color: #003399;
 }
 
-/* Ensure that padding and border are included in the width and height calculations */
-*, *:before, *:after {
-    box-sizing: border-box;
-}
-
 /* preview-styles.css */
 /* Container Styling */
 .grid-container {
