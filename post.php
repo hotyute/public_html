@@ -320,10 +320,21 @@ document.addEventListener("DOMContentLoaded", function() {
         button.addEventListener('click', function() {
             const commentId = this.dataset.commentId;
             const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
-            const commentText = commentElement.querySelector('p').textContent;
+            const commentTextElement = commentElement.querySelector('p');
 
-            const newText = prompt('Edit your comment:', commentText);
-            if (newText !== null) {
+            // Convert the comment text to a textarea
+            const textarea = document.createElement('textarea');
+            textarea.value = commentTextElement.textContent;
+            commentElement.replaceChild(textarea, commentTextElement);
+
+            // Change the edit button to a save button
+            this.textContent = 'Save';
+            this.classList.add('saveEdit');
+
+            // Handle the save action
+            this.addEventListener('click', function() {
+                const newText = textarea.value;
+
                 const formData = new FormData();
                 formData.append('comment_id', commentId);
                 formData.append('edit_comment', true);
@@ -336,7 +347,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 .then(response => response.text())
                 .then(data => {
                     if (data.includes('Comment updated successfully!')) {
-                        commentElement.querySelector('p').textContent = newText;
+                        // Replace the textarea with the updated text
+                        const updatedTextElement = document.createElement('p');
+                        updatedTextElement.textContent = newText;
+                        commentElement.replaceChild(updatedTextElement, textarea);
+
+                        // Change the save button back to an edit button
+                        this.textContent = 'Edit';
+                        this.classList.remove('saveEdit');
                     } else {
                         alert('Failed to update comment.');
                     }
@@ -345,7 +363,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     console.error('Error:', error);
                     alert('Error updating comment.');
                 });
-            }
+            }, { once: true }); // Ensure the event listener runs only once
         });
     });
 });
