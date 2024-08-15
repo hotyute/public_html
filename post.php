@@ -127,17 +127,18 @@ if ($post_id > 0) {
 
         echo '<h3 class="comments-title">Comments</h3>';
         echo '<div class="comments-section" id="commentsSection">';
+
         $comments_stmt = $pdo->prepare("
-            SELECT comments.id, comments.content, comments.user_id, comments.created_at, users.displayname AS author 
-            FROM comments 
-            JOIN users ON comments.user_id = users.id 
-            WHERE comments.post_id = ? AND comments.parent_id IS NULL
-        ");
+        SELECT comments.id, comments.content, comments.user_id, comments.created_at, users.displayname AS author, users.role AS user_role
+        FROM comments 
+        JOIN users ON comments.user_id = users.id 
+        WHERE comments.post_id = ? AND comments.parent_id IS NULL
+    ");
         $comments_stmt->execute([$post_id]);
 
         while ($comment = $comments_stmt->fetch(PDO::FETCH_ASSOC)) {
             $timeAgo = time_ago($comment['created_at']);
-            $userClass = (isset($_SESSION['user_id']) && ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'owner') && $_SESSION['user_id'] == $comment['user_id']) ? 'admin-owner' : 'regular-user';
+            $userClass = ($comment['user_role'] === 'admin' || $comment['user_role'] === 'owner') ? 'admin-owner' : 'regular-user';
 
             echo '<div class="comment" data-comment-id="' . $comment['id'] . '">';
             echo '<strong class="' . $userClass . '">' . htmlspecialchars_decode($comment['author']) . '</strong> <span class="time-ago">' . $timeAgo . '</span>';
@@ -148,7 +149,7 @@ if ($post_id > 0) {
                 echo '<button type="button" class="editComment" data-comment-id="' . $comment['id'] . '">Edit</button>';
                 echo '<button type="button" class="deleteComment" data-comment-id="' . $comment['id'] . '">Delete</button>';
             }
-
+            
             // Display reply form for logged-in users
             if (isset($_SESSION['user_id'])) {
                 echo '<form class="reply-form">';
@@ -159,15 +160,16 @@ if ($post_id > 0) {
 
             // Fetch and display replies to this comment
             $replies_stmt = $pdo->prepare("
-                SELECT comments.id, comments.content, comments.user_id, comments.created_at, users.displayname AS author 
-                FROM comments 
-                JOIN users ON comments.user_id = users.id 
-                WHERE comments.parent_id = ?
-            ");
+            SELECT comments.id, comments.content, comments.user_id, comments.created_at, users.displayname AS author, users.role AS user_role 
+            FROM comments 
+            JOIN users ON comments.user_id = users.id 
+            WHERE comments.parent_id = ?
+        ");
             $replies_stmt->execute([$comment['id']]);
+
             while ($reply = $replies_stmt->fetch(PDO::FETCH_ASSOC)) {
                 $replyTimeAgo = time_ago($reply['created_at']);
-                $replyUserClass = (isset($_SESSION['user_id']) && ($_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'owner') && $_SESSION['user_id'] == $reply['user_id']) ? 'admin-owner' : 'regular-user';
+                $replyUserClass = ($reply['user_role'] === 'admin' || $reply['user_role'] === 'owner') ? 'admin-owner' : 'regular-user';
 
                 echo '<div class="comment reply" data-comment-id="' . $reply['id'] . '">';
                 echo '<strong class="' . $replyUserClass . '">' . htmlspecialchars_decode($reply['author']) . '</strong> <span class="time-ago">' . $replyTimeAgo . '</span>';
