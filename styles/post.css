@@ -89,14 +89,19 @@
 }
 
 .comment strong {
-    display: block;
     color: #007BFF;
     font-size: 1.1em;
-    margin-bottom: 5px;
+    margin-right: 10px; /* Adds space between the username and time ago */
+    display: inline; /* Change display to inline to keep it on the same line */
+}
+
+.comment .time-ago {
+    font-size: 0.9em;
+    color: #666; /* A slightly lighter color for the time ago text */
 }
 
 .comment p {
-    margin: 0;
+    margin: 5px 0 0 0; /* Adjust the margin for the paragraph to give some space above it */
     font-size: 1em;
     color: #333;
 }
