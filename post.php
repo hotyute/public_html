@@ -83,9 +83,14 @@ if ($post_id > 0) {
         $comments_stmt->execute([$post_id]);
 
         while ($comment = $comments_stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo '<div class="comment">';
+            echo '<div class="comment" data-comment-id="' . $comment['id'] . '">';
             echo '<strong>' . htmlspecialchars_decode($comment['author']) . '</strong>';
             echo '<p>' . htmlspecialchars_decode($comment['content']) . '</p>';
+
+            // Display delete button if the user is the owner or an admin
+            if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $comment['user_id'] || $_SESSION['user_role'] === 'admin')) {
+                echo '<button type="button" class="deleteComment" data-comment-id="' . $comment['id'] . '">Delete</button>';
+            }
 
             // Display reply form for logged-in users
             if (isset($_SESSION['user_id'])) {
@@ -99,9 +104,15 @@ if ($post_id > 0) {
             $replies_stmt = $pdo->prepare("SELECT comments.id, comments.content, comments.user_id, users.displayname AS author FROM comments JOIN users ON comments.user_id = users.id WHERE comments.parent_id = ?");
             $replies_stmt->execute([$comment['id']]);
             while ($reply = $replies_stmt->fetch(PDO::FETCH_ASSOC)) {
-                echo '<div class="comment reply">';
+                echo '<div class="comment reply" data-comment-id="' . $reply['id'] . '">';
                 echo '<strong>' . htmlspecialchars_decode($reply['author']) . '</strong>';
                 echo '<p>' . htmlspecialchars_decode($reply['content']) . '</p>';
+                
+                // Display delete button for replies if the user is the owner or an admin
+                if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $reply['user_id'] || $_SESSION['user_role'] === 'admin')) {
+                    echo '<button type="button" class="deleteComment" data-comment-id="' . $reply['id'] . '">Delete</button>';
+                }
+
                 echo '</div>';
             }
 
@@ -207,6 +218,39 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.error('Error:', error);
                 alert('Error submitting reply.');
             });
+        });
+    });
+
+    // Handle comment deletion
+    document.querySelectorAll('.deleteComment').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const commentId = this.dataset.commentId;
+
+            if (confirm('Are you sure you want to delete this comment?')) {
+                const formData = new FormData();
+                formData.append('comment_id', commentId);
+                formData.append('delete_comment', true);
+
+                fetch('post.php?id=<?php echo $post_id; ?>', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    if (data.includes('Comment deleted successfully!')) {
+                        const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+                        if (commentElement) {
+                            commentElement.remove();
+                        }
+                    } else {
+                        alert('Failed to delete comment.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error deleting comment.');
+                });
+            }
         });
     });
 });
