@@ -83,15 +83,39 @@ if ($post_id > 0) {
 
         echo '<h3 class="comments-title">Comments</h3>';
         echo '<div class="comments-section" id="commentsSection">';
-        $comments_stmt = $pdo->prepare("SELECT comments.id, comments.content, comments.user_id, users.displayname AS author FROM comments JOIN users ON comments.user_id = users.id WHERE comments.post_id = ?");
+        $comments_stmt = $pdo->prepare("SELECT comments.id, comments.content, comments.user_id, users.displayname 
+        AS author FROM comments JOIN users ON comments.user_id = users.id 
+        WHERE comments.post_id = ? AND comments.parent_id IS NULL");
         $comments_stmt->execute([$post_id]);
+
         while ($comment = $comments_stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo '<div class="comment">' . htmlspecialchars_decode($comment['content']) . ' - <strong>' . htmlspecialchars_decode($comment['author']) . '</strong>';
-            if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $comment['user_id'] || $_SESSION['user_role'] === 'admin')) {
-                echo ' <form method="POST" action=""><input type="hidden" name="comment_id" value="' . $comment['id'] . '"><button type="submit" name="delete_comment">Delete</button></form>';
+            echo '<div class="comment">';
+            echo '<strong>' . htmlspecialchars_decode($comment['author']) . '</strong>';
+            echo '<p>' . htmlspecialchars_decode($comment['content']) . '</p>';
+
+            // Display reply form for logged-in users
+            if (isset($_SESSION['user_id'])) {
+                echo '<form method="POST" class="reply-form">';
+                echo '<textarea name="reply" required placeholder="Reply to this comment..."></textarea>';
+                echo '<input type="hidden" name="parent_id" value="' . $comment['id'] . '">';
+                echo '<button type="submit" name="submit_reply">Reply</button>';
+                echo '</form>';
             }
-            echo '</div>';
+
+            // Fetch and display replies to this comment
+            $replies_stmt = $pdo->prepare("SELECT comments.id, comments.content, comments.user_id, users.displayname AS author 
+            FROM comments JOIN users ON comments.user_id = users.id WHERE comments.parent_id = ?");
+            $replies_stmt->execute([$comment['id']]);
+            while ($reply = $replies_stmt->fetch(PDO::FETCH_ASSOC)) {
+                echo '<div class="comment reply">';
+                echo '<strong>' . htmlspecialchars_decode($reply['author']) . '</strong>';
+                echo '<p>' . htmlspecialchars_decode($reply['content']) . '</p>';
+                echo '</div>';
+            }
+
+            echo '</div>'; // Close original comment div
         }
+
         if ($comments_stmt->rowCount() == 0) {
             echo '<p>No Comments Yet.</p>';
         }
