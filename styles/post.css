@@ -1,49 +1,36 @@
 /* Post Page Styles */
 .post-container {
     max-width: 80%;
-    /* Limits the width for readability on large screens */
-    margin: 0 auto; /* was 40px */
-    /* Centers the container with some margin around it */
+    margin: 0 auto;
     padding: 20px;
     background-color: #fff;
-    /* Optional: adds a background color */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    /* Adds subtle shadow for depth */
 }
 
 .post-title {
     font-size: 2em;
-    /* Larger text for the title */
     color: #333;
-    /* Dark grey for better readability */
     margin-bottom: 10px;
 }
 
 .post-author {
     font-size: 1em;
     color: #666;
-    /* Lighter text color for metadata like the author */
     margin-bottom: 20px;
 }
 
 .post-content {
     font-size: 1.2em;
-    /* Slightly larger text for readability */
     line-height: 1.6;
-    /* Adequate line spacing improves reading flow */
     color: #333;
 }
 
 .post-thumbnail {
     width: 100%;
-    /* Full width of the container */
     height: auto;
-    /* Maintain aspect ratio */
     margin-bottom: 20px;
-    /* Space below the image */
 }
 
-/* Responsive Image Styling */
 .post-container img {
     max-width: 256px;
     height: auto;
@@ -52,17 +39,147 @@
     display: block;
 }
 
+/* Pagination Styling */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    background-color: #007BFF;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.pagination a:hover {
+    background-color: #0056b3;
+}
+
+.pagination span {
+    font-size: 1.2em;
+    color: #666;
+}
+
+/* Comments Section Styling */
+.comments-title {
+    font-size: 1.5em;
+    color: #333;
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+.comments-section {
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
+}
+
+.comment {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    position: relative;
+}
+
+.comment strong {
+    color: #007BFF;
+    font-size: 1.1em;
+}
+
+.comment form {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.comment form button {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.comment form button:hover {
+    background-color: #c82333;
+}
+
+/* Comment Form Styling */
+.comment-form {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.comment-form textarea {
+    resize: none;
+    width: 100%;
+    padding: 10px;
+    font-size: 1em;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.comment-form button {
+    align-self: flex-end;
+    background-color: #28a745;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.comment-form button:hover {
+    background-color: #218838;
+}
+
 @media (max-width: 768px) {
-    img {
-        /* Example: apply additional styling for smaller devices */
-        padding: 10px 0;  /* Just an example, typically you wouldn't add padding to images */
+    .post-container img {
+        padding: 10px 0;
     }
+
     .post-container {
-        /*padding: 10px;*/ /* Less padding to accommodate smaller screen real estate */
         max-width: 85%;
-        margin: 0 au;
+        margin: 0 auto;
     }
+
     .post-title, .post-author {
-        text-align: center; /* Centering text for better mobile readability */
+        text-align: center;
+    }
+
+    .pagination {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .pagination a, .pagination span {
+        font-size: 1em;
+    }
+
+    .comment {
+        padding: 10px;
+    }
+
+    .comment strong {
+        font-size: 1em;
+    }
+
+    .comment form button {
+        padding: 5px 8px;
+    }
+
+    .comment-form button {
+        padding: 8px 10px;
     }
 }
