@@ -154,7 +154,7 @@ if ($post_id > 0) {
             if (isset($_SESSION['user_id'])) {
                 echo '<form class="reply-form">';
                 echo '<textarea required placeholder="Reply to this comment..."></textarea>';
-                echo '<button type="button" class="submitReply" data-parent-id="' . $comment['id'] . '">Reply</button>';
+                echo '<button type="button" class="submitReply" style="display: block;" data-parent-id="' . $comment['id'] . '">Reply</button>';
                 echo '</form>';
             }
 
