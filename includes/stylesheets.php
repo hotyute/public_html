@@ -13,7 +13,6 @@
 <?php endif; ?>
 <?php if ($current_page == 'post') : ?>
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/post.css">
-    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/comments.css">
 <?php endif; ?>
 <?php if ($current_page == 'roster') : ?>
     <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/roster.css">
