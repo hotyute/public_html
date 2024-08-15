@@ -2,7 +2,6 @@
 include 'header.php';
 require 'includes/database.php';
 
-// Start the session if it hasn't been started already
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -11,13 +10,11 @@ $post_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_comment']) && isset($_POST['comment_id'])) {
-    // Get the user_id of the comment owner
     $comment_id = $_POST['comment_id'];
     $comment_owner_query = $pdo->prepare("SELECT user_id FROM comments WHERE id = ?");
     $comment_owner_query->execute([$comment_id]);
     $comment_owner_id = $comment_owner_query->fetchColumn();
 
-    // Check if logged-in user is the comment owner or an admin
     if ($_SESSION['user_id'] == $comment_owner_id || $_SESSION['user_role'] === 'admin') {
         $delete_stmt = $pdo->prepare("DELETE FROM comments WHERE id = ?");
         if ($delete_stmt->execute([$comment_id])) {
@@ -31,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_comment']) && i
 }
 
 if ($post_id > 0) {
-    // Check if the post has been viewed in the current session
     if (!isset($_SESSION['viewed_posts'])) {
         $_SESSION['viewed_posts'] = [];
     }
@@ -64,7 +60,7 @@ if ($post_id > 0) {
         if ($page > 1) {
             echo '<a href="post.php?id=' . $post_id . '&page=' . ($page - 1) . '">Previous</a>';
         } else {
-            echo '<span></span>'; // Empty span to maintain space
+            echo '<span></span>';
         }
         echo '<span>Page ' . $page . ' of ' . $total_pages . '</span>';
         if ($page < $total_pages) {
@@ -93,10 +89,9 @@ if ($post_id > 0) {
 
             // Display reply form for logged-in users
             if (isset($_SESSION['user_id'])) {
-                echo '<form method="POST" class="reply-form">';
-                echo '<textarea name="reply" required placeholder="Reply to this comment..."></textarea>';
-                echo '<input type="hidden" name="parent_id" value="' . $comment['id'] . '">';
-                echo '<button type="submit" name="submit_reply">Reply</button>';
+                echo '<form class="reply-form">';
+                echo '<textarea required placeholder="Reply to this comment..."></textarea>';
+                echo '<button type="button" class="submitReply" data-parent-id="' . $comment['id'] . '">Reply</button>';
                 echo '</form>';
             }
 
@@ -127,8 +122,10 @@ if ($post_id > 0) {
 }
 include 'footer.php';
 ?>
+
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    // Handle main comment submission
     document.getElementById('submitComment').addEventListener('click', function() {
         const commentText = document.querySelector('#commentForm textarea').value;
         if (!commentText) {
@@ -149,20 +146,17 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(data => {
             if (data.success) {
                 const commentsSection = document.getElementById('commentsSection');
-                // Check if there is a "No Comments Yet" message and remove it
                 const noCommentsMsg = commentsSection.querySelector('p');
                 if (noCommentsMsg && noCommentsMsg.textContent === 'No Comments Yet.') {
                     commentsSection.removeChild(noCommentsMsg);
                 }
 
-                // Create and append the new comment
                 const newComment = document.createElement('div');
                 newComment.classList.add('comment');
-                newComment.innerHTML = `${commentText} - <strong>You</strong>`;
+                newComment.innerHTML = `<strong>You</strong><p>${commentText}</p>`;
                 commentsSection.appendChild(newComment);
 
-                // Clear the textarea after successful submission
-                document.querySelector('#commentForm textarea').value = ''; 
+                document.querySelector('#commentForm textarea').value = '';
             } else {
                 alert('Failed to add comment.');
             }
@@ -170,6 +164,49 @@ document.addEventListener("DOMContentLoaded", function() {
         .catch(error => {
             console.error('Error:', error);
             alert('Error submitting comment.');
+        });
+    });
+
+    // Handle reply submission
+    document.querySelectorAll('.submitReply').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const replyForm = this.closest('.reply-form');
+            const replyText = replyForm.querySelector('textarea').value;
+            const parentId = this.dataset.parentId;
+
+            if (!replyText) {
+                alert('Please enter a reply.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('comment', replyText);
+            formData.append('user_id', <?php echo json_encode($_SESSION['user_id']); ?>);
+            formData.append('post_id', <?php echo $post_id; ?>);
+            formData.append('parent_id', parentId);
+
+            fetch('/includes/comments/submit_comment.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const replySection = replyForm.parentElement;
+                    const newReply = document.createElement('div');
+                    newReply.classList.add('comment', 'reply');
+                    newReply.innerHTML = `<strong>You</strong><p>${replyText}</p>`;
+                    replySection.appendChild(newReply);
+
+                    replyForm.querySelector('textarea').value = '';
+                } else {
+                    alert('Failed to add reply.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error submitting reply.');
+            });
         });
     });
 });
