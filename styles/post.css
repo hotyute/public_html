@@ -192,7 +192,7 @@
 }
 
 .post-voiceover audio {
-    width: 70%;
+    width: 150px;
 }
 
 /* Responsive Adjustments */
@@ -208,6 +208,10 @@
 
     .post-title, .post-author {
         text-align: center;
+    }
+
+    .post-content {
+        padding: 0;
     }
 
     .pagination {
