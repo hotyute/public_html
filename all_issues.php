@@ -4,8 +4,12 @@
 // Include the database connection
 require 'includes/database.php';
 
-// Fetch all unique issues from the magazine_articles table
-$query = "SELECT DISTINCT issue FROM magazine_articles ORDER BY issue DESC";
+// Fetch the most recent thumbnail for each unique issue
+$query = "
+    SELECT issue, MIN(image_url) AS thumbnail 
+    FROM magazine_articles 
+    GROUP BY issue 
+    ORDER BY issue DESC";
 $issues = $pdo->query($query)->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -18,6 +22,9 @@ $issues = $pdo->query($query)->fetchAll(PDO::FETCH_ASSOC);
                 <?php if (count($issues) > 0) : ?>
                     <?php foreach ($issues as $issue) : ?>
                         <div class="issue-item">
+                            <?php if ($issue['thumbnail']) : ?>
+                                <img src="<?php echo htmlspecialchars($issue['thumbnail']); ?>" alt="<?php echo htmlspecialchars($issue['issue']); ?>" class="issue-thumbnail">
+                            <?php endif; ?>
                             <h3><?php echo htmlspecialchars($issue['issue']); ?></h3>
                             <a href="issue.php?issue=<?php echo urlencode($issue['issue']); ?>" class="view-articles">View Articles</a>
                         </div>
