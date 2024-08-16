@@ -1,6 +1,47 @@
 <?php include 'header.php'; ?>
 
 <?php
+// Database connection, function, and setup code
+
+// Function to determine the current issue based on the current date
+function getCurrentIssue() {
+    $month = date('n');  // Current month as a number (1-12)
+    $year = date('Y');   // Current year
+
+    switch ($month) {
+        case 1:
+        case 2:
+            return "January-February $year";
+        case 3:
+        case 4:
+            return "March-April $year";
+        case 5:
+        case 6:
+            return "May-June $year";
+        case 7:
+        case 8:
+            return "July-August $year";
+        case 9:
+        case 10:
+            return "September-October $year";
+        case 11:
+        case 12:
+            return "November-December $year";
+        default:
+            return "Unknown Issue";
+    }
+}
+
+// Calculate the current issue before starting the main HTML output
+$issue = getCurrentIssue();
+
+// Truncate content function for limiting post content preview length
+function truncateContent($content, $limit = 100) {
+    $content = strip_tags($content); // Remove HTML tags
+    return strlen($content) > $limit ? substr($content, 0, $limit) . '...' : $content;
+}
+
+// Sidebar links array (if needed)
 $sidebarLinks = [
     [
         'url' => '#',
@@ -18,11 +59,6 @@ $sidebarLinks = [
         'thumbnail' => ''
     ]
 ];
-
-function truncateContent($content, $limit = 100) {
-    $content = strip_tags($content); // Remove HTML tags
-    return strlen($content) > $limit ? substr($content, 0, $limit) . '...' : $content;
-}
 ?>
 
 <div class="main-container">
@@ -79,16 +115,34 @@ function truncateContent($content, $limit = 100) {
         </section>
     </main>
     <aside class="sidebar">
-        <h3>Sidebar Content</h3>
+        <h3>Magazine</h3>
+        <h4><?php echo htmlspecialchars($issue); ?></h4>
         <ul>
-            <?php foreach ($sidebarLinks as $link) : ?>
-                <li>
-                    <img src="<?php echo $link['thumbnail']; ?>" alt="<?php echo $link['text']; ?>" class="thumbnail">
-                    <a href="<?php echo $link['url']; ?>"><?php echo $link['text']; ?></a>
-                </li>
-            <?php endforeach; ?>
+            <?php
+            // Fetch and display the latest articles for the current issue
+            $stmt = $mysqli->prepare("SELECT title, author, image_url, article_url FROM magazine_articles WHERE issue = ? ORDER BY id DESC LIMIT 3");
+            $stmt->bind_param('s', $issue);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows > 0) :
+                while ($row = $result->fetch_assoc()) :
+            ?>
+                    <li>
+                        <img src="<?php echo htmlspecialchars($row['image_url']); ?>" alt="<?php echo htmlspecialchars($row['title']); ?>" class="thumbnail">
+                        <a href="<?php echo htmlspecialchars($row['article_url']); ?>"><?php echo htmlspecialchars($row['title']); ?></a><br>
+                        <small><?php echo htmlspecialchars($row['author']); ?></small>
+                    </li>
+                <?php
+                endwhile;
+            else :
+                ?>
+                <li>No articles available for this issue.</li>
+            <?php endif; ?>
         </ul>
+        <a href="all_issues.php" class="view-all">VIEW ALL</a>
     </aside>
+
 </div>
 
 <?php include 'footer.php'; ?>

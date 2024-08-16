@@ -100,6 +100,16 @@ CREATE TABLE IF NOT EXISTS notifications (
     is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE magazine_articles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    author VARCHAR(255) NOT NULL,
+    image_url VARCHAR(255) NOT NULL,
+    article_url VARCHAR(255) NOT NULL,
+    published_date DATE NOT NULL,
+    issue VARCHAR(50) NOT NULL
+);
 SQL;
 
         // Replace placeholders with actual constant values
