@@ -120,10 +120,10 @@ $sidebarLinks = [
         <ul>
             <?php
             // Fetch and display the latest articles for the current issue
-            $stmt = $mysqli->prepare("SELECT title, author, image_url, article_url FROM magazine_articles WHERE issue = ? ORDER BY id DESC LIMIT 3");
-            $stmt->bind_param('s', $issue);
+            $stmt = $pdo->prepare("SELECT title, author, image_url, article_url FROM magazine_articles WHERE issue = ? ORDER BY id DESC LIMIT 3");
+            $stmt->bindParam(':issue', $issue);
             $stmt->execute();
-            $result = $stmt->get_result();
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if ($result->num_rows > 0) :
                 while ($row = $result->fetch_assoc()) :
