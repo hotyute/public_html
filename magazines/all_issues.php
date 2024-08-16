@@ -1,4 +1,4 @@
-<?php include 'header.php'; ?>
+<?php include '../header.php'; ?>
 
 <?php
 // Include the database connection
@@ -38,4 +38,4 @@ $issues = $pdo->query($query)->fetchAll(PDO::FETCH_ASSOC);
     </main>
 </div>
 
-<?php include 'footer.php'; ?>
+<?php include '../footer.php'; ?>

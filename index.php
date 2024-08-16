@@ -1,4 +1,4 @@
-<?php include '../header.php'; ?>
+<?php include 'header.php'; ?>
 
 <?php
 // Database connection, function, and setup code
@@ -126,4 +126,4 @@ function truncateContent($content, $limit = 100) {
 
 </div>
 
-<?php include '../footer.php'; ?>
+<?php include 'footer.php'; ?>
