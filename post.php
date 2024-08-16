@@ -85,9 +85,9 @@ if ($post_id > 0) {
         $_SESSION['viewed_posts'][] = $post_id;
     }
 
-    $stmt = $pdo->prepare("SELECT posts.title, posts.content, posts.thumbnail, users.displayname AS author, posts.views FROM posts JOIN users ON posts.user_id = users.id WHERE posts.id = ?");
+    $stmt = $pdo->prepare(" SELECT posts.title, posts.content, posts.thumbnail, posts.voiceover_url, users.displayname AS author, posts.views FROM posts JOIN users ON posts.user_id = users.id WHERE posts.id = ?");
     $stmt->execute([$post_id]);
-    $post = $stmt->fetch(PDO::FETCH_ASSOC);
+    $post = $stmt->fetch(PDO::FETCH_ASSOC);;
 
     if ($post) {
         $content = htmlspecialchars_decode($post['content']);
@@ -101,6 +101,17 @@ if ($post_id > 0) {
         if ($post['thumbnail']) {
             echo '<img src="' . $post['thumbnail'] . '" alt="Post Image" class="post-thumbnail">';
         }
+
+        // Check if there is a voiceover URL and display the player
+        if (!empty($post['voiceover_url'])) {
+            echo '<div class="post-voiceover">';
+            echo '<audio controls>';
+            echo '<source src="' . $post['voiceover_url'] . '" type="audio/mpeg">';
+            echo 'Your browser does not support the audio element.';
+            echo '</audio>';
+            echo '</div>';
+        }
+
         echo '<div class="post-content">' . nl2br($content_page) . '</div>';
 
         // Pagination controls
@@ -149,7 +160,7 @@ if ($post_id > 0) {
                 echo '<button type="button" class="editComment" data-comment-id="' . $comment['id'] . '">Edit</button>';
                 echo '<button type="button" class="deleteComment" data-comment-id="' . $comment['id'] . '">Delete</button>';
             }
-            
+
             // Display reply form for logged-in users
             if (isset($_SESSION['user_id'])) {
                 echo '<form class="reply-form">';

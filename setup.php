@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS posts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     user_id INT NOT NULL,
     views INT DEFAULT 0,
+    voiceover_url VARCHAR(255) NULL,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
