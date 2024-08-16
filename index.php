@@ -1,4 +1,4 @@
-<?php include 'header.php'; ?>
+<?php include '../header.php'; ?>
 
 <?php
 // Database connection, function, and setup code
@@ -40,25 +40,6 @@ function truncateContent($content, $limit = 100) {
     $content = strip_tags($content); // Remove HTML tags
     return strlen($content) > $limit ? substr($content, 0, $limit) . '...' : $content;
 }
-
-// Sidebar links array (if needed)
-$sidebarLinks = [
-    [
-        'url' => '#',
-        'text' => 'Link 1',
-        'thumbnail' => ''
-    ],
-    [
-        'url' => '#',
-        'text' => 'Link 2',
-        'thumbnail' => ''
-    ],
-    [
-        'url' => '#',
-        'text' => 'Link 3',
-        'thumbnail' => ''
-    ]
-];
 ?>
 
 <div class="main-container">
@@ -145,4 +126,4 @@ $sidebarLinks = [
 
 </div>
 
-<?php include 'footer.php'; ?>
+<?php include '../footer.php'; ?>
