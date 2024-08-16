@@ -33,7 +33,8 @@ if (isset($_GET['logout'])) {
         }
 
         // Function to toggle notifications dropdown
-        function toggleNotifications() {
+        function toggleNotifications(event) {
+            event.stopPropagation(); // Stop the click event from propagating to the document
             const dropdown = document.querySelector('.notifications-dropdown');
             dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
         }
@@ -42,7 +43,7 @@ if (isset($_GET['logout'])) {
         document.addEventListener('click', function(event) {
             const dropdown = document.querySelector('.notifications-dropdown');
             const button = document.querySelector('.notifications-button');
-            if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+            if (dropdown && button && !dropdown.contains(event.target) && !button.contains(event.target)) {
                 dropdown.style.display = 'none';
             }
         });
@@ -119,4 +120,3 @@ if (isset($_GET['logout'])) {
             </ul>
         </nav>
     </header>
-
