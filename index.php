@@ -115,7 +115,7 @@ $sidebarLinks = [
         </section>
     </main>
     <aside class="sidebar">
-        <h3>Magazine</h3>
+        <h3>External Magazines</h3>
         <h4><?php echo htmlspecialchars($issue); ?></h4>
         <ul>
             <?php
