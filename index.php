@@ -140,7 +140,7 @@ $sidebarLinks = [
                 <li>No articles available for this issue.</li>
             <?php endif; ?>
         </ul>
-        <a href="all_issues.php" class="view-all">VIEW ALL</a>
+        <a href="magazines/all_issues.php" class="view-all">VIEW ALL</a>
     </aside>
 
 </div>

@@ -2,7 +2,7 @@
 
 <?php
 // Include the database connection
-require 'includes/database.php';
+require '../includes/database.php';
 
 // Fetch the most recent thumbnail for each unique issue
 $query = "
