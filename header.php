@@ -27,26 +27,46 @@ if (isset($_GET['logout'])) {
     <script src="<?php echo BASE_URL; ?>js/script.js"></script>
     <title>Divine Word</title>
     <script>
+        // Function to toggle notifications dropdown
+        function toggleNotifications(event) {
+            event.stopPropagation();  // Stop the click event from propagating to the document
+            const dropdown = document.querySelector('.notifications-dropdown');
+            const isVisible = dropdown.style.display === 'block';
+
+            // Close any open dropdown first
+            closeAllDropdowns();
+
+            // Toggle the current dropdown
+            dropdown.style.display = isVisible ? 'none' : 'block';
+        }
+
+        // Function to close all dropdowns
+        function closeAllDropdowns() {
+            const dropdowns = document.querySelectorAll('.notifications-dropdown');
+            dropdowns.forEach(dropdown => {
+                dropdown.style.display = 'none';
+            });
+        }
+
+        // Event listener to close the dropdown if clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.querySelector('.notifications-dropdown');
+            const button = document.querySelector('.notifications-button');
+
+            if (dropdown && !dropdown.contains(event.target) && !button.contains(event.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        // Attach the toggle function to the notifications button
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('.notifications-button').addEventListener('click', toggleNotifications);
+        });
+
         // Function to handle logout redirection
         function logout() {
             window.location.href = '?logout=true';
         }
-
-        // Function to toggle notifications dropdown
-        function toggleNotifications(event) {
-            event.stopPropagation(); // Stop the click event from propagating to the document
-            const dropdown = document.querySelector('.notifications-dropdown');
-            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-        }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const dropdown = document.querySelector('.notifications-dropdown');
-            const button = document.querySelector('.notifications-button');
-            if (dropdown && button && !dropdown.contains(event.target) && !button.contains(event.target)) {
-                dropdown.style.display = 'none';
-            }
-        });
     </script>
 </head>
 
