@@ -1,32 +1,71 @@
-<?php
-include 'header.php';
+<?php include 'header.php'; ?>
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $first_name = htmlspecialchars($_POST['first_name']);
-    $last_name = htmlspecialchars($_POST['last_name']);
-    $email = htmlspecialchars($_POST['email']);
-    $message = htmlspecialchars($_POST['message']);
-    
-    $to = 'admin@divineword.co.uk'; // Your email address
-    $subject = 'New Contact Form Submission';
-    
-    $body = "You have received a new message from your website contact form.\n\n".
-            "Here are the details:\n".
-            "First Name: $first_name\n".
-            "Last Name: $last_name\n".
-            "Email: $email\n\n".
-            "Message:\n$message";
-    
-    $headers = "From: $email\r\n";
-    $headers .= "Reply-To: $email\r\n";
-    
-    if (mail($to, $subject, $body, $headers)) {
-        $success_message = "Thank you for contacting us, $first_name. We will get back to you shortly.";
-    } else {
-        $error_message = "Sorry, something went wrong. Please try again later.";
+<style>
+    h2 {
+        margin-bottom: 20px;
+        font-size: 24px;
     }
-}
-?>
+
+    p {
+        margin-bottom: 20px;
+        font-size: 16px;
+        color: #555;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    label {
+        text-align: left;
+        font-size: 14px;
+        color: #333;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    textarea {
+        resize: vertical; /* Allow vertical resize */
+    }
+
+    button[type="submit"] {
+        padding: 10px 20px;
+        background-color: #007BFF;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #0056b3;
+    }
+
+    /* Success and error messages */
+    .message {
+        margin-bottom: 20px;
+        font-size: 16px;
+    }
+
+    .message.success {
+        color: green;
+    }
+
+    .message.error {
+        color: red;
+    }
+</style>
 
 <div class="main-container">
     <main>
@@ -35,10 +74,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <p>We'd love to hear from you! Whether you have a question, feedback, or just want to say hello, feel free to reach out using the form below.</p>
             
             <?php
-            if (isset($success_message)) {
-                echo "<p style='color:green;'>$success_message</p>";
-            } elseif (isset($error_message)) {
-                echo "<p style='color:red;'>$error_message</p>";
+            if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                $first_name = htmlspecialchars($_POST['first_name']);
+                $last_name = htmlspecialchars($_POST['last_name']);
+                $email = htmlspecialchars($_POST['email']);
+                $message = htmlspecialchars($_POST['message']);
+                
+                $to = 'admin@divineword.co.uk'; // Your email address
+                $subject = 'New Contact Form Submission';
+                
+                $body = "You have received a new message from your website contact form.\n\n".
+                        "Here are the details:\n".
+                        "First Name: $first_name\n".
+                        "Last Name: $last_name\n".
+                        "Email: $email\n\n".
+                        "Message:\n$message";
+                
+                $headers = "From: $email\r\n";
+                $headers .= "Reply-To: $email\r\n";
+                
+                if (mail($to, $subject, $body, $headers)) {
+                    echo "<p class='message success'>Thank you for contacting us, $first_name. We will get back to you shortly.</p>";
+                } else {
+                    echo "<p class='message error'>Sorry, something went wrong. Please try again later.</p>";
+                }
             }
             ?>
             
