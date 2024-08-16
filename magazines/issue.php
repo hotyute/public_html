@@ -1,4 +1,4 @@
-<?php include 'header.php'; ?>
+<?php include '../header.php'; ?>
 
 <?php
 // Include the database connection
@@ -42,4 +42,4 @@ if ($selected_issue) {
     </main>
 </div>
 
-<?php include 'footer.php'; ?>
+<?php include '../footer.php'; ?>
