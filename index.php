@@ -120,13 +120,13 @@ $sidebarLinks = [
         <ul>
             <?php
             // Fetch and display the latest articles for the current issue
-            $stmt = $pdo->prepare("SELECT title, author, image_url, article_url FROM magazine_articles WHERE issue = ? ORDER BY id DESC LIMIT 3");
+            $stmt = $pdo->prepare("SELECT title, author, image_url, article_url FROM magazine_articles WHERE issue = :issue ORDER BY id DESC LIMIT 3");
             $stmt->bindParam(':issue', $issue);
             $stmt->execute();
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            if ($result->num_rows > 0) :
-                while ($row = $result->fetch_assoc()) :
+            if (count($results) > 0) :
+                foreach ($results as $row) :
             ?>
                     <li>
                         <img src="<?php echo htmlspecialchars($row['image_url']); ?>" alt="<?php echo htmlspecialchars($row['title']); ?>" class="thumbnail">
@@ -134,7 +134,7 @@ $sidebarLinks = [
                         <small><?php echo htmlspecialchars($row['author']); ?></small>
                     </li>
                 <?php
-                endwhile;
+                endforeach;
             else :
                 ?>
                 <li>No articles available for this issue.</li>
