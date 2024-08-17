@@ -188,11 +188,11 @@
 }
 
 .post-voiceover {
+    text-align: center;
     margin-bottom: 20px;
 }
 
 .post-voiceover audio {
-    text-align: center;
     width: 200px;
 }
 
