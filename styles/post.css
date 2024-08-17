@@ -192,7 +192,7 @@
 }
 
 .post-voiceover audio {
-    width: 150px;
+    width: 200px;
 }
 
 /* Responsive Adjustments */
@@ -255,5 +255,9 @@
 
     .comment-form button {
         padding: 8px 10px;
+    }
+
+    .post-voiceover audio {
+        width: 150px;
     }
 }
