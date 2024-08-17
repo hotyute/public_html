@@ -1,12 +1,12 @@
 <?php include 'header.php'; ?>
 
 <style>
-    h2 {
+    .contact-us h2 {
         margin-bottom: 20px;
         font-size: 24px;
     }
 
-    p {
+    .contact-us p {
         margin-bottom: 20px;
         font-size: 16px;
         color: #555;
@@ -24,8 +24,8 @@
         color: #333;
     }
 
-    input[type="text"],
-    input[type="email"],
+    .contact-us input[type="text"],
+    .contact-us input[type="email"],
     .contact-us textarea {
         width: 100%;
         padding: 10px;
@@ -49,7 +49,7 @@
         font-size: 16px;
     }
 
-    button[type="submit"]:hover {
+    .contact-us button[type="submit"]:hover {
         background-color: #0056b3;
     }
 
