@@ -5,7 +5,7 @@
     margin: 0 auto;
     background-color: #f9f9f9;
     padding: 20px;
-    border-radius: 25px;
+    border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -18,7 +18,7 @@
 .roster-table th,
 .roster-table td {
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 10px solid #ddd;
     text-align: center;
     transition: background-color 0.3s, transform 0.3s;
 }
