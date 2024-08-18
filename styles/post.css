@@ -118,7 +118,7 @@
 }
 
 .post-container .admin-owner, .comment .admin-owner {
-    color: rgb(125, 2, 2) !important; /* Red color for owners and admins */
+    color: rgb(148, 2, 2) !important; /* Red color for owners and admins */
 }
 
 .post-container .editor-user, .comment .editor-user {
