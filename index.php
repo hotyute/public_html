@@ -32,6 +32,18 @@ function getCurrentIssue() {
     }
 }
 
+function getUserClass($user_role) {
+    switch ($user_role) {
+        case 'admin':
+        case 'owner':
+            return 'admin-owner';
+        case 'editor':
+            return 'editor-user';
+        default:
+            return 'regular-user';
+    }
+}
+
 // Calculate the current issue before starting the main HTML output
 $issue = getCurrentIssue();
 
@@ -51,7 +63,7 @@ function truncateContent($content, $limit = 100) {
             <div class="grid-container">
                 <?php
                 require 'includes/database.php';
-                $query = "SELECT posts.id, posts.title, posts.thumbnail, posts.content, users.displayname AS author, COUNT(comments.id) AS comment_count FROM posts
+                $query = "SELECT posts.id, posts.title, posts.thumbnail, posts.content, users.displayname AS author, users.role AS user_role, COUNT(comments.id) AS comment_count FROM posts
                       JOIN users ON posts.user_id = users.id
                       LEFT JOIN comments ON posts.id = comments.post_id
                       GROUP BY posts.id
@@ -59,13 +71,14 @@ function truncateContent($content, $limit = 100) {
                       LIMIT 6";
                 $posts = $pdo->query($query);
                 while ($post = $posts->fetch(PDO::FETCH_ASSOC)) {
+                    $userClass = getUserClass($post['user_role']);
                     echo '<div class="post-preview">';
                     echo '<a href="post.php?id=' . $post['id'] . '" style="text-decoration: none; color: black;">';
                     if ($post['thumbnail']) {
                         echo '<img src="' . $post['thumbnail'] . '" alt="Post thumbnail" class="post-thumbnail">';
                     }
                     echo '<h3>' . htmlspecialchars_decode($post['title']) . '</h3>';
-                    echo '<p>By ' . htmlspecialchars_decode($post['author']) . '</p>';
+                    echo '<p class="' . $userClass . '">By ' . htmlspecialchars_decode($post['author']) . '</p>';
                     $truncatedContent = truncateContent(htmlspecialchars_decode($post['content']), 100); // Adjust character limit as needed
                     echo '<div class="content-preview" data-content="' . $truncatedContent . '"></div>';
                     echo '<p class="comment-count">' . $post['comment_count'] . ' Comments</p>';
