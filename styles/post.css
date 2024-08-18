@@ -118,15 +118,15 @@
 }
 
 .comment .admin-owner {
-    color: red; /* Red color for owners and admins */
+    color: red !important; /* Red color for owners and admins */
 }
 
 .comment .editor-user {
-    color: #ffae00; /* Regular color for standard users */
+    color: #ffae00 !important; /* Regular color for standard users */
 }
 
 .comment .regular-user {
-    color: #007BFF; /* Regular color for standard users */
+    color: #007BFF !important; /* Regular color for standard users */
 }
 
 
