@@ -162,7 +162,6 @@ if ($post_id > 0) {
         while ($comment = $comments_stmt->fetch(PDO::FETCH_ASSOC)) {
             $commentUserClass = getUserClass($comment['user_role']);
             $timeAgo = time_ago($comment['created_at']);
-            $userClass = ($comment['user_role'] === 'admin' || $comment['user_role'] === 'owner') ? 'admin-owner' : 'regular-user';
 
             echo '<div class="comment" data-comment-id="' . $comment['id'] . '">';
             echo '<strong class="' . $commentUserClass . '">' . htmlspecialchars_decode($comment['author']) . '</strong> <span class="time-ago">' . time_ago($comment['created_at']) . '</span>';
@@ -193,7 +192,7 @@ if ($post_id > 0) {
 
             while ($reply = $replies_stmt->fetch(PDO::FETCH_ASSOC)) {
                 $replyTimeAgo = time_ago($reply['created_at']);
-                $replyUserClass = ($reply['user_role'] === 'admin' || $reply['user_role'] === 'owner') ? 'admin-owner' : 'regular-user';
+                $replyUserClass = getUserClass($reply['user_role']);
 
                 echo '<div class="comment reply" data-comment-id="' . $reply['id'] . '">';
                 echo '<strong class="' . $replyUserClass . '">' . htmlspecialchars_decode($reply['author']) . '</strong> <span class="time-ago">' . $replyTimeAgo . '</span>';
