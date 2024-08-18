@@ -117,15 +117,15 @@
     border-radius: 5px;
 }
 
-.comment .admin-owner {
+.post-container,.comment .admin-owner {
     color: red !important; /* Red color for owners and admins */
 }
 
-.comment .editor-user {
+.post-container,.comment .editor-user {
     color: #ffae00 !important; /* Regular color for standard users */
 }
 
-.comment .regular-user {
+.post-container,.comment .regular-user {
     color: #007BFF !important; /* Regular color for standard users */
 }
 
