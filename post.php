@@ -111,7 +111,7 @@ if ($post_id > 0) {
 
         echo '<div class="post-container">';
         echo '<h1 class="post-title">' . htmlspecialchars_decode($post['title']) . '</h1>';
-        echo '<h4 class="post-author ' . $userClass . '">By ' . htmlspecialchars_decode($post['author']) . ' | Views: ' . $post['views'] . '</h4>';
+        echo '<h4 class="post-author">By <span class="' . $userClass . '">' . htmlspecialchars_decode($post['author']) . '</span> | Views: ' . $post['views'] . '</h4>';
         if ($post['thumbnail']) {
             echo '<img src="' . $post['thumbnail'] . '" alt="Post Image" class="post-thumbnail">';
         }
