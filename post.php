@@ -9,6 +9,18 @@ if (session_status() == PHP_SESSION_NONE) {
 $post_id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 
+function getUserClass($user_role) {
+    switch ($user_role) {
+        case 'admin':
+        case 'owner':
+            return 'admin-owner';
+        case 'editor':
+            return 'editor-user';
+        default:
+            return 'regular-user';
+    }
+}
+
 function time_ago($datetime)
 {
     $time = strtotime($datetime);
@@ -85,7 +97,7 @@ if ($post_id > 0) {
         $_SESSION['viewed_posts'][] = $post_id;
     }
 
-    $stmt = $pdo->prepare(" SELECT posts.title, posts.content, posts.thumbnail, posts.voiceover_url, users.displayname AS author, posts.views FROM posts JOIN users ON posts.user_id = users.id WHERE posts.id = ?");
+    $stmt = $pdo->prepare(" SELECT posts.title, posts.content, posts.thumbnail, posts.voiceover_url, users.displayname AS author, users.role AS user_role, posts.views FROM posts JOIN users ON posts.user_id = users.id WHERE posts.id = ?");
     $stmt->execute([$post_id]);
     $post = $stmt->fetch(PDO::FETCH_ASSOC);;
 
@@ -94,10 +106,12 @@ if ($post_id > 0) {
         $pages = explode('<!-- pagebreak -->', $content);
         $total_pages = count($pages);
         $content_page = isset($pages[$page - 1]) ? $pages[$page - 1] : '';
+        $userClass = getUserClass($post['user_role']);
+
 
         echo '<div class="post-container">';
         echo '<h1 class="post-title">' . htmlspecialchars_decode($post['title']) . '</h1>';
-        echo '<h4 class="post-author">By ' . htmlspecialchars_decode($post['author']) . ' | Views: ' . $post['views'] . '</h4>';
+        echo '<h4 class="post-author ' . $userClass . '">By ' . htmlspecialchars_decode($post['author']) . ' | Views: ' . $post['views'] . '</h4>';
         if ($post['thumbnail']) {
             echo '<img src="' . $post['thumbnail'] . '" alt="Post Image" class="post-thumbnail">';
         }
@@ -139,9 +153,7 @@ if ($post_id > 0) {
         echo '<h3 class="comments-title">Comments</h3>';
         echo '<div class="comments-section" id="commentsSection">';
 
-        $comments_stmt = $pdo->prepare("
-        SELECT comments.id, comments.content, comments.user_id, comments.created_at, users.displayname AS author, users.role AS user_role
-        FROM comments 
+        $comments_stmt = $pdo->prepare("SELECT comments.id, comments.content, comments.user_id, comments.created_at, users.displayname AS author, users.role AS user_role FROM comments 
         JOIN users ON comments.user_id = users.id 
         WHERE comments.post_id = ? AND comments.parent_id IS NULL
     ");
