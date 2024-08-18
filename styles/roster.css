@@ -18,7 +18,7 @@
 .roster-table th,
 .roster-table td {
     padding: 10px;
-    border: 10px solid #ddd;
+    border: 2px solid #ddd;
     text-align: center;
     transition: background-color 0.3s, transform 0.3s;
 }
