@@ -79,6 +79,18 @@
     border-radius: 8px; /* Rounded corners for images */
 }
 
+.post-preview .admin-owner {
+    color: red !important; /* Red color for owners and admins */
+}
+
+.post-preview .editor-user {
+    color: #ffae00 !important; /* Color for editors */
+}
+
+.post-preview .regular-user {
+    color: #007BFF !important; /* Color for regular users */
+}
+
 /* Responsive design adjustments */
 @media only screen and (max-width: 768px) {
 
