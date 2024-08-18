@@ -160,11 +160,12 @@ if ($post_id > 0) {
         $comments_stmt->execute([$post_id]);
 
         while ($comment = $comments_stmt->fetch(PDO::FETCH_ASSOC)) {
+            $commentUserClass = getUserClass($comment['user_role']);
             $timeAgo = time_ago($comment['created_at']);
             $userClass = ($comment['user_role'] === 'admin' || $comment['user_role'] === 'owner') ? 'admin-owner' : 'regular-user';
 
             echo '<div class="comment" data-comment-id="' . $comment['id'] . '">';
-            echo '<strong class="' . $userClass . '">' . htmlspecialchars_decode($comment['author']) . '</strong> <span class="time-ago">' . $timeAgo . '</span>';
+            echo '<strong class="' . $commentUserClass . '">' . htmlspecialchars_decode($comment['author']) . '</strong> <span class="time-ago">' . time_ago($comment['created_at']) . '</span>';
             echo '<p class="comment-content">' . htmlspecialchars_decode($comment['content']) . '</p>';
 
             // Display edit and delete buttons if the user is the comment owner or an admin
