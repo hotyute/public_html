@@ -80,7 +80,7 @@
 }
 
 .post-preview .admin-owner {
-    color: red !important; /* Red color for owners and admins */
+    color: rgb(125, 2, 2) !important; /* Red color for owners and admins */
 }
 
 .post-preview .editor-user {
