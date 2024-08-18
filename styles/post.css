@@ -117,17 +117,18 @@
     border-radius: 5px;
 }
 
-.post-container,.comment .admin-owner {
+.post-container .admin-owner, .comment .admin-owner {
     color: red !important; /* Red color for owners and admins */
 }
 
-.post-container,.comment .editor-user {
-    color: #ffae00 !important; /* Regular color for standard users */
+.post-container .editor-user, .comment .editor-user {
+    color: #ffae00 !important; /* Color for editors */
 }
 
-.post-container,.comment .regular-user {
-    color: #007BFF !important; /* Regular color for standard users */
+.post-container .regular-user, .comment .regular-user {
+    color: #007BFF !important; /* Color for regular users */
 }
+
 
 
 /* Reply Form Styling */
