@@ -228,65 +228,21 @@ include 'footer.php';
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Handle main comment submission
-        document.getElementById('submitComment').addEventListener('click', function() {
-            const commentText = document.querySelector('#commentForm textarea').value;
-            if (!commentText) {
-                alert('Please enter a comment.');
-                return;
-            }
+        const userId = <?php echo isset($_SESSION['user_id']) ? json_encode($_SESSION['user_id']) : 'null'; ?>;
 
-            const formData = new FormData();
-            formData.append('comment', commentText);
-            formData.append('user_id', <?php echo json_encode($_SESSION['user_id']); ?>);
-            formData.append('post_id', <?php echo $post_id; ?>);
-
-            fetch('/includes/comments/submit_comment.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const commentsSection = document.getElementById('commentsSection');
-                        const noCommentsMsg = commentsSection.querySelector('p');
-                        if (noCommentsMsg && noCommentsMsg.textContent === 'No Comments Yet.') {
-                            commentsSection.removeChild(noCommentsMsg);
-                        }
-
-                        const newComment = document.createElement('div');
-                        newComment.classList.add('comment');
-                        newComment.innerHTML = `<strong>You</strong><span class="time-ago">just now</span><p class="comment-content">${commentText}</p>`;
-                        commentsSection.appendChild(newComment);
-
-                        document.querySelector('#commentForm textarea').value = '';
-                    } else {
-                        alert('Failed to add comment.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error submitting comment.');
-                });
-        });
-
-        // Handle reply submission
-        document.querySelectorAll('.submitReply').forEach(function(button) {
-            button.addEventListener('click', function() {
-                const replyForm = this.closest('.reply-form');
-                const replyText = replyForm.querySelector('textarea').value;
-                const parentId = this.dataset.parentId;
-
-                if (!replyText) {
-                    alert('Please enter a reply.');
+        if (userId) {
+            // Handle main comment submission
+            document.getElementById('submitComment').addEventListener('click', function() {
+                const commentText = document.querySelector('#commentForm textarea').value;
+                if (!commentText) {
+                    alert('Please enter a comment.');
                     return;
                 }
 
                 const formData = new FormData();
-                formData.append('comment', replyText);
-                formData.append('user_id', <?php echo json_encode($_SESSION['user_id']); ?>);
+                formData.append('comment', commentText);
+                formData.append('user_id', userId);
                 formData.append('post_id', <?php echo $post_id; ?>);
-                formData.append('parent_id', parentId);
 
                 fetch('/includes/comments/submit_comment.php', {
                         method: 'POST',
@@ -295,23 +251,73 @@ include 'footer.php';
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            const replySection = replyForm.parentElement;
-                            const newReply = document.createElement('div');
-                            newReply.classList.add('comment', 'reply');
-                            newReply.innerHTML = `<strong>You</strong><span class="time-ago">just now</span><p class="comment-content">${replyText}</p>`;
-                            replySection.appendChild(newReply);
+                            const commentsSection = document.getElementById('commentsSection');
+                            const noCommentsMsg = commentsSection.querySelector('p');
+                            if (noCommentsMsg && noCommentsMsg.textContent === 'No Comments Yet.') {
+                                commentsSection.removeChild(noCommentsMsg);
+                            }
 
-                            replyForm.querySelector('textarea').value = '';
+                            const newComment = document.createElement('div');
+                            newComment.classList.add('comment');
+                            newComment.innerHTML = `<strong>You</strong><span class="time-ago">just now</span><p class="comment-content">${commentText}</p>`;
+                            commentsSection.appendChild(newComment);
+
+                            document.querySelector('#commentForm textarea').value = '';
                         } else {
-                            alert('Failed to add reply.');
+                            alert('Failed to add comment.');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Error submitting reply.');
+                        alert('Error submitting comment.');
                     });
             });
-        });
+
+            // Handle reply submission
+            document.querySelectorAll('.submitReply').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const replyForm = this.closest('.reply-form');
+                    const replyText = replyForm.querySelector('textarea').value;
+                    const parentId = this.dataset.parentId;
+
+                    if (!replyText) {
+                        alert('Please enter a reply.');
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('comment', replyText);
+                    formData.append('user_id', userId);
+                    formData.append('post_id', <?php echo $post_id; ?>);
+                    formData.append('parent_id', parentId);
+
+                    fetch('/includes/comments/submit_comment.php', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const replySection = replyForm.parentElement;
+                                const newReply = document.createElement('div');
+                                newReply.classList.add('comment', 'reply');
+                                newReply.innerHTML = `<strong>You</strong><span class="time-ago">just now</span><p class="comment-content">${replyText}</p>`;
+                                replySection.appendChild(newReply);
+
+                                replyForm.querySelector('textarea').value = '';
+                            } else {
+                                alert('Failed to add reply.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Error submitting reply.');
+                        });
+                });
+            });
+        } else {
+            alert('User is not logged in. Please log in to comment or reply.');
+        }
 
         // Handle comment deletion
         document.querySelectorAll('.deleteComment').forEach(function(button) {
