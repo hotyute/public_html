@@ -1,6 +1,6 @@
 <?php
-require 'includes/session.php';
-require 'includes/database.php';
+require '../session.php';
+require '../database.php';
 
 header('Content-Type: application/json');
 
