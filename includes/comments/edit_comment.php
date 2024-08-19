@@ -1,32 +1,33 @@
 <?php
-require 'includes/session.php'; // Ensure session management is initialized
+require 'includes/session.php';
 require 'includes/database.php';
-require 'includes/sanitize.php';
+
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // CSRF token validation
+    // CSRF token validation to prevent CSRF attacks
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
         echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
         exit;
     }
 
     // Check if the user is logged in
-    if (!isset($_SESSION['user_id'])) {
-        echo json_encode(['success' => false, 'message' => 'User not authenticated']);
-        exit;
-    }
-
-    $user_id = $_SESSION['user_id'];
+    $user_id = $_SESSION['user_id'] ?? null;
     $comment_id = filter_var($_POST['comment_id'], FILTER_VALIDATE_INT);
     $content = trim($_POST['content']);
 
-    if ($comment_id && !empty($content)) {
-        // Check if the current user is the owner of the comment or an admin
+    if ($user_id && $comment_id && !empty($content)) {
+        // Retrieve the owner of the comment
         $comment_owner_query = $pdo->prepare("SELECT user_id FROM comments WHERE id = ?");
         $comment_owner_query->execute([$comment_id]);
         $comment_owner_id = $comment_owner_query->fetchColumn();
 
+        // Check if the current user is the owner of the comment or an admin
         if ($user_id == $comment_owner_id || $_SESSION['user_role'] === 'admin') {
+            // Sanitize and update the comment
             $sanitized_content = sanitize_html($content);
             $update_stmt = $pdo->prepare("UPDATE comments SET content = ? WHERE id = ?");
             if ($update_stmt->execute([$sanitized_content, $comment_id])) {
@@ -35,9 +36,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo json_encode(['success' => false, 'message' => 'Failed to update comment']);
             }
         } else {
+            // User is not authorized to edit this comment
             echo json_encode(['success' => false, 'message' => 'You do not have permission to edit this comment']);
         }
     } else {
+        // Invalid input, either user_id, comment_id or content is missing or invalid
         echo json_encode(['success' => false, 'message' => 'Invalid input']);
     }
 }
