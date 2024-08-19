@@ -1,7 +1,7 @@
 <?php
-require 'includes/session.php'; // Ensure session management is initialized
-require 'includes/database.php';
-require 'includes/sanitize.php';
+require '/includes/session.php'; // Ensure session management is initialized
+require '/includes/database.php';
+require '/includes/sanitize.php';
 
 header('Content-Type: application/json');
 
