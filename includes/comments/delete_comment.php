@@ -1,6 +1,8 @@
 <?php
-require 'includes/session.php'; // Ensure session management is initialized
-require 'includes/database.php'; // Include the database connection
+require '../session.php'; // Ensure session management is initialized
+require '../database.php'; // Include the database connection
+
+header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF token validation to prevent CSRF attacks
