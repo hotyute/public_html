@@ -3,8 +3,26 @@ require_once 'base_config.php';
 include_once 'includes/notifications/notification_data.php';
 
 if (session_status() == PHP_SESSION_NONE) {
+    // Set secure session cookie parameters
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'domain' => '', // Set to your domain if needed
+        'secure' => isset($_SERVER['HTTPS']), // Ensure this is only used over HTTPS
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+    
     session_start();
+    session_regenerate_id(true); // Regenerate session ID to prevent session fixation attacks
 }
+
+// CSRF token generation
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrf_token = $_SESSION['csrf_token'];
+
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
@@ -89,9 +107,9 @@ if (isset($_GET['logout'])) {
                     $notifications = get_notifications($user_id);
                     $notification_count = count($notifications);
                 ?>
-                    <span>Hello, <?php echo $_SESSION['username']; ?>
+                    <span>Hello, <?php echo htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8'); ?>
                         <a class="notifications-button" href="javascript:void(0);" onclick="toggleNotifications()">
-                            <span class="notification-count">(<?php echo $notification_count; ?>)</span>
+                            <span class="notification-count">(<?php echo htmlspecialchars($notification_count, ENT_QUOTES, 'UTF-8'); ?>)</span>
                         </a>
                     </span>
                     <div class="notifications-dropdown">
@@ -100,7 +118,7 @@ if (isset($_GET['logout'])) {
                             foreach ($notifications as $notification) {
                                 echo "<div class='notification'>";
                                 echo "<a href='/notifications.php'>";
-                                echo "<strong>" . htmlspecialchars($notification['title']) . "</strong><br>";
+                                echo "<strong>" . htmlspecialchars($notification['title'], ENT_QUOTES, 'UTF-8') . "</strong><br>";
                                 echo htmlspecialchars_decode($notification['message']);
                                 echo "</a>";
                                 echo "</div>";
