@@ -1,5 +1,6 @@
 <?php
 require '../session.php';
+require '../sanitize.php';
 require '../database.php';
 
 header('Content-Type: application/json');
