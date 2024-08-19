@@ -1,27 +1,7 @@
 <?php
+require_once 'includes/session.php';
 require_once 'base_config.php';
 include_once 'includes/notifications/notification_data.php';
-
-if (session_status() == PHP_SESSION_NONE) {
-    // Set secure session cookie parameters
-    session_set_cookie_params([
-        'lifetime' => 0,
-        'path' => '/',
-        'domain' => '', // Set to your domain if needed
-        'secure' => isset($_SERVER['HTTPS']), // Ensure this is only used over HTTPS
-        'httponly' => true,
-        'samesite' => 'Lax'
-    ]);
-    
-    session_start();
-    session_regenerate_id(true); // Regenerate session ID to prevent session fixation attacks
-}
-
-// CSRF token generation
-if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-$csrf_token = $_SESSION['csrf_token'];
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);

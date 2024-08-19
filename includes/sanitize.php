@@ -1,6 +1,12 @@
 <?php
 require_once 'C:/htmlpurifier/library/HTMLPurifier.auto.php'; // Adjust the path based on where you extracted HTMLPurifier
 
+// CSRF token generation
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrf_token = $_SESSION['csrf_token'];
+
 function sanitize_html($content) {
     $config = HTMLPurifier_Config::createDefault();
     // Configure HTMLPurifier to allow certain tags and attributes
