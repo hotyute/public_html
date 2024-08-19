@@ -3,6 +3,8 @@ require 'includes/session.php'; // Ensure session management is initialized
 require 'includes/database.php';
 require 'includes/sanitize.php';
 
+header('Content-Type: application/json');
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF token validation
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
@@ -21,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $content = trim($_POST['comment']);
 
     if ($post_id && !empty($content)) {
-        $sanitized_content = sanitize_html($content);
+        $sanitized_content = $content;
         $stmt = $pdo->prepare("INSERT INTO comments (user_id, post_id, content, created_at) VALUES (?, ?, ?, NOW())");
         if ($stmt->execute([$user_id, $post_id, $sanitized_content])) {
             echo json_encode(['success' => true, 'message' => 'Comment added successfully']);
