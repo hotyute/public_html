@@ -1,6 +1,7 @@
 <?php
 include 'header.php';
 require 'includes/database.php';
+require 'includes/sanitize.php'; // Include the sanitization function
 
 $post_id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : 0;
 $page = isset($_GET['page']) ? filter_var($_GET['page'], FILTER_VALIDATE_INT) : 1;
@@ -113,7 +114,7 @@ if ($post_id > 0) {
     $post = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($post) {
-        $content = htmlspecialchars_decode($post['content']);
+        $content = sanitize_html(htmlspecialchars_decode($post['content']));
         $pages = explode('<!-- pagebreak -->', $content);
         $total_pages = count($pages);
         $content_page = isset($pages[$page - 1]) ? $pages[$page - 1] : '';
@@ -136,7 +137,7 @@ if ($post_id > 0) {
             echo '</div>';
         }
 
-        echo '<div class="post-content">' . nl2br(htmlspecialchars($content_page, ENT_QUOTES, 'UTF-8')) . '</div>';
+        echo '<div class="post-content">' . nl2br($content_page) . '</div>';
 
         // Pagination controls
         echo '<div class="pagination" style="display: flex; justify-content: space-between; align-items: center;">';
