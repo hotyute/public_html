@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $content = trim($_POST['comment']);
 
     if ($post_id && !empty($content)) {
-        $sanitized_content = $content;
+        $sanitized_content = sanitize_html($content);
         $stmt = $pdo->prepare("INSERT INTO comments (user_id, post_id, content, created_at) VALUES (?, ?, ?, NOW())");
         if ($stmt->execute([$user_id, $post_id, $sanitized_content])) {
             echo json_encode(['success' => true, 'message' => 'Comment added successfully']);
