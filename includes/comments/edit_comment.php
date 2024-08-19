@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $comment_owner_id = $comment_owner_query->fetchColumn();
 
         if ($user_id == $comment_owner_id || $_SESSION['user_role'] === 'admin') {
-            $sanitized_content = sanitize_html($content);
+            $sanitized_content = $content;
             $update_stmt = $pdo->prepare("UPDATE comments SET content = ? WHERE id = ?");
             if ($update_stmt->execute([$sanitized_content, $comment_id])) {
                 echo json_encode(['success' => true, 'message' => 'Comment updated successfully']);
