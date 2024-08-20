@@ -9,9 +9,17 @@ $csrf_token = $_SESSION['csrf_token'];
 
 function sanitize_html($content) {
     $config = HTMLPurifier_Config::createDefault();
-    // Configure HTMLPurifier to allow certain tags and attributes
+    
+    // Allow specific tags and attributes
     $config->set('HTML.Allowed', 'p,b,a[href],i,em,strong,ul,ol,li,br,span[style],div[style],img[src|alt|width|height]');
 
+    // Enable comments
+    $config->set('HTML.Comment', true);
+
+    // Add custom definition to allow <!-- pagebreak -->
+    $config->set('Core.CustomDocumentComments', array('pagebreak'));
+    
     $purifier = new HTMLPurifier($config);
     return $purifier->purify($content);
 }
+
