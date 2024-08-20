@@ -1,7 +1,7 @@
 <?php
 require_once 'session.php';
 require_once 'C:/htmlpurifier/library/HTMLPurifier.auto.php'; // Adjust the path based on where you extracted HTMLPurifier
-require_once '../htmlpurifier/HTMLPurifier_Filter_PageBreak.php';
+require_once 'HTMLPurifier_Filter_PageBreak.php';
 
 // CSRF token generation
 if (empty($_SESSION['csrf_token'])) {
