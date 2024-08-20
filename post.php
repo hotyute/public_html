@@ -418,7 +418,7 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         });
     } else {
-        alert('User is not logged in. Please log in to comment or reply.');
+        //alert('User is not logged in. Please log in to comment or reply.');
     }
 });
 </script>
