@@ -21,7 +21,7 @@
                 <h3>Meet Our Team</h3>
                 <p>Our dedicated team is here to guide, support, and inspire you. Meet our leadership:</p>
                 <ul id="team-list">
-                    <li><strong>Samuel Mason Jr</strong> - Project Leader</li>
+                    <li><strong>Samuel Mason Jr</strong> - Lead Designer</li>
                     <li><strong>CaribbeanSkies</strong> - Lead Editor</li>
                 </ul>
 
