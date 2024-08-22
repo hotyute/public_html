@@ -1,3 +1,11 @@
+footer {
+    background-repeat: no-repeat; 
+    background-size: cover; 
+    text-align: center; 
+    background-position: 
+    center -600px;
+}
+
 .footer-links {
     display: flex;
     flex-wrap: wrap;
@@ -38,4 +46,13 @@
 
 .footer-links a:hover {
     color: #007BFF;
+}
+
+@media screen and (max-width: 768px) {
+
+    footer {
+        background-position: center center; /* Center the image on smaller screens */
+        height: auto; /* Let the height adjust based on content */
+    }
+
 }

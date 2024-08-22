@@ -187,6 +187,11 @@ nav ul li button.auth-button:hover {
 }
 
 @media screen and (max-width: 768px) {
+
+    header {
+        background-position: center center; /* Center the image on smaller screens */
+        height: auto; /* Let the height adjust based on content */
+    }
     
     nav ul li {
         float: none;
