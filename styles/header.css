@@ -89,7 +89,7 @@ header {
     position: relative;
     padding: 10px;
     background-size: cover;
-    background-repeat: no-repeat;
+    background-repeat: repeat;
     background-position: center -400px;
 }
 
