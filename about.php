@@ -22,10 +22,8 @@
                 <h3>Meet Our Team</h3>
                 <p>Our dedicated team is here to guide, support, and inspire you. Meet our leadership:</p>
                 <ul id="team-list">
-                    <li><strong>John Doe</strong> - Senior Pastor</li>
-                    <li><strong>Jane Smith</strong> - Worship Leader</li>
-                    <li><strong>Mark Johnson</strong> - Youth Pastor</li>
-                    <li><strong>Emily Davis</strong> - Outreach Coordinator</li>
+                    <li><strong>Samuel Mason Jr</strong> - Project Leader</li>
+                    <li><strong>CaribbeanSkies</strong> - Lead Editor</li>
                 </ul>
 
                 <h3>Testimonials</h3>
