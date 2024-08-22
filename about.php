@@ -13,10 +13,9 @@
 
                 <h3>What We Offer</h3>
                 <ul>
-                    <li><strong>Weekly Services:</strong> Join us every [Day] for our uplifting and engaging services.</li>
+                    <li><strong>Weekly Services:</strong> Join us every [Day] for our uplifting and engaging articles and insights into Biblical teachings and events.</li>
                     <li><strong>Bible Studies:</strong> Deepen your understanding of the scriptures with our regular Bible study sessions.</li>
-                    <li><strong>Youth Programs:</strong> We offer a range of activities and programs for young people, helping them to grow in their faith.</li>
-                    <li><strong>Community Outreach:</strong> We are committed to serving our local community through various outreach programs, including food drives, charity events, and more.</li>
+                    <li><strong>Community Outreach:</strong> We are committed to serving our local community through various outreach programs.</li>
                 </ul>
 
                 <h3>Meet Our Team</h3>
