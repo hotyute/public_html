@@ -4,6 +4,7 @@
     <link rel="stylesheet" type="text/css" href="/styles/surplus.css">
     <link rel="stylesheet" type="text/css" href="/styles/featuredvid.css">
     <link rel="stylesheet" type="text/css" href="/styles/sidebar.css">
+    <link rel="stylesheet" type="text/css" href="/styles/index.css">
 <?php endif; ?>
 <?php if ($current_page == 'login') : ?>
     <link rel="stylesheet" type="text/css" href="/styles/surplus.css">
