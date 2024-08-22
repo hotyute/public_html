@@ -15,7 +15,7 @@
                 <ul>
                     <li><strong>Weekly Services:</strong> Join us every [Day] for our uplifting and engaging articles and insights into Biblical teachings and events.</li>
                     <li><strong>Bible Studies:</strong> Deepen your understanding of the scriptures with our regular Bible study sessions.</li>
-                    <li><strong>Community Outreach:</strong> We are committed to serving our local community through various outreach programs.</li>
+                    <li><strong>Community Outreach:</strong> We are committed to serving the global community through various outreach programs.</li>
                 </ul>
 
                 <h3>Meet Our Team</h3>
