@@ -9,7 +9,7 @@ error_reporting(E_ALL);
 // Handle logout action
 if (isset($_GET['logout'])) {
     session_destroy();  // Destroy all session data
-    header("Location: " . BASE_URL . "login.php"); // Redirect to the login page after logout
+    header("Location: /login.php"); // Redirect to the login page after logout
     exit();
 }
 ?>
@@ -22,7 +22,7 @@ if (isset($_GET['logout'])) {
 
     <?php include 'includes/stylesheets.php'; ?>
 
-    <script src="<?php echo BASE_URL; ?>js/script.js"></script>
+    <script src="/js/script.js"></script>
     <title>Divine Word</title>
     <script>
         // Function to toggle notifications dropdown
@@ -69,14 +69,14 @@ if (isset($_GET['logout'])) {
 </head>
 
 <body>
-    <header style="background-image: url('<?php echo BASE_URL; ?>images/banner.jpg');">
+    <header style="background-image: url('/images/banner.jpg');">
         <div class="header-content">
             <div class="logo">
-                <img src="<?php echo BASE_URL; ?>images/logo.png" alt="Logo">
+                <img src="/images/logo.png" alt="Logo">
             </div>
             <div class="user-info">
                 <div class="search-bar">
-                    <form action="<?php echo BASE_URL; ?>search.php" method="GET">
+                    <form action="/search.php" method="GET">
                         <input type="text" name="query" placeholder="Search...">
                         <button type="submit">Search</button>
                     </form>
@@ -116,7 +116,7 @@ if (isset($_GET['logout'])) {
                 <?php
                 } else {
                 ?>
-                    <button class="auth-button" onclick="window.location.href='<?php echo BASE_URL; ?>login.php'">Login</button>
+                    <button class="auth-button" onclick="window.location.href='/login.php'">Login</button>
                 <?php
                 }
                 ?>
@@ -125,16 +125,16 @@ if (isset($_GET['logout'])) {
         <div class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('active')">☰</div> <!-- Hamburger Icon -->
         <nav>
             <ul class="nav-links">
-                <li><a href="<?php echo BASE_URL; ?>index.php">Home</a></li>
+                <li><a href="/index.php">Home</a></li>
                 <?php if (isset($_SESSION['user_role']) && in_array($_SESSION['user_role'], ['admin', 'editor'])) : ?>
                     <li><a href='/admin/admin_panel.php'>Admin</a></li>
                 <?php endif; ?>
                 <?php if (isset($_SESSION['user_id']) && in_array($_SESSION['user_role'], ['admin', 'editor', 'member'])) : ?>
                     <li><a href='/user_portal.php'>User Portal</a></li>
                 <?php endif; ?>
-                <li><a href='<?php echo BASE_URL; ?>roster.php'>Roster</a></li>
-                <li><a href='<?php echo BASE_URL; ?>contact.php'>Contact Us</a></li>
-                <li><a href='<?php echo BASE_URL; ?>about.php'>About</a></li>
+                <li><a href='/roster.php'>Roster</a></li>
+                <li><a href='/contact.php'>Contact Us</a></li>
+                <li><a href='/about.php'>About</a></li>
             </ul>
         </nav>
     </header>

@@ -14,7 +14,7 @@ error_reporting(E_ALL);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="<?php echo BASE_URL; ?>styles/tests.css">
+    <link rel="stylesheet" type="text/css" href="/styles/tests.css">
 </head>
 
 <body>
