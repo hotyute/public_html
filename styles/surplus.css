@@ -43,90 +43,11 @@
     background-color: #003399;
 }
 
-/* preview-styles.css */
-/* Container Styling */
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 columns layout */
-    gap: 20px; /* Space between grid items */
-    margin: 20px; /* Adds margin around the grid */
-}
-
-/* Individual Post Preview Styling */
-.post-preview {
-    background: #fff;
-    border: 1px solid #ccc;
-    padding: 20px; /* Increased padding for better visual spacing */
-    border-radius: 10px; /* Rounded corners for a softer look */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow for depth */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions for hover effects */
-}
-
-.post-preview:hover {
-    transform: translateY(-5px); /* Slight raise effect on hover */
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15); /* Enhanced shadow on hover for a 'lifting' effect */
-}
-
-.post-preview p {
-    font-weight: bold;
-    font-size: 14px;
-}
-
-/* Image Styling within Post Previews */
-.post-preview img {
-    width: 100%; /* Ensures image takes full width of the container */
-    height: auto; /* Maintains the aspect ratio */
-    border-radius: 8px; /* Rounded corners for images */
-}
-
-.post-preview .admin-owner {
-    color: rgb(180, 2, 2) !important; /* Red color for owners and admins */
-}
-
-.post-preview .editor-user {
-    color: #cd8d01 !important; /* Color for editors */
-}
-
-.post-preview .regular-user {
-    color: #007BFF !important; /* Color for regular users */
-}
-
 /* Responsive design adjustments */
 @media only screen and (max-width: 768px) {
-
-    .grid-container {
-        grid-template-columns: repeat(2, 1fr); /* 2 columns for tablets */
-    }
-
-    .content-full {
-        display: none;
-    }
-    .content-short {
-        display: block;
-    }
 
     .login-form form {
         width: 90%; /* Makes the form take up almost full width */
     }
-}
-
-@media only screen and (max-width: 480px) {
-    .grid-container {
-        grid-template-columns: 1fr; /* 1 column for mobile phones */
-    }
-}
-
-/* Hide the shorter content by default */
-.content-short {
-    display: none;
-}
-
-
-@media (max-width: 768px) {
-    .content-short {
-        display: block; /* Show short content on smaller screens */
-    }
-    .content-full {
-        display: none; /* Hide full content on smaller screens */
-    }
+    
 }
