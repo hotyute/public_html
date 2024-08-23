@@ -18,9 +18,9 @@ $footerLinks = [
 ];
 ?>
 
-<footer style="background-image: url('/images/banner.jpg');>
+<footer style="background-image: url('/images/banner.jpg');">
     <?php if (!isset($_SESSION['username'])) : ?>
-        <p>Not registered yet? <a href="register.php">Register here</a></p>
+        <p>Not registered yet? <a href="/register.php">Register here</a></p>
     <?php endif; ?>
     <p>&copy; <?php echo date("Y"); ?> DivineWord Community. All rights reserved.</p>
 
