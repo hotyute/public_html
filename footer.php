@@ -18,7 +18,7 @@ $footerLinks = [
 ];
 ?>
 
-<footer style="background-image: url('/images/banner.jpg');">
+<footer style="background-image: url('/images/footer.jpg');">
     <?php if (!isset($_SESSION['username'])) : ?>
         <p>Not registered yet? <a href="/register.php">Register here</a></p>
     <?php endif; ?>
