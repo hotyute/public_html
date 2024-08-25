@@ -53,7 +53,7 @@ footer p {
 
 .registerl {
     text-decoration: underline;
-    color: rgb(255, 238, 0);
+    color: darkgoldenrod;
 }
 
 @media screen and (max-width: 768px) {
