@@ -54,7 +54,13 @@ footer p {
 .registerl {
     text-decoration: underline;
     color: darkgoldenrod;
+    transition: text-shadow 0.3s ease-in-out;
 }
+
+.registerl:hover {
+    text-shadow: 0 0 8px darkgoldenrod, 0 0 12px darkgoldenrod;
+}
+
 
 @media screen and (max-width: 768px) {
 
