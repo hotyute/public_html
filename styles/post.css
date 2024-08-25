@@ -201,6 +201,33 @@
     width: 300px;
 }
 
+/* Edit and Delete Button Styling */
+.editComment, .deleteComment {
+    background-color: #007BFF;
+    color: #fff;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-right: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.editComment:hover, .deleteComment:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.deleteComment {
+    background-color: #dc3545;
+}
+
+.deleteComment:hover {
+    background-color: #c82333;
+}
+
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
     .post-container img {
