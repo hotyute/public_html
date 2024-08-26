@@ -13,7 +13,7 @@ function sanitize_html($content) {
     $config = HTMLPurifier_Config::createDefault();
     
     // Allow specific tags and attributes
-    $config->set('HTML.Allowed', 'p,b,a[href],i,em,strong,center,ul,ol,li,br,h1,h2,h3,span[style],div[style],img[src|alt|width|height]');
+    $config->set('HTML.Allowed', 'p,b,a[href],i,em,strong,ul,ol,li,br,h1,h2,h3,span[style],div[style],img[src|alt|width|height]');
     
     // Add the custom filter for pagebreak
     $config->set('Filter.Custom', array(new HTMLPurifier_Filter_PageBreak()));
