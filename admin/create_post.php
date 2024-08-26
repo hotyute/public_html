@@ -1,10 +1,11 @@
 <?php
 session_start();
 require '../includes/database.php';
+require '../includes/sanitize.php'; // Include the sanitization function
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id']) && $_SESSION['user_role'] === 'admin') {
-    $title = htmlspecialchars($_POST['title']);
-    $content = htmlspecialchars($_POST['content']);
+    $title = sanitize_html($_POST['title']);
+    $content = sanitize_html($_POST['content']);
     $user_id = $_SESSION['user_id'];
     $thumbnail = null;
 

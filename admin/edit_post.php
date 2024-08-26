@@ -7,6 +7,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
 }
 require_once '../base_config.php';
 require 'includes/database.php';
+require 'includes/sanitize.php'; // Include the sanitization function
 
 // Fetch all posts for dropdown
 $stmt = $pdo->prepare("SELECT id, title, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') as formatted_date FROM posts ORDER BY created_at DESC");
@@ -26,8 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else if (isset($_POST['post_id'])) {
         // Update post
         $post_id = $_POST['post_id'];
-        $title = htmlspecialchars($_POST['title']);
-        $content = htmlspecialchars($_POST['content']);
+        $title = sanitize_html($_POST['title']);
+        $content = sanitize_html($_POST['content']);
         $thumbnail = null;
 
         if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] == 0) {
