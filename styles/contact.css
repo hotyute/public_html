@@ -1,8 +1,11 @@
 .contact-container {
     display: flex;
     justify-content: center; /* Center the content horizontally */
-    max-width: 70%; /* Limit the maximum width for larger screens */
+    width: 100%;
+    max-width: 800px; /* Limit the maximum width for larger screens */
     margin: 0 auto; /* Center the entire container */
+    padding: 20px;
+    border-radius: 8px;
 }
 
 .contact-us h2 {
