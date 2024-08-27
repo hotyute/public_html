@@ -4,8 +4,10 @@
     width: 100%;
     max-width: 800px; /* Limit the maximum width for larger screens */
     margin: 0 auto; /* Center the entire container */
+    background-color: #f9f9f9;
     padding: 20px;
     border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .contact-us h2 {
