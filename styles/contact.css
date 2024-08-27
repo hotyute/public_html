@@ -1,6 +1,5 @@
 .contact-container {
-    display: flex;
-    justify-content: center; /* Center the content horizontally */
+    text-align: center;
     width: 100%;
     max-width: 800px; /* Limit the maximum width for larger screens */
     margin: 0 auto; /* Center the entire container */
