@@ -20,6 +20,7 @@
 <?php endif; ?>
 <?php if ($current_page == 'contact') : ?>
     <link rel="stylesheet" type="text/css" href="/styles/surplus.css">
+    <link rel="stylesheet" type="text/css" href="/styles/contact.css">
 <?php endif; ?>
 <?php if ($current_page == 'archive') : ?>
     <link rel="stylesheet" type="text/css" href="/styles/archive.css">
