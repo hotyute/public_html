@@ -96,7 +96,7 @@ function createDevotionDropdown(selectedValue) {
 function getDevotionColor(devotion) {
     switch (devotion) {
         case 'red': return 'red';
-        case 'blue': return '#ADD8E6';
+        case 'blue': return '#2565AE';
         case 'yellow': return 'yellow';
         case 'green': return 'green';
         default: return 'white';
