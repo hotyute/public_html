@@ -1,5 +1,6 @@
 <?php $current_page = basename($_SERVER['SCRIPT_NAME'], '.php'); ?>
 <link rel="stylesheet" type="text/css" href="/styles/style.css">
+<link rel="stylesheet" type="text/css" href="/styles/header.css">
 <?php if ($current_page == 'index') : ?>
     <link rel="stylesheet" type="text/css" href="/styles/surplus.css">
     <link rel="stylesheet" type="text/css" href="/styles/featuredvid.css">
@@ -35,5 +36,7 @@
 <?php if ($current_page == 'test_history') : ?>
     <link rel="stylesheet" type="text/css" href="/styles/test_history.css">
 <?php endif; ?>
-<link rel="stylesheet" type="text/css" href="/styles/header.css">
+<?php if ($current_page == 'register') : ?>
+    <link rel="stylesheet" type="text/css" href="/styles/register.css">
+<?php endif; ?>
 <link rel="stylesheet" type="text/css" href="/styles/footer.css">
