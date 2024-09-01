@@ -1,4 +1,4 @@
-/* Center the form on the page */
+/* Container for the form */
 .register-container {
     max-width: 400px;
     margin: 50px auto;
@@ -6,41 +6,40 @@
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-}
-
-.register-container h1 {
-    text-align: center;
-    margin-bottom: 20px;
-    font-family: 'Georgia', serif;
-    color: #444;
-}
-
-.register-container form {
-    background-color: #fff;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    width: 350px;
-    margin: 50px auto;
+    width: 90%; /* Ensure it adapts to smaller screens */
+    box-sizing: border-box; /* Ensure padding doesn't affect overall width */
 }
 
 /* Heading style */
 .register-container h1 {
     text-align: center;
-    color: #444;
     margin-bottom: 20px;
     font-family: 'Georgia', serif;
+    color: #444;
+    font-size: 24px; /* Slightly larger font size */
 }
 
-/* Style for form labels */
+/* Form styling */
+.register-container form {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Full width on small screens */
+    box-sizing: border-box; /* Ensure padding doesn't affect overall width */
+    margin: 0 auto; /* Center the form on the page */
+}
+
+/* Label styling */
 .register-container label {
     display: block;
     margin-bottom: 8px;
     color: #333;
     font-weight: bold;
+    font-size: 16px;
 }
 
-/* Style for form inputs */
+/* Input styling */
 .register-container input[type="text"],
 .register-container input[type="password"] {
     width: 100%;
@@ -54,30 +53,23 @@
     transition: border-color 0.3s ease;
 }
 
-/* Focus state for inputs */
+/* Input focus state */
 .register-container input[type="text"]:focus,
 .register-container input[type="password"]:focus {
     border-color: #3498db;
 }
 
-/* Style for error and success messages */
-.register-container p[style="color: red;"] {
-    color: #e74c3c;
-    background-color: #f9e0e0;
-    padding: 12px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-}
-
+/* Error and success message styling */
+.register-container p[style="color: red;"],
 .register-container p[style="color: green;"] {
-    color: #2ecc71;
-    background-color: #e0f9e0;
     padding: 12px;
     border-radius: 5px;
     margin-bottom: 20px;
+    font-size: 14px; /* Slightly smaller for better readability on mobile */
+    text-align: center; /* Center align the messages */
 }
 
-/* Style for the submit button */
+/* Button styling */
 .register-container button {
     width: 100%;
     padding: 12px;
@@ -91,11 +83,34 @@
     font-family: 'Georgia', serif;
 }
 
+/* Button hover state */
 .register-container button:hover {
     background-color: #2980b9;
 }
 
-/* Add a bit of spacing between form fields and the button */
+/* Spacing between form fields */
 .register-container form > *:not(:last-child) {
     margin-bottom: 15px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .register-container {
+        padding: 15px;
+    }
+
+    .register-container h1 {
+        font-size: 20px; /* Slightly smaller for small screens */
+    }
+
+    .register-container input[type="text"],
+    .register-container input[type="password"] {
+        font-size: 14px; /* Adjust input font size for small screens */
+        padding: 10px;
+    }
+
+    .register-container button {
+        font-size: 16px; /* Adjust button font size for small screens */
+        padding: 10px;
+    }
 }
