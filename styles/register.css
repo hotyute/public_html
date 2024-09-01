@@ -1,5 +1,21 @@
 /* Center the form on the page */
-form {
+.register-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.register-container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: 'Georgia', serif;
+    color: #444;
+}
+
+.register-container form {
     background-color: #fff;
     padding: 25px;
     border-radius: 10px;
@@ -9,7 +25,7 @@ form {
 }
 
 /* Heading style */
-h1 {
+.register-container h1 {
     text-align: center;
     color: #444;
     margin-bottom: 20px;
@@ -17,7 +33,7 @@ h1 {
 }
 
 /* Style for form labels */
-label {
+.register-container label {
     display: block;
     margin-bottom: 8px;
     color: #333;
@@ -25,8 +41,8 @@ label {
 }
 
 /* Style for form inputs */
-input[type="text"],
-input[type="password"] {
+.register-container input[type="text"],
+.register-container input[type="password"] {
     width: 100%;
     padding: 12px;
     margin-bottom: 20px;
@@ -39,13 +55,13 @@ input[type="password"] {
 }
 
 /* Focus state for inputs */
-input[type="text"]:focus,
-input[type="password"]:focus {
+.register-container input[type="text"]:focus,
+.register-container input[type="password"]:focus {
     border-color: #3498db;
 }
 
 /* Style for error and success messages */
-p[style="color: red;"] {
+.register-container p[style="color: red;"] {
     color: #e74c3c;
     background-color: #f9e0e0;
     padding: 12px;
@@ -53,7 +69,7 @@ p[style="color: red;"] {
     margin-bottom: 20px;
 }
 
-p[style="color: green;"] {
+.register-container p[style="color: green;"] {
     color: #2ecc71;
     background-color: #e0f9e0;
     padding: 12px;
@@ -62,7 +78,7 @@ p[style="color: green;"] {
 }
 
 /* Style for the submit button */
-button {
+.register-container button {
     width: 100%;
     padding: 12px;
     background-color: #3498db;
@@ -75,11 +91,11 @@ button {
     font-family: 'Georgia', serif;
 }
 
-button:hover {
+.register-container button:hover {
     background-color: #2980b9;
 }
 
 /* Add a bit of spacing between form fields and the button */
-form > *:not(:last-child) {
+.register-container form > *:not(:last-child) {
     margin-bottom: 15px;
 }
