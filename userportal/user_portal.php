@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], ['admin', 
     exit();
 }
 
-include '../base_config.php';
+require_once '../base_config.php';
 
 // Include header file
 include 'header.php';

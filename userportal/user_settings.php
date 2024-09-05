@@ -6,9 +6,10 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+require_once 'base_config.php';
+
 // Include necessary files and the header
 include 'header.php';
-require_once 'base_config.php';
 
 // Handle form submission for updating email
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_email'])) {

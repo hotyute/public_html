@@ -7,6 +7,7 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], ['admin', 
 }
 
 // Include database connection
+require '../base_config.php';
 require 'includes/database.php';
 
 // Fetch test history
