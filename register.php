@@ -9,21 +9,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Collect and sanitize input
     $username = htmlspecialchars($_POST['username']);
     $password = htmlspecialchars($_POST['password']);
-    $displayname = htmlspecialchars($_POST['displayname']); // Sanitize the displayname
-    $role = "member"; //htmlspecialchars($_POST['role']);
+    $displayname = htmlspecialchars($_POST['displayname']);
+    $email = htmlspecialchars($_POST['email']);  // Sanitize the email
+    $role = "member";
 
-    // Check if the username already exists
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
-    $stmt->execute([$username]);
+    // Check if the username or email already exists
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ? OR email = ?");
+    $stmt->execute([$username, $email]);
     if ($stmt->rowCount() > 0) {
-        $error_message = "Username already exists!";
+        $error_message = "Username or Email already exists!";
     } else {
         // Hash the password
         $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
-        // Insert new user into the database including displayname
-        $insert_stmt = $pdo->prepare("INSERT INTO users (username, displayname, password, role) VALUES (?, ?, ?, ?)");
-        if ($insert_stmt->execute([$username, $displayname, $password_hash, $role])) {
+        // Insert new user into the database including email
+        $insert_stmt = $pdo->prepare("INSERT INTO users (username, displayname, email, password, role) VALUES (?, ?, ?, ?, ?)");
+        if ($insert_stmt->execute([$username, $displayname, $email, $password_hash, $role])) {
             $success_message = "User registered successfully!";
         } else {
             $error_message = "Failed to register user.";
@@ -46,6 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <input type="text" id="username" name="username" required><br>
         <label for="displayname">Full Name:</label>
         <input type="text" id="displayname" name="displayname" required><br>
+        <label for="email">Email:</label> <!-- New Email field -->
+        <input type="email" id="email" name="email" required><br>
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required><br>
         <button type="submit">Register</button>
@@ -59,6 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.querySelector('form');
         const usernameInput = document.getElementById('username');
+        const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const displaynameInput = document.getElementById('displayname');
         const submitButton = document.querySelector('button');
@@ -68,15 +72,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Enable submit button only when all fields are filled
         function checkFormValidity() {
-            if (usernameInput.value && passwordInput.value && displaynameInput.value) {
+            if (usernameInput.value && passwordInput.value && displaynameInput.value && emailInput.value) {
                 submitButton.disabled = false;
             } else {
                 submitButton.disabled = true;
             }
         }
-
+        
         // Check form validity on input
         usernameInput.addEventListener('input', checkFormValidity);
+        emailInput.addEventListener('input', checkFormValidity);
         passwordInput.addEventListener('input', checkFormValidity);
         displaynameInput.addEventListener('input', checkFormValidity);
 
