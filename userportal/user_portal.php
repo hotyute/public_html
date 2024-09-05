@@ -17,6 +17,7 @@ include 'header.php';
     <p>Welcome to the portal dashboard. Use the links below to access your data:</p>
     <ul class="admin-links">
         <li><a href="test_history.php">Test History</a></li>
+        <li><a href="user_settings.php">User Settings</a></li>
         <!-- Additional links for other admin tasks can be added here -->
     </ul>
 </div>
