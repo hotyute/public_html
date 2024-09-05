@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-require_once 'base_config.php';
+require_once '../base_config.php';
 
 // Include necessary files and the header
 include 'header.php';
