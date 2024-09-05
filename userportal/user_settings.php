@@ -6,6 +6,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 require_once '../base_config.php';  // Include the database connection
+require 'includes/database.php';
 
 // Check if the request is for email validation via AJAX
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['check_email'])) {

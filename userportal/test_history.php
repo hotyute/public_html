@@ -9,7 +9,6 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], ['admin', 
 // Include database connection
 require '../base_config.php';
 require 'includes/database.php';
-require_once 'includes/database.php';
 
 // Fetch test history
 $userId = $_SESSION['user_id'];
