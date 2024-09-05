@@ -39,4 +39,7 @@
 <?php if ($current_page == 'register') : ?>
     <link rel="stylesheet" type="text/css" href="/styles/register.css">
 <?php endif; ?>
+<?php if ($current_page == 'user_settings') : ?>
+    <link rel="stylesheet" type="text/css" href="styles/user_settings.css">
+<?php endif; ?>
 <link rel="stylesheet" type="text/css" href="/styles/footer.css">
