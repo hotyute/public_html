@@ -235,6 +235,12 @@ nav ul li button.auth-button:hover {
         align-items: center;
     }
 
+    .notifications {
+        margin-left: 0;
+        margin-top: 10px; /* Add space between notifications and other elements */
+        justify-content: center; /* Center notifications icon */
+    }
+
     .search-bar input[type="text"] {
         width: 80%; /* Adjust width for smaller screens */
     }
