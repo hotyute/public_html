@@ -41,7 +41,8 @@
 
 /* Input styling */
 .register-container input[type="text"],
-.register-container input[type="password"] {
+.register-container input[type="password"]
+.register-container input[type="email"] {
     width: 100%;
     padding: 12px;
     margin-bottom: 20px;
@@ -55,7 +56,8 @@
 
 /* Input focus state */
 .register-container input[type="text"]:focus,
-.register-container input[type="password"]:focus {
+.register-container input[type="password"]:focus
+.register-container input[type="email"]:focus {
     border-color: #3498db;
 }
 
@@ -104,7 +106,8 @@
     }
 
     .register-container input[type="text"],
-    .register-container input[type="password"] {
+    .register-container input[type="password"]
+    .register-container input[type="email"] {
         font-size: 14px; /* Adjust input font size for small screens */
         padding: 10px;
     }
