@@ -18,127 +18,12 @@
     text-align: center; /* Center align on smaller screens */
 }
 
-.search-bar form {
-    display: flex;
-    justify-content: center; /* Center the form elements */
-}
-
-.search-bar input[type="text"] {
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px 0 0 4px;
-    width: 100%; /* Full width on smaller screens */
-    max-width: 200px; /* Limit maximum width */
-}
-
-.search-bar button {
-    padding: 5px 10px;
-    border: 1px solid #ccc;
-    border-left: none;
-    background-color: #333;
-    color: white;
-    border-radius: 0 4px 4px 0;
-    cursor: pointer;
-}
-
-.search-bar button:hover {
-    background-color: #555;
-}
-
-nav {
-    background-color: #333;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    background: linear-gradient(to bottom, #444 0%, #222 100%);
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-    position: relative;
-    z-index: 1;
-}
-
-nav:before {
-    content: "";
-    display: block;
-    height: 4px;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-}
-
-nav ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
-
-nav ul.nav-links {
-    float: left;
-}
-
-nav ul.auth {
-    float: right;
-}
-
-nav ul li {
-    float: left;
-}
-
-header {
-    position: relative;
-    padding: 10px;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center -400px;
-}
-
-.logo {
-    display: block;
-}
-
-.logo img {
-    width: 100%; /* Responsive width */
-    max-width: 300px; /* Limit maximum width */
-    height: auto;
-}
-
-/* Ensure that padding and border are included in the width and height calculations */
-*, *:before, *:after {
-    box-sizing: border-box;
-}
-
-nav ul li a,
-nav ul li button.auth-button {
-    display: block;
-    color: white;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-    font-weight: bold;
-    position: relative;
-    z-index: 2;
-    text-shadow: 1px 1px 5px rgba(100, 100, 100, 0.5);
-    background: linear-gradient(to top, #ffffff, #cccccc);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    transition: all 0.3s ease;
-}
-
-nav ul li a:hover,
-nav ul li button.auth-button:hover {
-    background-color: #111;
-    color: #ffd700;
-    text-shadow: 2px 2px 8px rgba(100, 100, 100, 0.7);
-    -webkit-background-clip: initial;
-    background-clip: initial;
-    -webkit-text-fill-color: initial;
-}
-
 .notifications {
     position: relative;
     margin-left: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .notifications-button {
@@ -229,13 +114,26 @@ nav ul li button.auth-button:hover {
     .header-content {
         flex-direction: column;
         align-items: center;
+        text-align: center; /* Center content on smaller screens */
     }
 
     .user-info {
         align-items: center;
+        text-align: center; /* Center user info on smaller screens */
+    }
+
+    .notifications {
+        margin-left: 0;
+        margin-top: 10px; /* Add space between notifications and other elements */
+        justify-content: center; /* Center notifications icon */
     }
 
     .search-bar input[type="text"] {
         width: 80%; /* Adjust width for smaller screens */
+    }
+
+    .search-bar {
+        width: 100%; /* Make search bar full width on smaller screens */
+        margin-bottom: 20px; /* Increase margin for better spacing */
     }
 }
