@@ -9,7 +9,7 @@
                 <p>Our mission is to create a space where everyone feels welcome and valued. We believe in the power of community, and our goal is to provide a nurturing environment for spiritual growth, learning, and fellowship. Through our services, outreach programs, and events, we aim to inspire and support each other in our walk of faith.</p>
 
                 <h3>Our History</h3>
-                <p>Founded in 2024, our community has grown from a small group of like-minded individuals to a vibrant congregation of believers. Over the years, we have expanded our reach through various ministries and initiatives, always staying true to our core values of love, respect, and compassion.</p>
+                <p>Founded in 2024, our community has grown from a small group of like-minded individuals to a vibrant community of truth-seekers. Over the years, we have expanded our reach through various ministries and initiatives, always staying true to our core values of love, respect, and compassion.</p>
 
                 <h3>What We Offer</h3>
                 <ul>
