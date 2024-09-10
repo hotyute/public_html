@@ -28,15 +28,15 @@
                 <h3>Testimonials</h3>
                 <div class="testimonial-slider">
                     <div class="testimonial">
-                        <p>"This community has truly changed my life. The love and support I've received here are incredible."</p>
+                        <p>"This community has truly changed my life. The love and support in truth I've received here is incredible."</p>
                         <p>- Sarah K.</p>
                     </div>
                     <div class="testimonial">
-                        <p>"A wonderful place to grow in faith and connect with others who share your beliefs."</p>
+                        <p>"A wonderful place to grow in faith and connect with others who are seeking the truth."</p>
                         <p>- Michael B.</p>
                     </div>
                     <div class="testimonial">
-                        <p>"The Bible studies are enlightening, and the services are always uplifting. I'm so glad I found this community."</p>
+                        <p>"The Bible studies are enlightening, and the articles are always enlightening. I'm so glad I found this community."</p>
                         <p>- Laura T.</p>
                     </div>
                 </div>
