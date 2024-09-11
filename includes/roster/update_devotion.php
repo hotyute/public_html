@@ -11,5 +11,6 @@ $stmt = $pdo->prepare("UPDATE roster_data SET devotion = ? WHERE user_id = ?");
 $success = $stmt->execute([$devotion, $userId]);
 
 header('Content-Type: application/json');
+
 echo json_encode(['success' => $success]);
 ?>
