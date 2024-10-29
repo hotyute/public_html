@@ -72,10 +72,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         const submitButton = document.querySelector('button');
 
         // Limit username to 25 characters
-        //usernameInput.maxLength = 25;
+        usernameInput.maxLength = 25;
         
         // Limit displayname to 50 characters
-        //displaynameInput.maxLength = 50;
+        displaynameInput.maxLength = 50;
 
         // Disable submit button initially
         submitButton.disabled = true;
@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         displaynameInput.addEventListener('input', checkFormValidity);
 
         // Show tooltip if character limit exceeded
-        function showCharLimitTooltip(inputElement, 25) {
+        function showCharLimitTooltip(inputElement, maxLength) {
             let tooltip = inputElement.nextElementSibling;
             if (!tooltip || !tooltip.classList.contains('char-limit-tooltip')) {
                 tooltip = document.createElement('div');
