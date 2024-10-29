@@ -78,6 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Limit displayname to 50 characters
         displaynameInput.maxLength = 50;
 
+        // Limit email to 50 characters
+        emailInput.maxLength = 50;
+
         // Disable submit button initially
         submitButton.disabled = true;
 
@@ -139,6 +142,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 showTooltip(displaynameInput, 'Invalid characters in display name');
             } else {
                 hideTooltip(displaynameInput);
+            }
+        });
+
+        emailInput.addEventListener('input', function() {
+            if (emailInput.value.length > 50) {
+                showTooltip(emailInput, 'Maximum 50 characters allowed');
+            } else if (!sanitizeHtml(emailInput.value)) {
+                showTooltip(emailInput, 'Invalid characters in display name');
+            } else {
+                hideTooltip(emailInput);
             }
         });
 
