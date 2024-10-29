@@ -3,13 +3,14 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 require 'includes/database.php';  // Include the database connection
+require 'includes/sanitize.php'; // Include the sanitization function
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Collect and sanitize input
-    $username = htmlspecialchars($_POST['username']);
+    $username = sanitize_html($_POST['username']);
     $password = htmlspecialchars($_POST['password']);
-    $displayname = htmlspecialchars($_POST['displayname']);
+    $displayname = sanitize_html($_POST['displayname']);
     $email = htmlspecialchars($_POST['email']);  // Sanitize the email
     $role = "member";
 
@@ -95,8 +96,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         passwordInput.addEventListener('input', checkFormValidity);
         displaynameInput.addEventListener('input', checkFormValidity);
 
-        // Show tooltip if character limit exceeded
-        function showCharLimitTooltip(inputElement, maxLength) {
+        // Show tooltip if character limit exceeded or input is invalid
+        function showTooltip(inputElement, message) {
             let tooltip = inputElement.nextElementSibling;
             if (!tooltip || !tooltip.classList.contains('char-limit-tooltip')) {
                 tooltip = document.createElement('div');
@@ -111,10 +112,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 tooltip.style.zIndex = '1000';
                 inputElement.insertAdjacentElement('afterend', tooltip);
             }
-            tooltip.textContent = `Maximum ${maxLength} characters allowed`;
+            tooltip.textContent = message;
         }
 
-        function hideCharLimitTooltip(inputElement) {
+        function hideTooltip(inputElement) {
             const tooltip = inputElement.nextElementSibling;
             if (tooltip && tooltip.classList.contains('char-limit-tooltip')) {
                 tooltip.remove();
@@ -123,19 +124,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         usernameInput.addEventListener('input', function() {
             if (usernameInput.value.length > 25) {
-                showCharLimitTooltip(usernameInput, 25);
+                showTooltip(usernameInput, 'Maximum 25 characters allowed');
+            } else if (!sanitizeHtml(usernameInput.value)) {
+                showTooltip(usernameInput, 'Invalid characters in username');
             } else {
-                hideCharLimitTooltip(usernameInput);
+                hideTooltip(usernameInput);
             }
         });
 
         displaynameInput.addEventListener('input', function() {
             if (displaynameInput.value.length > 50) {
-                showCharLimitTooltip(displaynameInput, 50);
+                showTooltip(displaynameInput, 'Maximum 50 characters allowed');
+            } else if (!sanitizeHtml(displaynameInput.value)) {
+                showTooltip(displaynameInput, 'Invalid characters in display name');
             } else {
-                hideCharLimitTooltip(displaynameInput);
+                hideTooltip(displaynameInput);
             }
         });
+
+        function sanitizeHtml(input) {
+            const div = document.createElement('div');
+            div.textContent = input;
+            return div.innerHTML === input;
+        }
 
         // Password strength checker
         passwordInput.addEventListener('input', function() {
