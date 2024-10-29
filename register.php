@@ -8,9 +8,9 @@ require 'includes/sanitize.php'; // Include the sanitization function
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Collect and sanitize input
-    $username = sanitize_html($_POST['username']);
+    $username = htmlspecialchars(sanitize_html($_POST['username']));
     $password = htmlspecialchars($_POST['password']);
-    $displayname = sanitize_html($_POST['displayname']);
+    $displayname = htmlspecialchars(sanitize_html($_POST['displayname']));
     $email = htmlspecialchars($_POST['email']);  // Sanitize the email
     $role = "member";
 
