@@ -34,7 +34,9 @@ $stmt = $pdo->prepare("
 $stmt->execute();
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$users['username'] = sanitize_html($users['username']);
+foreach ($users as &$user) {
+    $user['username'] = sanitize_html($user['username']);
+}
 
 header('Content-Type: application/json');
 echo json_encode($users);
