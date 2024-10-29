@@ -1,5 +1,6 @@
 <?php
 require '../database.php';
+require '../sanitize.php'; // Include the sanitization function
 
 // Function to create default roster data for users without it
 function createDefaultRosterData($pdo) {
@@ -32,6 +33,8 @@ $stmt = $pdo->prepare("
 
 $stmt->execute();
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$users['username'] = sanitize_html($users['username']);
 
 header('Content-Type: application/json');
 echo json_encode($users);
