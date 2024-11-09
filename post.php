@@ -154,7 +154,7 @@ if ($post_id > 0) {
 
         if (isset($_SESSION['user_id'])) {
             echo '<form id="commentForm" class="comment-form">';
-            echo '<textarea name="comment" required placeholder="Add a comment..."></textarea>';
+            echo '<textarea oninput="autoExpand(this)" name="comment" required placeholder="Add a comment..."></textarea>';
             echo '<input type="hidden" name="csrf_token" value="' . $csrf_token . '">';
             echo '<button type="button" id="submitComment">Comment</button>';
             echo '</form>';

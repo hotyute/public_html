@@ -170,12 +170,13 @@
 .comment-form textarea {
     resize: none;
     width: 100%;
-    height: 100px;
+    min-height: 100px;
     padding: 10px;
     font-size: 1em;
     margin-bottom: 10px;
     border: 1px solid #ddd;
     border-radius: 10px;
+    overflow: hidden;
 }
 
 .comment-form button {

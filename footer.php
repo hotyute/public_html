@@ -57,3 +57,6 @@ $footerLinks = [
 <?php if ($current_page == 'roster') : ?>
     <script src="/js/roster.js"></script>
 <?php endif; ?>
+<?php if ($current_page == 'post') : ?>
+    <script src="/js/tools.js"></script>
+<?php endif; ?>
