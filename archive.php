@@ -20,7 +20,7 @@ $total_posts_result = $pdo->query($total_posts_query);
 $total_posts = $total_posts_result->fetchColumn();
 
 // Fetch posts for the current page
-$query = "SELECT posts.id, posts.title, users.displayname AS author, posts.created_at 
+$query = "SELECT posts.id, posts.title, posts.thumbnail, users.displayname AS author, posts.created_at 
           FROM posts
           JOIN users ON posts.user_id = users.id
           ORDER BY posts.id DESC
@@ -43,10 +43,18 @@ $posts = $pdo->query($query);
             <ul class="archive-list">
                 <?php
                 while ($post = $posts->fetch(PDO::FETCH_ASSOC)) {
-                    echo '<li>';
+                    echo '<li class="archive-item">';
+                    if ($post['thumbnail']) {
+                        // Adjust the path if necessary
+                        $thumbnailPath = str_replace('../', '/', $post['thumbnail']);
+                        echo '<img src="' . htmlspecialchars($thumbnailPath) . '" alt="' . htmlspecialchars($post['title']) . ' Thumbnail" class="archive-thumbnail">';
+                    }
+                    echo '<div class="archive-details">';
                     echo '<a href="post.php?id=' . $post['id'] . '">' . htmlspecialchars($post['title']) . '</a>';
-                    echo ' by ' . htmlspecialchars($post['author']);
+                    echo '<br>';
+                    echo 'by ' . htmlspecialchars($post['author']);
                     echo ' on ' . date('F j, Y', strtotime($post['created_at']));
+                    echo '</div>';
                     echo '</li>';
                 }
                 ?>
@@ -65,5 +73,8 @@ $posts = $pdo->query($query);
         </section>
     </main>
 </div>
+
+<!-- Link your updated CSS file -->
+<link rel="stylesheet" href="path/to/your/archive.css">
 
 <?php include 'footer.php'; ?>
