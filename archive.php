@@ -38,6 +38,7 @@ $posts = $pdo->query($query);
                     <option value="10" <?php if ($posts_per_page == 10) echo 'selected'; ?>>10</option>
                     <option value="20" <?php if ($posts_per_page == 20) echo 'selected'; ?>>20</option>
                     <option value="30" <?php if ($posts_per_page == 30) echo 'selected'; ?>>30</option>
+                    <option value="100" <?php if ($posts_per_page == 100) echo 'selected'; ?>>100</option>
                 </select>
             </form>
             <ul class="archive-list">
