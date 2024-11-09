@@ -18,8 +18,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['delete']) && isset($_POST['post_id'])) {
         // Delete post
         $post_id = $_POST['post_id'];
+        // Fetch existing thumbnail to delete the file
+        $existing_thumbnail_stmt = $pdo->prepare("SELECT thumbnail FROM posts WHERE id = ?");
+        $existing_thumbnail_stmt->execute([$post_id]);
+        $existing_thumbnail = $existing_thumbnail_stmt->fetchColumn();
+
+        // Delete the post
         $delete_stmt = $pdo->prepare("DELETE FROM posts WHERE id = ?");
         if ($delete_stmt->execute([$post_id])) {
+            // Delete the thumbnail file
+            if ($existing_thumbnail && file_exists($existing_thumbnail)) {
+                unlink($existing_thumbnail);
+            }
             echo "<p>Post deleted successfully!</p>";
         } else {
             echo "<p>Failed to delete post.</p>";
@@ -29,16 +39,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $post_id = $_POST['post_id'];
         $title = sanitize_html($_POST['title']);
         $content = sanitize_html($_POST['content']);
-        $thumbnail = null;
+
+        // Fetch existing thumbnail
+        $existing_thumbnail_stmt = $pdo->prepare("SELECT thumbnail FROM posts WHERE id = ?");
+        $existing_thumbnail_stmt->execute([$post_id]);
+        $existing_thumbnail = $existing_thumbnail_stmt->fetchColumn();
+
+        // Initialize $thumbnail to the existing thumbnail
+        $thumbnail = $existing_thumbnail;
 
         if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] == 0) {
+            // Delete old thumbnail file if it exists
+            if ($existing_thumbnail && file_exists($existing_thumbnail)) {
+                unlink($existing_thumbnail);
+            }
+
+            // Move the new uploaded file
             $target_directory = "../images/uploads/";
-            $target_file = $target_directory . basename($_FILES["thumbnail"]["name"]);
+
+            // Ensure unique file name to avoid overwriting
+            $file_extension = pathinfo($_FILES["thumbnail"]["name"], PATHINFO_EXTENSION);
+            $new_filename = uniqid('thumb_', true) . '.' . $file_extension;
+
+            $target_file = $target_directory . $new_filename;
+
             if (move_uploaded_file($_FILES["thumbnail"]["tmp_name"], $target_file)) {
                 $thumbnail = $target_file;
             }
         }
 
+        // Update the post in the database
         $update_stmt = $pdo->prepare("UPDATE posts SET title = ?, content = ?, thumbnail = ? WHERE id = ?");
         if ($update_stmt->execute([$title, $content, $thumbnail, $post_id])) {
             echo "<p>Post updated successfully!</p>";
@@ -74,6 +104,11 @@ include '../header.php';
         </div>
         
         <div class="form-group">
+            <label for="current_thumbnail">Current Thumbnail:</label>
+            <div id="current_thumbnail"></div>
+        </div>
+
+        <div class="form-group">
             <label for="thumbnail">Thumbnail (optional):</label>
             <input type="file" id="thumbnail" name="thumbnail" class="form-control">
         </div>
@@ -90,12 +125,21 @@ function loadPostData(postId) {
             .then(data => {
                 document.getElementById('title').value = decodeHtmlEntities(data.title);
                 document.getElementById('content').value = decodeHtmlEntities(data.content);
-                // Handle thumbnail and other fields as needed
+
+                // Handle thumbnail
+                var currentThumbnailDiv = document.getElementById('current_thumbnail');
+                if (data.thumbnail) {
+                    // Adjust the path if necessary
+                    var thumbnailPath = data.thumbnail.replace('../', '/');
+                    currentThumbnailDiv.innerHTML = '<img src="' + thumbnailPath + '" alt="Current Thumbnail" style="max-width: 200px;">';
+                } else {
+                    currentThumbnailDiv.innerHTML = 'No thumbnail.';
+                }
             });
     } else {
         document.getElementById('title').value = '';
         document.getElementById('content').value = '';
-        // Reset other fields as needed
+        document.getElementById('current_thumbnail').innerHTML = '';
     }
 }
 
