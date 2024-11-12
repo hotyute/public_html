@@ -21,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $_SESSION['user_id'];
     $post_id = filter_var($_POST['post_id'], FILTER_VALIDATE_INT);
     $content = trim($_POST['comment']);
+    $parent_id = $_POST['parent_id'];
 
     if ($post_id && !empty($content)) {
         $sanitized_content = $content;
