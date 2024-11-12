@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $parent_id = isset($_POST['parent_id']) ? $_POST['parent_id'] : NULL;
 
     if ($post_id && !empty($content)) {
-        $sanitized_content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
+        $sanitized_content = $content;
         $stmt = $pdo->prepare("INSERT INTO comments (user_id, post_id, content, created_at, parent_id) VALUES (?, ?, ?, NOW(), ?)");
         if ($stmt->execute([$user_id, $post_id, $sanitized_content, $parent_id])) {
             echo json_encode(['success' => true, 'message' => 'Comment added successfully']);
