@@ -306,6 +306,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 formData.append('parent_id', parentId);
                 formData.append('csrf_token', csrfToken);
 
+                console.log(parentId);
+
                 fetch('/includes/comments/submit_comment.php', {
                         method: 'POST',
                         body: formData
