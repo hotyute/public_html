@@ -188,7 +188,7 @@ if ($post_id > 0) {
             // Display reply form for logged-in users
             if (isset($_SESSION['user_id'])) {
                 echo '<form class="reply-form">';
-                echo '<textarea required placeholder="Reply to this comment..."></textarea>';
+                echo '<textarea oninput="autoExpand(this)" required placeholder="Reply to this comment..."></textarea>';
                 echo '<input type="hidden" name="csrf_token" value="' . $csrf_token . '">';
                 echo '<button type="button" class="submitReply" style="display: block;" data-parent-id="' . htmlspecialchars($comment['id'], ENT_QUOTES, 'UTF-8') . '">Reply</button>';
                 echo '</form>';
