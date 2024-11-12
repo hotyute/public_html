@@ -21,11 +21,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $_SESSION['user_id'];
     $post_id = filter_var($_POST['post_id'], FILTER_VALIDATE_INT);
     $content = trim($_POST['comment']);
+    $parent_id = $_POST['parent_id'];
 
     if ($post_id && !empty($content)) {
         $sanitized_content = $content;
-        $stmt = $pdo->prepare("INSERT INTO comments (user_id, post_id, content, created_at) VALUES (?, ?, ?, NOW())");
-        if ($stmt->execute([$user_id, $post_id, $sanitized_content])) {
+        $stmt = $pdo->prepare("INSERT INTO comments (user_id, post_id, content, created_at, parent_id) VALUES (?, ?, ?, NOW(), ?)");
+        if ($stmt->execute([$user_id, $post_id, $sanitized_content, $parent_id])) {
             echo json_encode(['success' => true, 'message' => 'Comment added successfully']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to add comment']);
