@@ -236,10 +236,8 @@
 }
 
 .imgFloat {
-    height: 600px; /* Set your desired maximum height */
-    max-width: 100%; /* Ensures the width never exceeds the container’s width */
-    width: auto; /* Maintains aspect ratio */
-    max-height: auto; /* Maintains aspect ratio */
+    width: 100%; /* Maintains aspect ratio */
+    max-height: 100%; /* Maintains aspect ratio */
 }
 
 
