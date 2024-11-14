@@ -114,7 +114,7 @@ if ($post_id > 0) {
     $post = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($post) {
-        $content = sanitize_html(htmlspecialchars_decode($post['content']));
+        $content = sanitize_html2(htmlspecialchars_decode($post['content']));
         $pages = explode('<!-- pagebreak -->', $content);
         $total_pages = count($pages);
         $content_page = isset($pages[$page - 1]) ? $pages[$page - 1] : '';

@@ -5,7 +5,7 @@ require '../includes/sanitize.php'; // Include the sanitization function
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_SESSION['user_id']) && $_SESSION['user_role'] === 'admin') {
     $title = sanitize_html($_POST['title']);
-    $content = sanitize_html($_POST['content']);
+    $content = sanitize_html2($_POST['content']);
     $user_id = $_SESSION['user_id'];
     $thumbnail = null;
 

@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Update post
         $post_id = $_POST['post_id'];
         $title = sanitize_html($_POST['title']);
-        $content = sanitize_html($_POST['content']);
+        $content = sanitize_html2($_POST['content']);
 
         // Fetch existing thumbnail
         $existing_thumbnail_stmt = $pdo->prepare("SELECT thumbnail FROM posts WHERE id = ?");
