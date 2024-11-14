@@ -235,6 +235,11 @@
     margin-top: 10px;
 }
 
+.imgFloat {
+    width: 100%; 
+    max-width: 800px;
+}
+
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
