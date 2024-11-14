@@ -229,6 +229,12 @@
     background-color: #c82333;
 }
 
+.caption {
+    font-size: 14px;
+    color: #555;
+    margin-top: 10px;
+}
+
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
