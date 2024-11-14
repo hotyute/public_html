@@ -242,6 +242,13 @@
     height: auto !important;      /* Maintains aspect ratio */
 }
 
+.imgFloat2 {
+    max-height: 300px !important; /* Ensures the height is prioritized */
+    max-width: 100% !important;   /* Ensures the image width doesn't exceed container */
+    width: auto !important;       /* Maintains aspect ratio */
+    height: auto !important;      /* Maintains aspect ratio */
+}
+
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
