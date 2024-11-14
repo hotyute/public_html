@@ -233,8 +233,8 @@
     background-color: #f0f0f0; /* Light grey background */
     padding: 20px;
     border-radius: 8px; /* Rounded corners */
-    max-width: 800px; /* Adjust width as needed */
-    margin: 0 auto; /* Center the container */
+    display: inline-block; /* Adjust width as needed */
+    margin: 20px auto; /* Center the container */
     text-align: center;
 }
 
