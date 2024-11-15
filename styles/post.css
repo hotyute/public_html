@@ -256,7 +256,7 @@
 .imgFloat {
     max-height: 600px !important; /* Ensures the height is prioritized */
     max-width: 100% !important;   /* Ensures the image width doesn't exceed container */
-    padding-bottom: 10px;
+    padding-bottom: 10px !important;
     width: auto !important;       /* Maintains aspect ratio */
     height: auto !important;      /* Maintains aspect ratio */
     display: block;
@@ -265,7 +265,7 @@
 .imgFloat2 {
     max-height: 300px !important; /* Ensures the height is prioritized */
     max-width: 100% !important;   /* Ensures the image width doesn't exceed container */
-    padding-bottom: 10px;
+    padding-bottom: 10px !important;
     width: auto !important;       /* Maintains aspect ratio */
     height: auto !important;      /* Maintains aspect ratio */
     display: block;
