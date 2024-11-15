@@ -233,7 +233,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh; /* Ensures vertical centering */
+    /*min-height: 100vh;  Ensures vertical centering */
     text-align: center; /* Centers inline-block children horizontally */
 }
 
