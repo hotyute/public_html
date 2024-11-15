@@ -229,11 +229,20 @@
     background-color: #c82333;
 }
 
+.center-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Ensures vertical centering */
+    text-align: center; /* Centers inline-block children horizontally */
+}
+
 .image-container {
     background-color: #f0f0f0; /* Light grey background */
     padding: 20px;
     border-radius: 8px; /* Rounded corners */
     display: inline-block; /* Adjust width as needed */
+    margin: 20px auto; /* Center the container */
     text-align: center;
 }
 
