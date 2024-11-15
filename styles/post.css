@@ -257,6 +257,7 @@
     max-width: 100% !important;   /* Ensures the image width doesn't exceed container */
     width: auto !important;       /* Maintains aspect ratio */
     height: auto !important;      /* Maintains aspect ratio */
+    display: block;
 }
 
 .imgFloat2 {
@@ -264,6 +265,7 @@
     max-width: 100% !important;   /* Ensures the image width doesn't exceed container */
     width: auto !important;       /* Maintains aspect ratio */
     height: auto !important;      /* Maintains aspect ratio */
+    display: block;
 }
 
 
