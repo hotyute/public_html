@@ -239,7 +239,8 @@
 
 .image-container {
     background-color: #f0f0f0; /* Light grey background */
-    padding: 10px;
+    padding: 20px;
+    padding-bottom: 0px;
     border-radius: 8px; /* Rounded corners */
     display: inline-block; /* Adjust width as needed */
     /*margin: 20px auto; /* Center the container */
