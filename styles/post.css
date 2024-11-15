@@ -240,7 +240,7 @@
 .image-container {
     background-color: #f0f0f0; /* Light grey background */
     padding: 20px;
-    padding-bottom: 0px;
+    padding-bottom: 10px;
     border-radius: 8px; /* Rounded corners */
     display: inline-block; /* Adjust width as needed */
     /*margin: 20px auto; /* Center the container */
@@ -256,6 +256,7 @@
 .imgFloat {
     max-height: 600px !important; /* Ensures the height is prioritized */
     max-width: 100% !important;   /* Ensures the image width doesn't exceed container */
+    padding-bottom: 10px;
     width: auto !important;       /* Maintains aspect ratio */
     height: auto !important;      /* Maintains aspect ratio */
     display: block;
@@ -264,6 +265,7 @@
 .imgFloat2 {
     max-height: 300px !important; /* Ensures the height is prioritized */
     max-width: 100% !important;   /* Ensures the image width doesn't exceed container */
+    padding-bottom: 10px;
     width: auto !important;       /* Maintains aspect ratio */
     height: auto !important;      /* Maintains aspect ratio */
     display: block;
