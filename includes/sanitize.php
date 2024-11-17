@@ -42,9 +42,9 @@ function nl2br_skip($content) {
 
     // Process each line
     foreach ($lines as &$line) {
-        // Trim whitespace and check if the line ends with </li>
-        if (!preg_match('/<\/li>\s*$/', $line)) {
-            // Apply nl2br only to lines that do not end with </li>
+        // Trim whitespace and check if the line starts with <li> or ends with </li>
+        if (!preg_match('/^\s*<li>/', $line) && !preg_match('/<\/li>\s*$/', $line)) {
+            // Apply nl2br only to lines that do not start with <li> or end with </li>
             $line = nl2br($line);
         }
     }
