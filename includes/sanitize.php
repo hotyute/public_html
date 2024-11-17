@@ -35,3 +35,25 @@ function sanitize_html2($content) {
     return $purifier->purify($content);
 }
 
+// Function to apply nl2br while skipping <li> elements
+function nl2br_skip($content) {
+    // Use DOMDocument for parsing
+    $dom = new DOMDocument();
+    @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+
+    // Iterate through all text nodes
+    $xpath = new DOMXPath($dom);
+    foreach ($xpath->query('//text()') as $textNode) {
+        $parent = $textNode->parentNode;
+        if ($parent && $parent->nodeName !== 'li') {
+            // Replace newlines with <br> only for text nodes not inside <li>
+            $newContent = nl2br($textNode->nodeValue);
+            $newFragment = $dom->createDocumentFragment();
+            $newFragment->appendXML($newContent);
+            $parent->replaceChild($newFragment, $textNode);
+        }
+    }
+
+    return $dom->saveHTML();
+}
+

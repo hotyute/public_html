@@ -137,7 +137,7 @@ if ($post_id > 0) {
             echo '</div>';
         }
 
-        echo '<div class="post-content">' . nl2br($content_page) . '</div>';
+        echo '<div class="post-content">' . nl2br_skip($content_page) . '</div>';
 
         // Pagination controls
         echo '<div class="pagination" style="display: flex; justify-content: space-between; align-items: center;">';
