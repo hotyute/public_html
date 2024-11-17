@@ -36,7 +36,7 @@ function sanitize_html2($content) {
 }
 
 // Function to apply nl2br while skipping <li> elements
-function nl2br_skip_li($content) {
+function nl2br_skip($content) {
     // Use DOMDocument for parsing
     $dom = new DOMDocument();
     @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
