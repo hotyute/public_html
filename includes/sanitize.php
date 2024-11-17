@@ -36,7 +36,7 @@ function sanitize_html2($content) {
 }
 
 // Function to apply nl2br while skipping <li> elements
-function nl2br_skip_li_lines($content) {
+function nl2br_skip($content) {
     // Split the content into individual lines
     $lines = explode("\n", $content);
 
