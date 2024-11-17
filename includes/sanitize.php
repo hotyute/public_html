@@ -36,23 +36,24 @@ function sanitize_html2($content) {
 }
 
 // Function to apply nl2br while skipping <li> elements
-function nl2br_skip($content) {
+function nl2br_skip_li($content) {
     // Use DOMDocument for parsing
     $dom = new DOMDocument();
     @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
-    // Use XPath to locate all text nodes not within <li>
+    // XPath to select all text nodes NOT inside <li> tags
     $xpath = new DOMXPath($dom);
 
-    // Process text nodes outside <li>
+    // Select all text nodes outside of <li>
     foreach ($xpath->query('//text()[not(ancestor::li)]') as $textNode) {
-        $newContent = nl2br($textNode->nodeValue); // Convert newlines to <br>
+        // Apply nl2br to these text nodes only
+        $newContent = nl2br($textNode->nodeValue);
         $newFragment = $dom->createDocumentFragment();
         $newFragment->appendXML($newContent);
         $textNode->parentNode->replaceChild($newFragment, $textNode);
     }
 
-    // Skip processing for <li> elements entirely
+    // Return the modified HTML
     return $dom->saveHTML();
 }
 
