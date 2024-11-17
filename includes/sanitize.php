@@ -41,19 +41,18 @@ function nl2br_skip($content) {
     $dom = new DOMDocument();
     @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
-    // Iterate through all text nodes
+    // Use XPath to locate all text nodes not within <li>
     $xpath = new DOMXPath($dom);
-    foreach ($xpath->query('//text()') as $textNode) {
-        $parent = $textNode->parentNode;
-        if ($parent && $parent->nodeName !== 'li') {
-            // Replace newlines with <br> only for text nodes not inside <li>
-            $newContent = nl2br($textNode->nodeValue);
-            $newFragment = $dom->createDocumentFragment();
-            $newFragment->appendXML($newContent);
-            $parent->replaceChild($newFragment, $textNode);
-        }
+
+    // Process text nodes outside <li>
+    foreach ($xpath->query('//text()[not(ancestor::li)]') as $textNode) {
+        $newContent = nl2br($textNode->nodeValue); // Convert newlines to <br>
+        $newFragment = $dom->createDocumentFragment();
+        $newFragment->appendXML($newContent);
+        $textNode->parentNode->replaceChild($newFragment, $textNode);
     }
 
+    // Skip processing for <li> elements entirely
     return $dom->saveHTML();
 }
 
