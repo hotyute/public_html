@@ -36,18 +36,26 @@ function sanitize_html2($content) {
 }
 
 // Function to apply nl2br while skipping <li> elements
-function nl2br_skip($content) {
+function nl2br_skip_li_lines($content) {
     // Split the content into individual lines
     $lines = explode("\n", $content);
 
     // Process each line
     foreach ($lines as &$line) {
-        // Trim whitespace and check if the line starts with <li> or ends with </li>
-        if ((!preg_match('/^\s*<li>/', $line) && !preg_match('/<\/li>\s*$/', $line)) ||
-        !preg_match('/^\s*<ul>/', $line) || !preg_match('/<\/ul>\s*$/', $line)) {
-            // Apply nl2br only to lines that do not start with <li> or end with </li>
-            $line = nl2br($line);
+        // Trim whitespace for accurate checks
+        $trimmedLine = trim($line);
+
+        // Check if the line meets any of the skip conditions
+        if ((preg_match('/^<li>/', $trimmedLine) && preg_match('/<\/li>$/', $trimmedLine)) || // Starts AND ends with <li>...</li>
+            preg_match('/^<ul>/', $trimmedLine) ||                                            // Starts with <ul>
+            preg_match('/<\/ul>$/', $trimmedLine)                                            // Ends with </ul>
+        ) {
+            // Skip nl2br for this line
+            continue;
         }
+
+        // Apply nl2br to all other lines
+        $line = nl2br($line);
     }
 
     // Reassemble the content
