@@ -37,27 +37,19 @@ function sanitize_html2($content) {
 
 // Function to apply nl2br while skipping <li> elements
 function nl2br_skip($content) {
-    // Use DOMDocument for parsing
-    $dom = new DOMDocument();
-    @$dom->loadHTML('<?xml encoding="utf-8" ?>' . $content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+    // Split the content into individual lines
+    $lines = explode("\n", $content);
 
-    // XPath to select all text nodes outside of <li> elements
-    $xpath = new DOMXPath($dom);
-
-    // Iterate through all text nodes outside <li>
-    foreach ($xpath->query('//text()[not(ancestor::li)]') as $textNode) {
-        $parent = $textNode->parentNode;
-
-        // Replace newlines with <br> for these text nodes
-        $newContent = htmlspecialchars(nl2br($textNode->nodeValue));
-        $newFragment = $dom->createDocumentFragment();
-        $newFragment->appendXML($newContent);
-
-        // Replace the original text node with the processed content
-        $parent->replaceChild($newFragment, $textNode);
+    // Process each line
+    foreach ($lines as &$line) {
+        // Trim whitespace and check if the line ends with </li>
+        if (!preg_match('/<\/li>\s*$/', $line)) {
+            // Apply nl2br only to lines that do not end with </li>
+            $line = nl2br($line);
+        }
     }
 
-    // Save and return the processed HTML, leaving <li> untouched
-    return $dom->saveHTML();
+    // Reassemble the content
+    return implode("\n", $lines);
 }
 
