@@ -68,7 +68,7 @@ function truncateContent($content, $limit = 100) {
                       LEFT JOIN comments ON posts.id = comments.post_id
                       GROUP BY posts.id
                       ORDER BY posts.id DESC
-                      LIMIT 6";
+                      LIMIT 30";
                 $posts = $pdo->query($query);
                 while ($post = $posts->fetch(PDO::FETCH_ASSOC)) {
                     $userClass = getUserClass($post['user_role']);

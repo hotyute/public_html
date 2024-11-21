@@ -1,25 +1,39 @@
-/* preview-styles.css */
-/* Container Styling */
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 columns layout */
-    gap: 20px; /* Space between grid items */
-    margin: 20px; /* Adds margin around the grid */
+/* Slider Container */
+.slider-container {
+    position: relative;
+    width: 100%;
+    margin: 20px 0;
 }
 
-/* Individual Post Preview Styling */
+/* Slider Viewport */
+.slider {
+    overflow: hidden;
+    width: 100%;
+}
+
+/* Slider Track */
+.slider-track {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+/* Individual Post Preview Styling (Adjust if Necessary) */
 .post-preview {
+    min-width: 300px; /* Adjust based on desired number of posts visible */
+    margin: 0 10px;
+    box-sizing: border-box;
     background: #fff;
     border: 1px solid #ccc;
-    padding: 20px; /* Increased padding for better visual spacing */
-    border-radius: 10px; /* Rounded corners for a softer look */
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow for depth */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions for hover effects */
+    padding: 20px; /* Maintain existing padding */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    flex-shrink: 0;
 }
 
 .post-preview:hover {
-    transform: translateY(-5px); /* Slight raise effect on hover */
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15); /* Enhanced shadow on hover for a 'lifting' effect */
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
 
 .post-preview p {
@@ -34,28 +48,57 @@
     border-radius: 8px; /* Rounded corners for images */
 }
 
-.post-preview .admin-owner {
-    color: rgb(180, 2, 2) !important; /* Red color for owners and admins */
+/* Slider Navigation Buttons */
+.slider-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0,0,0,0.5);
+    border: none;
+    color: white;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 1;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
 }
 
-.post-preview .editor-user {
-    color: #cd8d01 !important; /* Color for editors */
+.prev-button {
+    left: 10px;
 }
 
-.post-preview .regular-user {
-    color: #007BFF !important; /* Color for regular users */
+.next-button {
+    right: 10px;
+}
+
+.slider-button:hover {
+    background-color: rgba(0,0,0,0.8);
+}
+
+.slider-button:disabled {
+    background-color: rgba(0,0,0,0.3);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Responsive Design */
+@media only screen and (max-width: 1024px) {
+    .post-preview {
+        min-width: calc((100% - 40px) / 4); /* 4 posts per view */
+    }
 }
 
 @media only screen and (max-width: 768px) {
-
-    .grid-container {
-        grid-template-columns: repeat(2, 1fr); /* 2 columns for tablets */
+    .slider-container {
+        margin: 10px 0;
     }
-
+    .post-preview {
+        min-width: calc((100% - 40px) / 3); /* 3 posts per view */
+    }
 }
 
 @media only screen and (max-width: 480px) {
-    .grid-container {
-        grid-template-columns: 1fr; /* 1 column for mobile phones */
+    .post-preview {
+        min-width: calc((100% - 20px) / 2); /* 2 posts per view */
     }
 }
