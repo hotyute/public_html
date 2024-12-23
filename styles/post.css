@@ -33,13 +33,17 @@
 }
 
 .post-container img {
-    max-width: 256px;
+    width: 100%;
+    height: 100%;
+    max-width: none; /* Prevent default resizing */
+    object-fit: cover; /* Ensures the image covers the container fully */
+    object-position: center; /* Centers the image */
     width: 256px; /* Set the container's fixed width */
     height: 256px; /* Set the container's fixed height */
-    height: auto;
     margin: auto;
     padding-bottom: 20px;
     display: block;
+    overflow: hidden; /* Ensures content outside the box is clipped */
 }
 
 /* Pagination Styling */
