@@ -138,7 +138,7 @@ if ($post_id > 0) {
         }
 
         // Pagination controls
-        echo '<div class="pagination1" style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">';
+        echo '<div class="pagination" style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">';
         if ($page > 1) {
             echo '<a href="post.php?id=' . $post_id . '&page=' . ($page - 1) . '">Previous</a>';
         } else {
@@ -153,7 +153,7 @@ if ($post_id > 0) {
         echo '<div class="post-content">' . nl2br_skip($content_page) . '</div>';
 
         // Pagination controls
-        echo '<div class="pagination2" style="display: flex; justify-content: space-between; align-items: center;">';
+        echo '<div class="pagination" style="display: flex; justify-content: space-between; align-items: center;">';
         if ($page > 1) {
             echo '<a href="post.php?id=' . $post_id . '&page=' . ($page - 1) . '">Previous</a>';
         } else {
