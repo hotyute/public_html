@@ -35,6 +35,7 @@
     height: 256px; /* Set the container's fixed height */
     height: auto;
     margin-bottom: 20px;
+    overflow: hidden; /* Ensures content outside the box is clipped */
 }
 
 .post-container img {
