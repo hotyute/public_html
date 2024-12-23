@@ -34,6 +34,8 @@
 
 .post-container img {
     max-width: 256px;
+    width: 256px; /* Set the container's fixed width */
+    height: 256px; /* Set the container's fixed height */
     height: auto;
     margin: auto;
     padding-bottom: 20px;
