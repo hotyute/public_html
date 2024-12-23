@@ -138,7 +138,7 @@ if ($post_id > 0) {
         }
 
         // Pagination controls
-        echo '<div class="pagination" style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">';
+        echo '<div class="pagination" style="display: flex; justify-content: space-between; align-items: center; padding: 35px 0;">';
         if ($page > 1) {
             echo '<a href="post.php?id=' . $post_id . '&page=' . ($page - 1) . '">Previous</a>';
         } else {
