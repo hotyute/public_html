@@ -29,13 +29,7 @@
 
 /* Image Styling within Post Previews */
 .post-preview img {
-    width: 100%;
-    height: 100%;
-    max-width: none; /* Prevent default resizing */
-    object-fit: cover; /* Ensures the image covers the container fully */
-    object-position: center; /* Centers the image */
-    width: 256px; /* Set the container's fixed width */
-    height: 256px; /* Set the container's fixed height */
+    width: 100%; /* Ensures image takes full width of the container */
     height: auto; /* Maintains the aspect ratio */
     border-radius: 8px; /* Rounded corners for images */
 }
