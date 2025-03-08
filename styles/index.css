@@ -43,11 +43,11 @@
 }
 
 .carousel-button.prev {
-    left: 10px;
+    left: 20px;
 }
 
 .carousel-button.next {
-    right: 10px;
+    right: 20px;
 }
 
 /* Individual Post Preview Styling */
