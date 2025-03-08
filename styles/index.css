@@ -3,6 +3,7 @@
 /* Carousel Container Styling */
 .carousel-container {
     position: relative;
+    /* Keep overflow: hidden so the slides don't show off to the side */
     overflow: hidden;
     margin: 20px;
 }
@@ -30,12 +31,15 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background-color: rgba(255,255,255,0.8);
+    background-color: rgba(255,255,255,0.9);
     border: none;
-    font-size: 2rem;
-    padding: 10px;
+    font-size: 1.8rem;
+    padding: 8px;
     cursor: pointer;
     z-index: 1000;
+    border-radius: 50%;
+    /* optional: add a slight box-shadow so they stand out */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .carousel-button.prev {
