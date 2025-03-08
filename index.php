@@ -60,32 +60,49 @@ function truncateContent($content, $limit = 100) {
             <h2>Welcome to Our Community</h2>
             <p>This is the home of our Christian community where we share insights, teachings, and fellowship together.</p>
             <hr>
-            <div class="grid-container">
-                <?php
-                require 'includes/database.php';
-                $query = "SELECT posts.id, posts.title, posts.thumbnail, posts.content, users.displayname AS author, users.role AS user_role, COUNT(comments.id) AS comment_count FROM posts
-                      JOIN users ON posts.user_id = users.id
-                      LEFT JOIN comments ON posts.id = comments.post_id
-                      GROUP BY posts.id
-                      ORDER BY posts.id DESC
-                      LIMIT 6";
-                $posts = $pdo->query($query);
-                while ($post = $posts->fetch(PDO::FETCH_ASSOC)) {
-                    $userClass = getUserClass($post['user_role']);
-                    echo '<div class="post-preview">';
-                    echo '<a href="post.php?id=' . $post['id'] . '" style="text-decoration: none; color: black;">';
-                    if ($post['thumbnail']) {
-                        echo '<img src="' . $post['thumbnail'] . '" alt="Post thumbnail" class="post-thumbnail">';
-                    }
-                    echo '<h3>' . htmlspecialchars_decode($post['title']) . '</h3>';
-                    echo '<p>By <span class="' . $userClass . '">' . htmlspecialchars_decode($post['author']) . '</span></p>';
-                    $truncatedContent = truncateContent(htmlspecialchars_decode($post['content']), 100); // Adjust character limit as needed
-                    echo '<div class="content-preview" data-content="' . $truncatedContent . '"></div>';
-                    echo '<p class="comment-count">' . $post['comment_count'] . ' Comments</p>';
-                    echo '</a>';
-                    echo '</div>';
-                }
-                ?>
+            <div class="carousel-container">
+                <button class="carousel-button prev" onclick="prevSlide()">&#10094;</button>
+                <div class="carousel">
+                    <div class="carousel-slides">
+                        <?php
+                        require 'includes/database.php';
+                        // Removed LIMIT clause to fetch all posts
+                        $query = "SELECT posts.id, posts.title, posts.thumbnail, posts.content, users.displayname AS author, users.role AS user_role, COUNT(comments.id) AS comment_count FROM posts
+                                  JOIN users ON posts.user_id = users.id
+                                  LEFT JOIN comments ON posts.id = comments.post_id
+                                  GROUP BY posts.id
+                                  ORDER BY posts.id DESC";
+                        $posts = $pdo->query($query);
+                        $count = 0;
+                        while ($post = $posts->fetch(PDO::FETCH_ASSOC)) {
+                            if ($count % 6 == 0) {
+                                if ($count > 0) {
+                                    echo '</div>'; // Close previous slide
+                                }
+                                echo '<div class="carousel-slide">'; // Start new slide
+                            }
+                            $userClass = getUserClass($post['user_role']);
+                            echo '<div class="post-preview">';
+                            echo '<a href="post.php?id=' . $post['id'] . '" style="text-decoration: none; color: black;">';
+                            if ($post['thumbnail']) {
+                                echo '<img src="' . $post['thumbnail'] . '" alt="Post thumbnail" class="post-thumbnail">';
+                            }
+                            echo '<h3>' . htmlspecialchars_decode($post['title']) . '</h3>';
+                            echo '<p>By <span class="' . $userClass . '">' . htmlspecialchars_decode($post['author']) . '</span></p>';
+                            $truncatedContent = truncateContent(htmlspecialchars_decode($post['content']), 100);
+                            echo '<div class="content-preview" data-content="' . $truncatedContent . '"></div>';
+                            echo '<p class="comment-count">' . $post['comment_count'] . ' Comments</p>';
+                            echo '</a>';
+                            echo '</div>';
+                            $count++;
+                        }
+                        if ($count > 0) {
+                            echo '</div>'; // Close last slide
+                        }
+                        ?>
+                    </div>
+                </div>
+                <button class="carousel-button next" onclick="nextSlide()">&#10095;</button>
             </div>
             <hr>
             <?php
@@ -136,7 +153,32 @@ function truncateContent($content, $limit = 100) {
         </ul>
         <a href="magazines/all_issues.php" class="view-all">VIEW ALL</a>
     </aside>
-
 </div>
+
+<script>
+let currentSlide = 0;
+const slides = document.querySelectorAll('.carousel-slide');
+
+function showSlide(index) {
+    const totalSlides = slides.length;
+    if (index < 0) {
+        currentSlide = totalSlides - 1;
+    } else if (index >= totalSlides) {
+        currentSlide = 0;
+    } else {
+        currentSlide = index;
+    }
+    const carouselSlides = document.querySelector('.carousel-slides');
+    carouselSlides.style.transform = 'translateX(' + (-currentSlide * 100) + '%)';
+}
+
+function nextSlide() {
+    showSlide(currentSlide + 1);
+}
+
+function prevSlide() {
+    showSlide(currentSlide - 1);
+}
+</script>
 
 <?php include 'footer.php'; ?>
