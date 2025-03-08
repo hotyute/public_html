@@ -60,51 +60,44 @@ function truncateContent($content, $limit = 100) {
             <h2>Welcome to Our Community</h2>
             <p>This is the home of our Christian community where we share insights, teachings, and fellowship together.</p>
             <hr>
-            
-            <!-- Scrollable posts container -->
-            <div class="scroll-container">
-                <button class="scroll-btn left">&lt;</button>
-                <div class="grid-container">
-                    <?php
-                    require 'includes/database.php';
-                    // Removed LIMIT to load all posts (or adjust as needed)
-                    $query = "SELECT posts.id, posts.title, posts.thumbnail, posts.content, 
-                              users.displayname AS author, users.role AS user_role, 
-                              COUNT(comments.id) AS comment_count 
-                              FROM posts
-                              JOIN users ON posts.user_id = users.id
-                              LEFT JOIN comments ON posts.id = comments.post_id
-                              GROUP BY posts.id
-                              ORDER BY posts.id DESC";
-                    $posts = $pdo->query($query);
-                    while ($post = $posts->fetch(PDO::FETCH_ASSOC)) {
-                        $userClass = getUserClass($post['user_role']);
-                        echo '<div class="post-preview">';
-                        echo '<a href="post.php?id=' . $post['id'] . '" style="text-decoration: none; color: black;">';
-                        if ($post['thumbnail']) {
-                            echo '<img src="' . $post['thumbnail'] . '" alt="Post thumbnail" class="post-thumbnail">';
-                        }
-                        echo '<h3>' . htmlspecialchars_decode($post['title']) . '</h3>';
-                        echo '<p>By <span class="' . $userClass . '">' . htmlspecialchars_decode($post['author']) . '</span></p>';
-                        $truncatedContent = truncateContent(htmlspecialchars_decode($post['content']), 100);
-                        echo '<div class="content-preview" data-content="' . $truncatedContent . '"></div>';
-                        echo '<p class="comment-count">' . $post['comment_count'] . ' Comments</p>';
-                        echo '</a>';
-                        echo '</div>';
+            <div class="grid-container">
+                <?php
+                require 'includes/database.php';
+                $query = "SELECT posts.id, posts.title, posts.thumbnail, posts.content, users.displayname AS author, users.role AS user_role, COUNT(comments.id) AS comment_count FROM posts
+                      JOIN users ON posts.user_id = users.id
+                      LEFT JOIN comments ON posts.id = comments.post_id
+                      GROUP BY posts.id
+                      ORDER BY posts.id DESC
+                      LIMIT 6";
+                $posts = $pdo->query($query);
+                while ($post = $posts->fetch(PDO::FETCH_ASSOC)) {
+                    $userClass = getUserClass($post['user_role']);
+                    echo '<div class="post-preview">';
+                    echo '<a href="post.php?id=' . $post['id'] . '" style="text-decoration: none; color: black;">';
+                    if ($post['thumbnail']) {
+                        echo '<img src="' . $post['thumbnail'] . '" alt="Post thumbnail" class="post-thumbnail">';
                     }
-                    ?>
-                </div>
-                <button class="scroll-btn right">&gt;</button>
+                    echo '<h3>' . htmlspecialchars_decode($post['title']) . '</h3>';
+                    echo '<p>By <span class="' . $userClass . '">' . htmlspecialchars_decode($post['author']) . '</span></p>';
+                    $truncatedContent = truncateContent(htmlspecialchars_decode($post['content']), 100); // Adjust character limit as needed
+                    echo '<div class="content-preview" data-content="' . $truncatedContent . '"></div>';
+                    echo '<p class="comment-count">' . $post['comment_count'] . ' Comments</p>';
+                    echo '</a>';
+                    echo '</div>';
+                }
+                ?>
             </div>
             <hr>
             <?php
-            // Featured video code remains the same
+            // Fetch the video link from a text file (or database)
             $video_link = '';
             $video_file = 'includes/featured_video.txt';
             if (file_exists($video_file)) {
                 $video_link = trim(file_get_contents($video_file));
             }
             ?>
+
+            <!-- Featured Video of the Week -->
             <div class="featured-video">
                 <h2>Featured Video of the Week</h2>
                 <?php if (!empty($video_link)) : ?>
@@ -120,11 +113,12 @@ function truncateContent($content, $limit = 100) {
         <h4><?php echo htmlspecialchars($issue); ?></h4>
         <ul>
             <?php
-            // Sidebar articles code remains unchanged
+            // Fetch and display the latest articles for the current issue
             $stmt = $pdo->prepare("SELECT title, author, image_url, article_url FROM magazine_articles WHERE issue = :issue ORDER BY id DESC LIMIT 3");
             $stmt->bindParam(':issue', $issue);
             $stmt->execute();
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
             if (count($results) > 0) :
                 foreach ($results as $row) :
             ?>
@@ -133,35 +127,16 @@ function truncateContent($content, $limit = 100) {
                         <a href="<?php echo htmlspecialchars($row['article_url']); ?>"><?php echo htmlspecialchars($row['title']); ?></a><br>
                         <small><?php echo htmlspecialchars($row['author']); ?></small>
                     </li>
-                <?php endforeach; ?>
-            <?php else : ?>
+                <?php
+                endforeach;
+            else :
+                ?>
                 <li>No articles available for this issue.</li>
             <?php endif; ?>
         </ul>
         <a href="magazines/all_issues.php" class="view-all">VIEW ALL</a>
     </aside>
+
 </div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const gridContainer = document.querySelector('.grid-container');
-    const btnLeft = document.querySelector('.scroll-btn.left');
-    const btnRight = document.querySelector('.scroll-btn.right');
-
-    btnLeft.addEventListener('click', () => {
-      gridContainer.scrollBy({
-        left: -gridContainer.clientWidth,
-        behavior: 'smooth'
-      });
-    });
-
-    btnRight.addEventListener('click', () => {
-      gridContainer.scrollBy({
-        left: gridContainer.clientWidth,
-        behavior: 'smooth'
-      });
-    });
-  });
-</script>
 
 <?php include 'footer.php'; ?>
