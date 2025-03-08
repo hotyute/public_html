@@ -1,19 +1,26 @@
 /* preview-styles.css */
 
-/* Scroll Container for horizontal scrolling */
+/* Outer container for horizontal scrolling */
 .scroll-container {
     position: relative;
+    overflow: hidden; /* Hide overflow to clip pages outside viewport */
     margin: 20px;
-    overflow: hidden; /* Hides overflow to clip content outside viewport */
   }
   
-  /* Flex Container Styling for Posts */
-  .grid-container {
+  /* Carousel that holds each page (each page is one full view) */
+  .carousel {
     display: flex;
-    flex-wrap: nowrap; /* Prevent wrapping so posts scroll horizontally */
-    gap: 20px; /* Space between posts */
-    padding: 10px 40px; /* Extra horizontal padding for navigation buttons */
-    scroll-behavior: smooth; /* Smooth scrolling on button clicks */
+    scroll-behavior: smooth;
+  }
+  
+  /* Each page displays 6 posts in a 2-row, 3-column grid */
+  .page {
+    min-width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, auto);
+    gap: 20px;
+    padding: 10px 40px; /* Extra space for navigation buttons if needed */
   }
   
   /* Individual Post Preview Styling */
@@ -22,15 +29,13 @@
     border: 1px solid #ccc;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    /* Calculate width to show 6 posts at once, subtracting the gap space */
-    flex: 0 0 calc((100% - 5 * 20px) / 6);
   }
   
   .post-preview:hover {
     transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   }
   
   .post-preview p {
@@ -38,14 +43,14 @@
     font-size: 14px;
   }
   
-  /* Image Styling within Post Previews */
+  /* Image styling within post previews */
   .post-preview img {
     width: 100%;
     height: auto;
     border-radius: 8px;
   }
   
-  /* User role styling */
+  /* User role-specific styling */
   .post-preview .admin-owner {
     color: rgb(180, 2, 2) !important;
   }
@@ -63,7 +68,7 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0, 0, 0, 0.5);
     color: #fff;
     border: none;
     padding: 10px;
@@ -81,16 +86,17 @@
   
   /* Responsive Adjustments */
   @media only screen and (max-width: 768px) {
-    /* For tablets, show fewer posts (e.g., 3 per view) */
-    .post-preview {
-      flex: 0 0 calc((100% - 2 * 20px) / 3);
+    /* For tablets, show 2 columns per row */
+    .page {
+      grid-template-columns: repeat(2, 1fr);
+      /* This may result in 3 rows per page if you have 6 posts per page */
     }
   }
   
   @media only screen and (max-width: 480px) {
-    /* For mobile, show one post at a time */
-    .post-preview {
-      flex: 0 0 100%;
+    /* For mobile, show 1 column per row */
+    .page {
+      grid-template-columns: 1fr;
     }
   }
   
