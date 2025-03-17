@@ -16,7 +16,7 @@
 <?php if ($current_page == 'post') : ?>
     <link rel="stylesheet" type="text/css" href="/styles/post.css">
 <?php endif; ?>
-<?php if ($current_page == 'roster') : ?>
+<?php if ($current_page == 'members') : ?>
     <link rel="stylesheet" type="text/css" href="/styles/roster.css">
 <?php endif; ?>
 <?php if ($current_page == 'contact') : ?>

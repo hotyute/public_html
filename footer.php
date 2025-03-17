@@ -54,7 +54,7 @@ $footerLinks = [
 <?php if ($current_page == 'manage_users') : ?>
     <script src="/js/manage_users.js"></script>
 <?php endif; ?>
-<?php if ($current_page == 'roster') : ?>
+<?php if ($current_page == 'members') : ?>
     <script src="/js/roster.js"></script>
 <?php endif; ?>
 <?php if ($current_page == 'post') : ?>
