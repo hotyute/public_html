@@ -132,7 +132,7 @@ if (isset($_GET['logout'])) {
                 <?php if (isset($_SESSION['user_id']) && in_array($_SESSION['user_role'], ['admin', 'editor', 'member'])) : ?>
                     <li><a href='/userportal/user_portal.php'>User Portal</a></li>
                 <?php endif; ?>
-                <li><a href='/roster.php'>Members</a></li>
+                <li><a href='/members.php'>Members</a></li>
                 <li><a href='/contact.php'>Contact Us</a></li>
                 <li><a href='/about.php'>About</a></li>
             </ul>
