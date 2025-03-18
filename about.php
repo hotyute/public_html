@@ -28,11 +28,11 @@
                 <h3>Testimonials</h3>
                 <div class="testimonial-slider">
                     <div class="testimonial">
-                        <p>"This community has truly changed my life. The love and support in truth I've received here is incredible."</p>
+                        <p>"This website has truly changed my life. The knowledge in the truth I've received here is incredible."</p>
                         <p>- Sarah K.</p>
                     </div>
                     <div class="testimonial">
-                        <p>"A wonderful place to grow in faith and connect with others who are seeking the truth."</p>
+                        <p>"A wonderful place to grow in faith and connect with God as well as the truth."</p>
                         <p>- Michael B.</p>
                     </div>
                     <div class="testimonial">
