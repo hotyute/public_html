@@ -1,10 +1,4 @@
-<?php include 'header.php';
-
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-
-?>
+<?php include 'header.php'; ?>
 
 <div class="main-container">
     <main>
