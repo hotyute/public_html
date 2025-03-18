@@ -25,7 +25,7 @@ try {
             $stmt->execute([$test_id]);
             echo "Test deleted successfully!";
         } elseif (isset($_POST['add_question'])) {
-            $test_id = "[" + $_POST['test_id'] + "]";
+            $test_id = $_POST['test_id'];
             $question = $_POST['question'];
             $options = $_POST['options'];
             $correct_option = $_POST['correct_option'];
@@ -33,7 +33,7 @@ try {
             $option_struct = str_repeat('s', $num_options); // Dynamic option structure
             $options_json = json_encode($options);
 
-            $stmt = $pdo->prepare("INSERT INTO questions (question, num_options, option_struct, options, correct_option, test_ids) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO questions (question, num_options, option_struct, options, correct_option, test_ids) VALUES (?, ?, ?, ?, ?, JSON_ARRAY(?))");
             $stmt->execute([$question, $num_options, $option_struct, $options_json, $correct_option, $test_id]);
 
             echo "Question added successfully!";
