@@ -25,7 +25,8 @@ try {
             $stmt->execute([$test_id]);
             echo "Test deleted successfully!";
         } elseif (isset($_POST['add_question'])) {
-            $test_id = (int) $_POST['test_id'];
+            $test_id = $_POST['test_id'];
+            $test_id = (int) $test_id;
             $question = $_POST['question'];
             $options = $_POST['options'];
             $correct_option = $_POST['correct_option'];
