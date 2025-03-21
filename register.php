@@ -49,13 +49,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <?php endif; ?>
     <form method="POST" action="register.php">
         <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required><br>
-        <label for="displayname">Full Name:</label>
-        <input type="text" id="displayname" name="displayname" required><br>
-        <label for="email">Email:</label> <!-- New Email field -->
+        <input type="text" id="username" name="username" placeholder="Your desired username" required><br>
+
+        <label for="displayname">Full Name (First &amp; Last Name):</label>
+        <input type="text" id="displayname" name="displayname" placeholder="John Smith" required>
+        <small>Please enter your first and last name.</small><br>
+
+        <label for="email">Email:</label>
         <input type="email" id="email" name="email" required><br>
+
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required><br>
+
         <button type="submit">Register</button>
     </form>
 </div>
