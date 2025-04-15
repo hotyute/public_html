@@ -1,0 +1,6 @@
+.fourzerofour-container {
+    display: flex;
+    justify-content: center; /* Center the content horizontally */
+    max-width: 90%; /* Limit the maximum width for larger screens */
+    margin: 0 auto; /* Center the entire container */
+}
