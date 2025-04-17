@@ -57,8 +57,8 @@ function truncateContent($content, $limit = 100) {
 <div class="main-container">
     <main>
         <section>
-            <h2>Welcome to Our Community</h2>
-            <p>This is the home of our Christian community where we share insights, teachings, and fellowship together.</p>
+            <h2>Welcome to the DivineWord Community</h2>
+            <p>This is the home of the Christian community, part of the little flock, where we share insights, teachings, and fellowship together.</p>
             <hr>
             <div class="carousel-container">
                 <button class="carousel-button prev" onclick="prevSlide()">&#10094;</button>
