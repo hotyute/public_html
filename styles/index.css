@@ -54,7 +54,7 @@
 .post-preview {
     background: #fff;
     border: 1px solid #ccc;
-    height: 650px;
+    height: 600px;
     padding: 20px; /* Increased padding for better visual spacing */
     border-radius: 10px; /* Rounded corners for a softer look */
     box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow for depth */
