@@ -4,7 +4,8 @@
 // Database connection, function, and setup code
 
 // Function to determine the current issue based on the current date
-function getCurrentIssue() {
+function getCurrentIssue()
+{
     $month = date('n');  // Current month as a number (1-12)
     $year = date('Y');   // Current year
 
@@ -32,7 +33,8 @@ function getCurrentIssue() {
     }
 }
 
-function getUserClass($user_role) {
+function getUserClass($user_role)
+{
     switch ($user_role) {
         case 'admin':
         case 'owner':
@@ -48,7 +50,8 @@ function getUserClass($user_role) {
 $issue = getCurrentIssue();
 
 // Truncate content function for limiting post content preview length
-function truncateContent($content, $limit = 100) {
+function truncateContent($content, $limit = 100)
+{
     $content = strip_tags($content); // Remove HTML tags
     return strlen($content) > $limit ? substr($content, 0, $limit) . '...' : $content;
 }
@@ -61,7 +64,11 @@ function truncateContent($content, $limit = 100) {
             <p>This is the home of the Christian community, part of the little flock, where we share insights, teachings, and fellowship together.</p>
             <hr>
             <div class="carousel-container">
-                <button class="carousel-button prev" onclick="prevSlide()">&#10094;</button>
+                <button class="carousel-button prev" onclick="prevSlide()">
+                    <svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true">
+                        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+                    </svg>
+                </button>
                 <div class="carousel">
                     <div class="carousel-slides">
                         <?php
@@ -102,7 +109,11 @@ function truncateContent($content, $limit = 100) {
                         ?>
                     </div>
                 </div>
-                <button class="carousel-button next" onclick="nextSlide()">&#10095;</button>
+                <button class="carousel-button next" aria-label="Next slide" onclick="nextSlide()">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z" />
+                    </svg>
+                </button>
             </div>
             <hr>
             <?php
@@ -156,29 +167,29 @@ function truncateContent($content, $limit = 100) {
 </div>
 
 <script>
-let currentSlide = 0;
-const slides = document.querySelectorAll('.carousel-slide');
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.carousel-slide');
 
-function showSlide(index) {
-    const totalSlides = slides.length;
-    if (index < 0) {
-        currentSlide = totalSlides - 1;
-    } else if (index >= totalSlides) {
-        currentSlide = 0;
-    } else {
-        currentSlide = index;
+    function showSlide(index) {
+        const totalSlides = slides.length;
+        if (index < 0) {
+            currentSlide = totalSlides - 1;
+        } else if (index >= totalSlides) {
+            currentSlide = 0;
+        } else {
+            currentSlide = index;
+        }
+        const carouselSlides = document.querySelector('.carousel-slides');
+        carouselSlides.style.transform = 'translateX(' + (-currentSlide * 100) + '%)';
     }
-    const carouselSlides = document.querySelector('.carousel-slides');
-    carouselSlides.style.transform = 'translateX(' + (-currentSlide * 100) + '%)';
-}
 
-function nextSlide() {
-    showSlide(currentSlide + 1);
-}
+    function nextSlide() {
+        showSlide(currentSlide + 1);
+    }
 
-function prevSlide() {
-    showSlide(currentSlide - 1);
-}
+    function prevSlide() {
+        showSlide(currentSlide - 1);
+    }
 </script>
 
 <?php include 'footer.php'; ?>

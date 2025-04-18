@@ -1,5 +1,14 @@
 /* preview-styles.css */
 
+:root {
+    /* you can override these in your theme or per-component */
+    --carousel-btn-bg: rgba(255,255,255,0.9);
+    --carousel-btn-size: 48px;
+    --carousel-btn-icon-color: #333;
+    --carousel-btn-hover-scale: 1.2;
+    --carousel-btn-transition: 0.3s ease;
+  }
+
 /* Carousel Container Styling */
 .carousel-container {
     position: relative;
@@ -25,31 +34,56 @@
     gap: 20px;
     padding: 20px;
 }
-
-/* Navigation Buttons */
-.carousel-button {
+  
+  /* Base button */
+  .carousel-button {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 48px; height: 48px;
-    background: #e0e0e0;
+    width: var(--carousel-btn-size);
+    height: var(--carousel-btn-size);
+    background: var(--carousel-btn-bg);
+    border: none;
     border-radius: 50%;
-    box-shadow:
-      6px 6px 12px rgba(0,0,0,0.1),
-     -6px -6px 12px rgba(255,255,255,0.7);
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: transform var(--carousel-btn-transition),
+                background var(--carousel-btn-transition),
+                box-shadow var(--carousel-btn-transition);
+    z-index: 1000;
   }
-  .carousel-button:active {
-    box-shadow:
-      inset 4px 4px 8px rgba(0,0,0,0.1),
-      inset -4px -4px 8px rgba(255,255,255,0.7);
-  }
+  
+  /* Positioning */
+  .carousel-button.prev { left: 1rem; }
+  .carousel-button.next { right: 1rem; }
+  
+  /* Icon styling */
   .carousel-button svg {
-    fill: #555;
+    width: 60%;
+    height: 60%;
   }
+  .carousel-button path {
+    fill: var(--carousel-btn-icon-color);
+    transition: fill var(--carousel-btn-transition),
+                transform var(--carousel-btn-transition);
+  }
+  
+  /* Hover & focus */
+  .carousel-button:hover,
+  .carousel-button:focus {
+    background: rgba(255,255,255,1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    outline: none;
+  }
+  .carousel-button:hover path,
+  .carousel-button:focus path {
+    transform: scale(var(--carousel-btn-hover-scale));
+    fill: #000;
+  }
+  
   
   
 
