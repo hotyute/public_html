@@ -31,16 +31,21 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background-color: rgba(255,255,255,0.9);
-    border: none;
-    font-size: 2rem;
-    padding: 10px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 24px;
     cursor: pointer;
-    z-index: 1000;
-    border-radius: 50%;
-    /* optional: add a slight box-shadow so they stand out */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
+    box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .carousel-button:hover {
+    background: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+  }
+  
 
 .carousel-button.prev {
     left: 0px;
