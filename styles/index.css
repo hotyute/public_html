@@ -135,37 +135,65 @@
 }
 
 /* Responsive adjustments */
-/* ------------------------------------------
-   Tablet & Small Desktop (up to 768px)
-   ------------------------------------------ */
-   @media (max-width: 768px) {
-    .carousel-button {
-      /* bump size to at least 50×50px for touch */
-      width: 50px;
-      height: 50px;
-      background: rgba(255,255,255,0.95);
-      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-    }
-  
-    /* keep them just off the slide edge, but vertically centered lower */
-    .carousel-button.prev {
-      left: 0.75rem;
-      top: auto;
-      bottom: 50%;
-      transform: translateY(50%);
-    }
-    .carousel-button.next {
-      right: 0.75rem;
-      top: auto;
-      bottom: 50%;
-      transform: translateY(50%);
-    }
-  
-    .carousel-button svg {
-      width: 65%;
-      height: 65%;
-    }
+/*———————————————————————
+  Tablet & small‑desktop (≤768px)
+———————————————————————*/
+@media only screen and (max-width: 768px) {
+  /* 2‑column grid */
+  .grid-container {
+    grid-template-columns: repeat(2, 1fr);
   }
+
+  /* Ensure the carousel container is positioned */
+  .carousel-container {
+    position: relative;
+  }
+
+  /* Enlarge and reposition floating arrows for touch */
+  .carousel-button {
+    display: flex !important;                /* override any earlier hide/display rules */
+    position: absolute;                      /* float over the slides */
+    top: 50%;                                /* vertical center */
+    transform: translateY(-50%);             /* true mid‑point */
+    width: 50px;                             /* 50×50px minimum touch target */
+    height: 50px;
+    background: var(--carousel-btn-bg);
+    border-radius: 50%;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    transition: transform var(--carousel-btn-transition),
+                background var(--carousel-btn-transition),
+                box-shadow var(--carousel-btn-transition);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .carousel-button svg {
+    width: 65%;
+    height: 65%;
+  }
+
+  /* Off‑edge, but still reachable with a thumb */
+  .carousel-button.prev {
+    left: 0.75rem;
+  }
+  .carousel-button.next {
+    right: 0.75rem;
+  }
+
+  /* Hover/focus tweaks (optional on touch devices) */
+  .carousel-button:hover,
+  .carousel-button:focus {
+    background: rgba(255,255,255,1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+  .carousel-button:hover path,
+  .carousel-button:focus path {
+    transform: scale(var(--carousel-btn-hover-scale));
+    fill: #000;
+  }
+}
+
   
   
   
@@ -175,30 +203,63 @@
 /*---------------------------------------
   Mobile override: keep floating arrows
 ---------------------------------------*/
-@media (max-width: 480px) {
+@media only screen and (max-width: 480px) {
+  /* 1‑column grid */
+  .grid-container {
+    grid-template-columns: 1fr;
+  }
+
+  /* Stack carousel & arrows vertically */
+  .carousel-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative; /* ensure any absolute children stay scoped here */
+  }
+
+  /* Show & size arrows as part of flow */
   .carousel-button {
-    display: flex !important;          /* force them back on */
-    width: 40px;                       /* 40×40 is the minimum recommended touch target */
+    display: flex !important;         /* undo any earlier hide/display */
+    position: relative;               /* flow with document */
+    width: 40px;                      /* 40×40px minimum touch target */
     height: 40px;
-    top: 50%;                          /* vertically center */
-    bottom: auto;                      /* cancel any bottom positioning */
-    transform: translateY(-50%);       /* true mid‑point */
-    background: rgba(255,255,255,0.95);
+    margin: 8px 0;                    /* space above/below carousel */
+    background: var(--carousel-btn-bg);
+    border-radius: 50%;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  }
-
-  .carousel-button.prev {
-    left: 0.5rem;                      /* give a little breathing room */
-  }
-
-  .carousel-button.next {
-    right: 0.5rem;                     /* same on the right */
+    transform: none;                  /* cancel any translate() */
+    transition: transform var(--carousel-btn-transition),
+                background var(--carousel-btn-transition),
+                box-shadow var(--carousel-btn-transition);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
   }
 
   .carousel-button svg {
     width: 60%;
     height: 60%;
   }
-}
 
+  /* Place “prev” above carousel, “next” below */
+  .carousel-button.prev {
+    order: -1;
+  }
+  .carousel-button.next {
+    order: 1;
+  }
+
+  /* Optional: feedback on tap/focus */
+  .carousel-button:active,
+  .carousel-button:hover,
+  .carousel-button:focus {
+    background: rgba(255,255,255,1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+  .carousel-button:hover path,
+  .carousel-button:focus path {
+    transform: scale(var(--carousel-btn-hover-scale));
+    fill: #000;
+  }
+}
   
