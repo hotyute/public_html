@@ -207,6 +207,11 @@
   Phone & super‑small (≤480px)
 ———————————————————————*/
 @media only screen and (max-width: 480px) {
+  /* 1‑column grid for each slide */
+  .grid-container {
+    grid-template-columns: 1fr;
+  }
+  
   /* Hide the old absolute arrows */
   .carousel-container > button.carousel-button {
     display: none !important;
