@@ -75,46 +75,48 @@ function truncateContent($content, $limit = 100)
                             <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z" />
                         </svg>
                     </button>
-                    <div class="carousel">
-                        <div class="carousel-slides">
-                            <?php
-                            require 'includes/database.php';
-                            // Removed LIMIT clause to fetch all posts
-                            $query = "SELECT posts.id, posts.title, posts.thumbnail, posts.content, users.displayname AS author, users.role AS user_role, COUNT(comments.id) AS comment_count FROM posts
+                </div>
+                <div class="carousel">
+                    <div class="carousel-slides">
+                        <?php
+                        require 'includes/database.php';
+                        // Removed LIMIT clause to fetch all posts
+                        $query = "SELECT posts.id, posts.title, posts.thumbnail, posts.content, users.displayname AS author, users.role AS user_role, COUNT(comments.id) AS comment_count FROM posts
                                   JOIN users ON posts.user_id = users.id
                                   LEFT JOIN comments ON posts.id = comments.post_id
                                   GROUP BY posts.id
                                   ORDER BY posts.id DESC";
-                            $posts = $pdo->query($query);
-                            $count = 0;
-                            while ($post = $posts->fetch(PDO::FETCH_ASSOC)) {
-                                if ($count % 6 == 0) {
-                                    if ($count > 0) {
-                                        echo '</div>'; // Close previous slide
-                                    }
-                                    echo '<div class="carousel-slide grid-container"">'; // Start new slide
+                        $posts = $pdo->query($query);
+                        $count = 0;
+                        while ($post = $posts->fetch(PDO::FETCH_ASSOC)) {
+                            if ($count % 6 == 0) {
+                                if ($count > 0) {
+                                    echo '</div>'; // Close previous slide
                                 }
-                                $userClass = getUserClass($post['user_role']);
-                                echo '<div class="post-preview">';
-                                echo '<a href="post.php?id=' . $post['id'] . '" style="text-decoration: none; color: black;">';
-                                if ($post['thumbnail']) {
-                                    echo '<img src="' . $post['thumbnail'] . '" alt="Post thumbnail" class="post-thumbnail">';
-                                }
-                                echo '<h3>' . htmlspecialchars_decode($post['title']) . '</h3>';
-                                echo '<p>By <span class="' . $userClass . '">' . htmlspecialchars_decode($post['author']) . '</span></p>';
-                                $truncatedContent = truncateContent(htmlspecialchars_decode($post['content']), 100);
-                                echo '<div class="content-preview" data-content="' . $truncatedContent . '"></div>';
-                                echo '<p class="comment-count">' . $post['comment_count'] . ' Comments</p>';
-                                echo '</a>';
-                                echo '</div>';
-                                $count++;
+                                echo '<div class="carousel-slide grid-container"">'; // Start new slide
                             }
-                            if ($count > 0) {
-                                echo '</div>'; // Close last slide
+                            $userClass = getUserClass($post['user_role']);
+                            echo '<div class="post-preview">';
+                            echo '<a href="post.php?id=' . $post['id'] . '" style="text-decoration: none; color: black;">';
+                            if ($post['thumbnail']) {
+                                echo '<img src="' . $post['thumbnail'] . '" alt="Post thumbnail" class="post-thumbnail">';
                             }
-                            ?>
-                        </div>
+                            echo '<h3>' . htmlspecialchars_decode($post['title']) . '</h3>';
+                            echo '<p>By <span class="' . $userClass . '">' . htmlspecialchars_decode($post['author']) . '</span></p>';
+                            $truncatedContent = truncateContent(htmlspecialchars_decode($post['content']), 100);
+                            echo '<div class="content-preview" data-content="' . $truncatedContent . '"></div>';
+                            echo '<p class="comment-count">' . $post['comment_count'] . ' Comments</p>';
+                            echo '</a>';
+                            echo '</div>';
+                            $count++;
+                        }
+                        if ($count > 0) {
+                            echo '</div>'; // Close last slide
+                        }
+                        ?>
                     </div>
+                </div>
+                <div class="carousel-button-row mobile-only">
                     <button class="carousel-button prev" onclick="prevSlide()" aria-label="Previous slide">
                         <svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true">
                             <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
@@ -126,25 +128,26 @@ function truncateContent($content, $limit = 100)
                         </svg>
                     </button>
                 </div>
-                <hr>
-                <?php
-                // Fetch the video link from a text file (or database)
-                $video_link = '';
-                $video_file = 'includes/featured_video.txt';
-                if (file_exists($video_file)) {
-                    $video_link = trim(file_get_contents($video_file));
-                }
-                ?>
+            </div>
+            <hr>
+            <?php
+            // Fetch the video link from a text file (or database)
+            $video_link = '';
+            $video_file = 'includes/featured_video.txt';
+            if (file_exists($video_file)) {
+                $video_link = trim(file_get_contents($video_file));
+            }
+            ?>
 
-                <!-- Featured Video of the Week -->
-                <div class="featured-video">
-                    <h2>Featured Video of the Week</h2>
-                    <?php if (!empty($video_link)) : ?>
-                        <iframe width="560" height="315" src="<?php echo $video_link; ?>" frameborder="0" allowfullscreen></iframe>
-                    <?php else : ?>
-                        <p>No featured video this week. Check back later!</p>
-                    <?php endif; ?>
-                </div>
+            <!-- Featured Video of the Week -->
+            <div class="featured-video">
+                <h2>Featured Video of the Week</h2>
+                <?php if (!empty($video_link)) : ?>
+                    <iframe width="560" height="315" src="<?php echo $video_link; ?>" frameborder="0" allowfullscreen></iframe>
+                <?php else : ?>
+                    <p>No featured video this week. Check back later!</p>
+                <?php endif; ?>
+            </div>
         </section>
     </main>
     <aside class="sidebar">
