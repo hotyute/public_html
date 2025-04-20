@@ -61,7 +61,7 @@ function truncateContent($content, $limit = 100)
     <main>
         <section>
             <h2>Welcome to the Divine Word Community</h2>
-            <p>This is the home of the Christian community, part of the little flock, where we share insights, teachings, and fellowship together.</p>
+            <p>This is the home of the Christian community, part of the little flock, The Church of God, where we share insights, teachings, and fellowship together.</p>
             <hr>
             <div class="carousel-container">
                 <div class="carousel-button-row mobile-only">
