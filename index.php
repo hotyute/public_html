@@ -86,7 +86,7 @@ function truncateContent($content, $limit = 100)
                                 if ($count > 0) {
                                     echo '</div>'; // Close previous slide
                                 }
-                                echo '<div class="carousel-slide">'; // Start new slide
+                                echo '<div class="carousel-slide grid-container"">'; // Start new slide
                             }
                             $userClass = getUserClass($post['user_role']);
                             echo '<div class="post-preview">';
