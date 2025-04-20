@@ -211,7 +211,7 @@
   .grid-container {
     grid-template-columns: 1fr;
   }
-  
+
   /* Hide the old absolute arrows */
   .carousel-container > button.carousel-button {
     display: none !important;
@@ -222,7 +222,7 @@
     display: flex;
     justify-content: space-between;
     width: 100%;
-    margin: 8px 0;
+    margin: 0 0;
   }
 
   .carousel-button-row.mobile-only .carousel-button {
