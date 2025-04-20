@@ -99,7 +99,7 @@
 .post-preview {
     background: #fff;
     border: 1px solid #ccc;
-    padding: 10px; /* Increased padding for better visual spacing */
+    padding: 0 10px; /* Increased padding for better visual spacing */
     border-radius: 10px; /* Rounded corners for a softer look */
     box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow for depth */
     transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions for hover effects */
@@ -211,7 +211,7 @@
   .grid-container {
     grid-template-columns: 1fr;
   }
-
+  
   /* Hide the old absolute arrows */
   .carousel-container > button.carousel-button {
     display: none !important;
@@ -222,7 +222,7 @@
     display: flex;
     justify-content: space-between;
     width: 100%;
-    margin: 0 0;
+    margin: 8px 0;
   }
 
   .carousel-button-row.mobile-only .carousel-button {
