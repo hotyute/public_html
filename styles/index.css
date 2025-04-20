@@ -172,41 +172,33 @@
   /* ------------------------------------------
      Phone & Super‑Small (up to 480px)
      ------------------------------------------ */
-  @media (max-width: 480px) {
-    /* Hide the floating arrows entirely */
-    .carousel-button {
-      display: none;
-    }
-  
-    /* Use full‑width Prev/Next bars instead */
-    .carousel-container {
-      display: flex;
-      flex-direction: column;
-    }
-  
-    .carousel-button-full {
-      display: block;
-      width: 100%;
-      background: #fff;
-      border: none;
-      padding: 14px 0;
-      font-size: 1rem;
-      text-align: center;
-      cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      margin: 4px 0;
-    }
-  
-    /* Insert these buttons in your HTML around the carousel */
-    /* 
-      <button class="carousel-button-full prev-full">‹ Previous</button>
-      <div class="carousel">…</div>
-      <button class="carousel-button-full next-full">Next ›</button>
-    */
-  
-    /* Optional: add a little pressed‑state feedback */
-    .carousel-button-full:active {
-      background: #f0f0f0;
-    }
+/*---------------------------------------
+  Mobile override: keep floating arrows
+---------------------------------------*/
+@media (max-width: 480px) {
+  .carousel-button {
+    display: flex !important;          /* force them back on */
+    width: 40px;                       /* 40×40 is the minimum recommended touch target */
+    height: 40px;
+    top: 50%;                          /* vertically center */
+    bottom: auto;                      /* cancel any bottom positioning */
+    transform: translateY(-50%);       /* true mid‑point */
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   }
+
+  .carousel-button.prev {
+    left: 0.5rem;                      /* give a little breathing room */
+  }
+
+  .carousel-button.next {
+    right: 0.5rem;                     /* same on the right */
+  }
+
+  .carousel-button svg {
+    width: 60%;
+    height: 60%;
+  }
+}
+
   

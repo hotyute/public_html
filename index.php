@@ -64,7 +64,7 @@ function truncateContent($content, $limit = 100)
             <p>This is the home of the Christian community, part of the little flock, where we share insights, teachings, and fellowship together.</p>
             <hr>
             <div class="carousel-container">
-                <button class="carousel-button-full prev-full" onclick="prevSlide()">
+                <button class="carousel-button prev" onclick="prevSlide()">
                     <svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true">
                         <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
                     </svg>
@@ -109,7 +109,7 @@ function truncateContent($content, $limit = 100)
                         ?>
                     </div>
                 </div>
-                <button class="carousel-button-full next-full" aria-label="Next slide" onclick="nextSlide()">
+                <button class="carousel-button next" aria-label="Next slide" onclick="nextSlide()">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z" />
                     </svg>
