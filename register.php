@@ -122,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Set max lengths
         usernameInput.maxLength    = 25;
         displaynameInput.maxLength = 50;
-        emailInput.maxLength       = 51;
+        emailInput.maxLength       = 50;
         passwordInput.maxLength    = 128;
 
         // Disable submit until all fields non-empty
