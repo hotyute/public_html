@@ -68,10 +68,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             // Hash & insert
             $password_hash = password_hash($password, PASSWORD_DEFAULT);
-            $insert_stmt = $pdo->prepare("
+            $insert_stmt = $pdo->prepare(""
                 INSERT INTO users (username, displayname, email, password, role)
                 VALUES (?, ?, ?, ?, ?)
-            ");
+            ""
+            );
             if ($insert_stmt->execute([$username, $displayname, $email, $password_hash, $role])) {
                 $success_message = "User registered successfully!";
             } else {
@@ -113,21 +114,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <!-- Include the JavaScript code -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const usernameInput = document.getElementById('username');
+        const usernameInput    = document.getElementById('username');
         const displaynameInput = document.getElementById('displayname');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const submitButton = document.querySelector('button');
+        const emailInput       = document.getElementById('email');
+        const passwordInput    = document.getElementById('password');
+        const submitButton     = document.querySelector('button');
 
         // Set max lengths
-        usernameInput.maxLength = 25;
+        usernameInput.maxLength    = 25;
         displaynameInput.maxLength = 50;
-        emailInput.maxLength = 51;
-        passwordInput.maxLength = 128;
+        emailInput.maxLength       = 50;
+        passwordInput.maxLength    = 128;
 
         // Disable submit until all fields non-empty
         function checkFormValidity() {
-            submitButton.disabled = !(
+            submitButton.disabled = !(  
                 usernameInput.value &&
                 displaynameInput.value &&
                 emailInput.value &&
@@ -135,13 +136,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             );
         }
         [usernameInput, displaynameInput, emailInput, passwordInput]
-        .forEach(el => el.addEventListener('input', checkFormValidity));
+            .forEach(el => el.addEventListener('input', checkFormValidity));
 
-        // find the first sibling after el that has class 'char-limit-tooltip'
-        function findTooltip(el) {
+        // Helper: find sibling by class
+        function findSiblingByClass(el, className) {
             let node = el.nextElementSibling;
             while (node) {
-                if (node.classList && node.classList.contains('char-limit-tooltip')) {
+                if (node.classList && node.classList.contains(className)) {
                     return node;
                 }
                 node = node.nextElementSibling;
@@ -149,9 +150,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             return null;
         }
 
-        //Tooltip Helper
+        // Tooltip helpers
         function showTooltip(el, msg) {
-            let tt = findTooltip(el);
+            let tt = findSiblingByClass(el, 'char-limit-tooltip');
             if (!tt) {
                 tt = document.createElement('div');
                 tt.classList.add('char-limit-tooltip');
@@ -169,74 +170,58 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         function hideTooltip(el) {
-            const tt = findTooltip(el);
-            if (tt) {
-                tt.remove();
-            }
+            const tt = findSiblingByClass(el, 'char-limit-tooltip');
+            if (tt) tt.remove();
         }
 
+        // Strength indicator helpers
+        function updateStrengthIndicator(el, text, color) {
+            let ind = findSiblingByClass(el, 'password-strength-indicator');
+            if (!ind) {
+                ind = document.createElement('span');
+                ind.classList.add('password-strength-indicator');
+                ind.style.display = 'inline-block';
+                ind.style.marginLeft = '10px';
+                el.insertAdjacentElement('afterend', ind);
+            }
+            ind.textContent = text;
+            ind.style.color = color;
+        }
+
+        function removeStrengthIndicator(el) {
+            const ind = findSiblingByClass(el, 'password-strength-indicator');
+            if (ind) ind.remove();
+        }
 
         // Field-specific length/format checks
         usernameInput.addEventListener('input', () => {
-            if (usernameInput.value.length > 25)
-                showTooltip(usernameInput, 'Maximum 25 characters allowed');
-            else
-                hideTooltip(usernameInput);
+            if (usernameInput.value.length > 25) showTooltip(usernameInput, 'Maximum 25 characters allowed');
+            else hideTooltip(usernameInput);
         });
         displaynameInput.addEventListener('input', () => {
-            if (displaynameInput.value.length > 50)
-                showTooltip(displaynameInput, 'Maximum 50 characters allowed');
-            else
-                hideTooltip(displaynameInput);
+            if (displaynameInput.value.length > 50) showTooltip(displaynameInput, 'Maximum 50 characters allowed');
+            else hideTooltip(displaynameInput);
         });
         emailInput.addEventListener('input', () => {
-            if (emailInput.value.length > 50)
-                showTooltip(emailInput, 'Maximum 50 characters allowed');
-            else
-                hideTooltip(emailInput);
+            if (emailInput.value.length > 50) showTooltip(emailInput, 'Maximum 50 characters allowed');
+            else hideTooltip(emailInput);
         });
 
         // Password length tooltip and strength
         passwordInput.addEventListener('input', () => {
             const len = passwordInput.value.length;
-            if (len > 128) {
-                showTooltip(passwordInput, 'Maximum 128 characters allowed');
-            } else if (len > 0 && len < 8) {
-                showTooltip(passwordInput, 'Must be at least 8 characters');
+            if      (len > 128)      showTooltip(passwordInput, 'Maximum 128 characters allowed');
+            else if (len > 0 && len <  8) showTooltip(passwordInput, 'Must be at least 8 characters');
+            else                         hideTooltip(passwordInput);
+
+            if (len === 0) {
+                removeStrengthIndicator(passwordInput);
             } else {
-                hideTooltip(passwordInput);
-            }
-
-            // Strength indicator (unchanged)
-            let ind = passwordInput.nextElementSibling;
-            if (!ind || !ind.classList.contains('password-strength-indicator')) {
-                ind = document.createElement('span');
-                ind.classList.add('password-strength-indicator');
-                ind.style.display = 'block';
-                ind.style.marginTop = '10px';
-                passwordInput.insertAdjacentElement('afterend', ind);
-            }
-            const pwd = passwordInput.value;
-            let strength = '';
-            if (pwd.length >= 10) strength = 'strong';
-            else if (pwd.length >= 6) strength = 'medium';
-            else if (pwd.length > 0) strength = 'weak';
-
-            switch (strength) {
-                case 'weak':
-                    ind.textContent = 'Password Strength: Weak';
-                    ind.style.color = '#e74c3c';
-                    break;
-                case 'medium':
-                    ind.textContent = 'Password Strength: Medium';
-                    ind.style.color = '#f39c12';
-                    break;
-                case 'strong':
-                    ind.textContent = 'Password Strength: Strong';
-                    ind.style.color = '#2ecc71';
-                    break;
-                default:
-                    ind.textContent = '';
+                let text, color;
+                if      (len >= 10) { text = 'Password Strength: Strong'; color = '#2ecc71'; }
+                else if (len >=  6) { text = 'Password Strength: Medium'; color = '#f39c12'; }
+                else                { text = 'Password Strength: Weak';   color = '#e74c3c'; }
+                updateStrengthIndicator(passwordInput, text, color);
             }
         });
 
@@ -254,5 +239,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         border-radius: 5px;
         font-size: 12px;
         box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+    }
+    .password-strength-indicator {
+        font-size: 0.9em;
     }
 </style>
