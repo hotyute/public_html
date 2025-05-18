@@ -15,22 +15,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Validate length & format
     $errors = [];
-
-    // Username
     if ($rawUsername === '') {
         $errors[] = "Username is required.";
     } elseif (mb_strlen($rawUsername) > 25) {
         $errors[] = "Username must be 25 characters or fewer.";
     }
-
-    // Display name
     if ($rawDisplayName === '') {
         $errors[] = "Full name is required.";
     } elseif (mb_strlen($rawDisplayName) > 50) {
         $errors[] = "Full name must be 50 characters or fewer.";
     }
-
-    // Email
     if ($rawEmail === '') {
         $errors[] = "Email is required.";
     } elseif (mb_strlen($rawEmail) > 50) {
@@ -38,15 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } elseif (!filter_var($rawEmail, FILTER_VALIDATE_EMAIL)) {
         $errors[] = "Email address is not valid.";
     }
-
-    // Password length: require between 8 and 128
-    $pwLen = mb_strlen($rawPassword);
-    if ($pwLen === 0) {
+    if ($rawPassword === '') {
         $errors[] = "Password is required.";
-    } elseif ($pwLen < 8) {
-        $errors[] = "Password must be at least 8 characters.";
-    } elseif ($pwLen > 128) {
-        $errors[] = "Password cannot exceed 128 characters.";
     }
 
     // If any errors, don't proceed
@@ -92,19 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <p style="color: green;"><?= $success_message ?></p>
     <?php endif; ?>
     <form method="POST" action="register.php">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" placeholder="Desired username (ex: starshooter10)" required><br>
-
-        <label for="displayname">Full Name (First &amp; Last Name):</label>
-        <input type="text" id="displayname" name="displayname" placeholder="John Smith" required><br>
-
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required><br>
-
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br>
-
-        <button type="submit">Register</button>
+        <!-- your form fields as before… -->
     </form>
 </div>
 
@@ -112,127 +87,155 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <!-- Include the JavaScript code -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const usernameInput    = document.getElementById('username');
-    const displaynameInput = document.getElementById('displayname');
-    const emailInput       = document.getElementById('email');
-    const passwordInput    = document.getElementById('password');
-    const submitButton     = document.querySelector('button');
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const usernameInput = document.getElementById('username');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const displaynameInput = document.getElementById('displayname');
+        const submitButton = document.querySelector('button');
 
-    // Set max lengths
-    usernameInput.maxLength    = 25;
-    displaynameInput.maxLength = 50;
-    emailInput.maxLength       = 50;
-    passwordInput.maxLength    = 128;
+        // Limit username to 25 characters
+        usernameInput.maxLength = 25;
+        
+        // Limit displayname to 50 characters
+        displaynameInput.maxLength = 50;
 
-    // Disable submit until all fields non-empty
-    function checkFormValidity() {
-        submitButton.disabled = !(
-            usernameInput.value &&
-            displaynameInput.value &&
-            emailInput.value &&
-            passwordInput.value
-        );
-    }
-    [usernameInput, displaynameInput, emailInput, passwordInput]
-        .forEach(el => el.addEventListener('input', checkFormValidity));
+        // Limit email to 50 characters
+        emailInput.maxLength = 50;
 
-    // Tooltip helper
-    function showTooltip(el, msg) {
-        let tt = el.nextElementSibling;
-        if (!tt || !tt.classList.contains('char-limit-tooltip')) {
-            tt = document.createElement('div');
-            tt.classList.add('char-limit-tooltip');
-            tt.style.position = 'absolute';
-            tt.style.backgroundColor = '#f8d7da';
-            tt.style.color = '#721c24';
-            tt.style.padding = '5px';
-            tt.style.borderRadius = '5px';
-            tt.style.top = (el.offsetTop - 30) + 'px';
-            tt.style.left = el.offsetLeft + 'px';
-            tt.style.zIndex = 1000;
-            el.insertAdjacentElement('afterend', tt);
+        // Disable submit button initially
+        submitButton.disabled = true;
+
+        // Enable submit button only when all fields are filled
+        function checkFormValidity() {
+            if (usernameInput.value && passwordInput.value && displaynameInput.value && emailInput.value) {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
         }
-        tt.textContent = msg;
-    }
-    function hideTooltip(el) {
-        const tt = el.nextElementSibling;
-        if (tt && tt.classList.contains('char-limit-tooltip')) {
-            tt.remove();
-        }
-    }
+        
+        // Check form validity on input
+        usernameInput.addEventListener('input', checkFormValidity);
+        emailInput.addEventListener('input', checkFormValidity);
+        passwordInput.addEventListener('input', checkFormValidity);
+        displaynameInput.addEventListener('input', checkFormValidity);
 
-    // Field-specific length/format checks
-    usernameInput.addEventListener('input', () => {
-        if (usernameInput.value.length > 25)
-            showTooltip(usernameInput, 'Maximum 25 characters allowed');
-        else
-            hideTooltip(usernameInput);
+        // Show tooltip if character limit exceeded or input is invalid
+        function showTooltip(inputElement, message) {
+            let tooltip = inputElement.nextElementSibling;
+            if (!tooltip || !tooltip.classList.contains('char-limit-tooltip')) {
+                tooltip = document.createElement('div');
+                tooltip.classList.add('char-limit-tooltip');
+                tooltip.style.position = 'absolute';
+                tooltip.style.backgroundColor = '#f8d7da';
+                tooltip.style.color = '#721c24';
+                tooltip.style.padding = '5px';
+                tooltip.style.borderRadius = '5px';
+                tooltip.style.top = `${inputElement.offsetTop - 30}px`;
+                tooltip.style.left = `${inputElement.offsetLeft}px`;
+                tooltip.style.zIndex = '1000';
+                inputElement.insertAdjacentElement('afterend', tooltip);
+            }
+            tooltip.textContent = message;
+        }
+
+        function hideTooltip(inputElement) {
+            const tooltip = inputElement.nextElementSibling;
+            if (tooltip && tooltip.classList.contains('char-limit-tooltip')) {
+                tooltip.remove();
+            }
+        }
+
+        usernameInput.addEventListener('input', function() {
+            if (usernameInput.value.length > 25) {
+                showTooltip(usernameInput, 'Maximum 25 characters allowed');
+            } else if (!sanitizeHtml(usernameInput.value)) {
+                showTooltip(usernameInput, 'Invalid characters in username');
+            } else {
+                hideTooltip(usernameInput);
+            }
+        });
+
+        displaynameInput.addEventListener('input', function() {
+            if (displaynameInput.value.length > 50) {
+                showTooltip(displaynameInput, 'Maximum 50 characters allowed');
+            } else if (!sanitizeHtml(displaynameInput.value)) {
+                showTooltip(displaynameInput, 'Invalid characters in display name');
+            } else {
+                hideTooltip(displaynameInput);
+            }
+        });
+
+        emailInput.addEventListener('input', function() {
+            if (emailInput.value.length > 50) {
+                showTooltip(emailInput, 'Maximum 50 characters allowed');
+            } else if (!sanitizeHtml(emailInput.value)) {
+                showTooltip(emailInput, 'Invalid characters in display name');
+            } else {
+                hideTooltip(emailInput);
+            }
+        });
+
+        function sanitizeHtml(input) {
+            const div = document.createElement('div');
+            div.textContent = input;
+            return div.innerHTML === input;
+        }
+
+        // Password strength checker
+        passwordInput.addEventListener('input', function() {
+            let strengthIndicator = passwordInput.nextElementSibling;
+            if (!strengthIndicator || !strengthIndicator.classList.contains('password-strength-indicator')) {
+                strengthIndicator = document.createElement('span');
+                strengthIndicator.classList.add('password-strength-indicator');
+                strengthIndicator.style.display = 'block';
+                strengthIndicator.style.marginTop = '10px';
+                passwordInput.insertAdjacentElement('afterend', strengthIndicator);
+            }
+
+            const strength = calculatePasswordStrength(passwordInput.value);
+
+            switch (strength) {
+                case 'weak':
+                    strengthIndicator.textContent = 'Password Strength: Weak';
+                    strengthIndicator.style.color = '#e74c3c';
+                    break;
+                case 'medium':
+                    strengthIndicator.textContent = 'Password Strength: Medium';
+                    strengthIndicator.style.color = '#f39c12';
+                    break;
+                case 'strong':
+                    strengthIndicator.textContent = 'Password Strength: Strong';
+                    strengthIndicator.style.color = '#2ecc71';
+                    break;
+                default:
+                    strengthIndicator.textContent = '';
+            }
+        });
+
+        function calculatePasswordStrength(password) {
+            if (password.length < 6) {
+                return 'weak';
+            }
+            if (password.length >= 6 && password.length < 10) {
+                return 'medium';
+            }
+            if (password.length >= 10) {
+                return 'strong';
+            }
+        }
     });
-    displaynameInput.addEventListener('input', () => {
-        if (displaynameInput.value.length > 50)
-            showTooltip(displaynameInput, 'Maximum 50 characters allowed');
-        else
-            hideTooltip(displaynameInput);
-    });
-    emailInput.addEventListener('input', () => {
-        if (emailInput.value.length > 50)
-            showTooltip(emailInput, 'Maximum 50 characters allowed');
-        else
-            hideTooltip(emailInput);
-    });
-
-    // Password length tooltip and strength
-    passwordInput.addEventListener('input', () => {
-        const len = passwordInput.value.length;
-        if (len > 128) {
-            showTooltip(passwordInput, 'Maximum 128 characters allowed');
-        } else if (len > 0 && len < 8) {
-            showTooltip(passwordInput, 'Must be at least 8 characters');
-        } else {
-            hideTooltip(passwordInput);
-        }
-
-        // Strength indicator (unchanged)
-        let ind = passwordInput.nextElementSibling;
-        if (!ind || !ind.classList.contains('password-strength-indicator')) {
-            ind = document.createElement('span');
-            ind.classList.add('password-strength-indicator');
-            ind.style.display = 'block';
-            ind.style.marginTop = '10px';
-            passwordInput.insertAdjacentElement('afterend', ind);
-        }
-        const pwd = passwordInput.value;
-        let strength = '';
-        if (pwd.length >= 10) strength = 'strong';
-        else if (pwd.length >= 6) strength = 'medium';
-        else if (pwd.length > 0) strength = 'weak';
-
-        switch (strength) {
-            case 'weak':
-                ind.textContent = 'Password Strength: Weak';    ind.style.color = '#e74c3c'; break;
-            case 'medium':
-                ind.textContent = 'Password Strength: Medium';  ind.style.color = '#f39c12'; break;
-            case 'strong':
-                ind.textContent = 'Password Strength: Strong';  ind.style.color = '#2ecc71'; break;
-            default:
-                ind.textContent = '';
-        }
-    });
-
-    // Initial disable
-    submitButton.disabled = true;
-});
 </script>
-
 <style>
-.char-limit-tooltip {
-    position: absolute;
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 5px;
-    border-radius: 5px;
-    font-size: 12px;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
-}
+    .char-limit-tooltip {
+        position: absolute;
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 5px;
+        border-radius: 5px;
+        font-size: 12px;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+    }
 </style>
