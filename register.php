@@ -68,11 +68,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             // Hash & insert
             $password_hash = password_hash($password, PASSWORD_DEFAULT);
-            $insert_stmt = $pdo->prepare(""
+            $insert_stmt = $pdo->prepare("
                 INSERT INTO users (username, displayname, email, password, role)
                 VALUES (?, ?, ?, ?, ?)
-            ""
-            );
+            ");
             if ($insert_stmt->execute([$username, $displayname, $email, $password_hash, $role])) {
                 $success_message = "User registered successfully!";
             } else {
