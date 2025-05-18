@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
             tt.style.top = (el.offsetTop - 30) + 'px';
             tt.style.left = el.offsetLeft + 'px';
             tt.style.zIndex = 1000;
-            el.insertAdjacentElement('afterend', tt);
+            //el.insertAdjacentElement('afterend', tt);
         }
         tt.textContent = msg;
     }
