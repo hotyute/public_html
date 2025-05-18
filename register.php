@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set max lengths
     usernameInput.maxLength    = 25;
     displaynameInput.maxLength = 50;
-    emailInput.maxLength       = 50;
+    emailInput.maxLength       = 51;
     passwordInput.maxLength    = 128;
 
     // Disable submit until all fields non-empty
