@@ -6,7 +6,8 @@ require 'includes/sanitize.php'; // Include the sanitization function
 $post_id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : 0;
 $page = isset($_GET['page']) ? filter_var($_GET['page'], FILTER_VALIDATE_INT) : 1;
 
-function getUserClass($user_role) {
+function getUserClass($user_role)
+{
     switch ($user_role) {
         case 'admin':
         case 'owner':
@@ -129,34 +130,42 @@ if ($post_id > 0) {
 
 
         // Check if there is a base voiceover URL
-if (!empty($post['voiceover_url'])) {
-    // 1. Deconstruct the original URL to get the base name and extension
-    $path_info = pathinfo($post['voiceover_url']);
-    $base_filename = $path_info['dirname'] . '/' . $path_info['filename'];
-    $extension = $path_info['extension'];
+        if (!empty($post['voiceover_url'])) {
+            // 1. Deconstruct the original URL to get the base name and extension
+            $path_info = pathinfo($post['voiceover_url']);
+            $base_filename = $path_info['dirname'] . '/' . $path_info['filename'];
+            $extension = $path_info['extension'];
 
-    // 2. Construct the page-specific filename
-    // For page 1, we can use the original or the _p1 version for consistency
-    $page_specific_filename = $base_filename . '_p' . $page . '.' . $extension;
-    
-    // 3. IMPORTANT: Check if the page-specific audio file actually exists on the server
-    // Note: This requires the URL path to be a relative server path. 
-    // Adjust $_SERVER['DOCUMENT_ROOT'] if your files are stored elsewhere.
-    $server_path_to_audio = $_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($page_specific_filename, '/');
+            // 2. Construct the page-specific filename
+            // For page 1, we can use the original or the _p1 version for consistency
+            $page_specific_filename = $base_filename . '_p' . $page . '.' . $extension;
 
-    if (file_exists($server_path_to_audio)) {
-        echo '<div class="post-voiceover">';
-        // Give the audio element an ID for our JavaScript to find
-        echo '<audio id="post-audio-player" controls>';
-        echo '<source src="' . htmlspecialchars($page_specific_filename, ENT_QUOTES, 'UTF-8') . '" type="audio/mpeg">';
-        
-        // This is where the track for highlighting will go (See Part 2)
-        
-        echo 'Your browser does not support the audio element.';
-        echo '</audio>';
-        echo '</div>';
-    }
-}
+            // 3. IMPORTANT: Check if the page-specific audio file actually exists on the server
+            // Note: This requires the URL path to be a relative server path. 
+            // Adjust $_SERVER['DOCUMENT_ROOT'] if your files are stored elsewhere.
+            $server_path_to_audio = $_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($page_specific_filename, '/');
+
+            if (file_exists($server_path_to_audio)) {
+                // (Inside the `if (file_exists(...))` block from above)
+
+                // Construct the VTT file path
+                $vtt_filename = $base_filename . '_p' . $page . '.vtt';
+                $server_path_to_vtt = $_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($vtt_filename, '/');
+
+                echo '<div class="post-voiceover">';
+                echo '<audio id="post-audio-player" controls>';
+                echo '<source src="' . htmlspecialchars($page_specific_filename, ENT_QUOTES, 'UTF-8') . '" type="audio/mpeg">';
+
+                // Add the track element if the VTT file exists
+                if (file_exists($server_path_to_vtt)) {
+                    echo '<track label="English" kind="subtitles" srclang="en" src="' . htmlspecialchars($vtt_filename, ENT_QUOTES, 'UTF-8') . '" default>';
+                }
+
+                echo 'Your browser does not support the audio element.';
+                echo '</audio>';
+                echo '</div>';
+            }
+        }
 
         // Pagination controls
         echo '<div class="pagination" style="display: flex; justify-content: space-between; align-items: center; padding: 35px 0;">';
@@ -171,7 +180,8 @@ if (!empty($post['voiceover_url'])) {
         }
         echo '</div>';
 
-        echo '<div class="post-content">' . nl2br_skip($content_page) . '</div>';
+        // We add an ID to the content wrapper to easily target it with JS
+        echo '<div id="post-content-wrapper" class="post-content">' . nl2br_skip($content_page) . '</div>';
 
         // Pagination controls
         echo '<div class="pagination" style="display: flex; justify-content: space-between; align-items: center;">';
@@ -271,73 +281,93 @@ include 'footer.php';
 ?>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const userId = <?php echo isset($_SESSION['user_id']) ? json_encode($_SESSION['user_id']) : 'null'; ?>;
+document.addEventListener('DOMContentLoaded', function() {
+    const audio = document.getElementById('post-audio-player');
+    const contentWrapper = document.getElementById('post-content-wrapper');
 
-    if (userId) {
-        // Handle main comment submission
-        document.getElementById('submitComment').addEventListener('click', function() {
-            const commentText = document.querySelector('#commentForm textarea').value;
-            const csrfToken = document.querySelector('#commentForm input[name="csrf_token"]').value;
-            
-            if (!commentText) {
-                alert('Please enter a comment.');
-                return;
-            }
+    // Only run the script if the audio player and content exist on the page
+    if (audio && contentWrapper) {
+        // Wait for the track data to be loaded
+        audio.textTracks.onaddtrack = (event) => {
+            const track = event.track;
+            track.mode = 'hidden'; // Don't show browser-native subtitles
 
-            const formData = new FormData();
-            formData.append('comment', commentText);
-            formData.append('user_id', userId);
-            formData.append('post_id', <?php echo $post_id; ?>);
-            formData.append('csrf_token', csrfToken);
+            let lastHighlightedElement = null;
 
-            fetch('/includes/comments/submit_comment.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const commentsSection = document.getElementById('commentsSection');
-                        const noCommentsMsg = commentsSection.querySelector('p');
-                        if (noCommentsMsg && noCommentsMsg.textContent === 'No Comments Yet.') {
-                            commentsSection.removeChild(noCommentsMsg);
+            track.oncuechange = () => {
+                // Find the currently active cue
+                const activeCue = track.activeCues[0];
+
+                // Remove highlight from the previous element
+                if (lastHighlightedElement) {
+                    lastHighlightedElement.classList.remove('highlight');
+                }
+
+                if (activeCue) {
+                    // This is the text from the VTT file for the current time
+                    const cueText = activeCue.text;
+                    
+                    // A robust way to find and wrap the text
+                    // It iterates through all text nodes in the content area
+                    const treeWalker = document.createTreeWalker(contentWrapper, NodeFilter.SHOW_TEXT);
+                    let currentNode;
+                    while (currentNode = treeWalker.nextNode()) {
+                        const text = currentNode.nodeValue;
+                        const index = text.indexOf(cueText);
+
+                        if (index !== -1) {
+                            // Found the text. Now, wrap it in a span to highlight it.
+                            const range = document.createRange();
+                            range.setStart(currentNode, index);
+                            range.setEnd(currentNode, index + cueText.length);
+
+                            const highlightSpan = document.createElement('span');
+                            highlightSpan.className = 'highlight';
+                            range.surroundContents(highlightSpan);
+
+                            lastHighlightedElement = highlightSpan;
+                            break; // Stop searching once found
                         }
-
-                        const newComment = document.createElement('div');
-                        newComment.classList.add('comment');
-                        newComment.innerHTML = `<strong>You</strong><span class="time-ago">just now</span><p class="comment-content">${commentText}</p>`;
-                        commentsSection.appendChild(newComment);
-
-                        document.querySelector('#commentForm textarea').value = '';
-                    } else {
-                        alert(data.message);
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error submitting comment.');
-                });
-        });
+                }
+            };
 
-        // Handle reply submission
-        document.querySelectorAll('.submitReply').forEach(function(button) {
-            button.addEventListener('click', function() {
-                const replyForm = this.closest('.reply-form');
-                const replyText = replyForm.querySelector('textarea').value;
-                const parentId = this.dataset.parentId;
-                const csrfToken = replyForm.querySelector('input[name="csrf_token"]').value;
+            // This part handles "un-highlighting"
+            // When a cue ends, we want to remove the highlight by replacing the <span>
+            // back with its original text content.
+            audio.addEventListener('timeupdate', () => {
+                if (lastHighlightedElement && track.activeCues.length === 0) {
+                    const parent = lastHighlightedElement.parentNode;
+                    parent.replaceChild(document.createTextNode(lastHighlightedElement.textContent), lastHighlightedElement);
+                    // Normalize the parent to merge adjacent text nodes for cleaner DOM
+                    parent.normalize(); 
+                    lastHighlightedElement = null;
+                }
+            });
+        };
+    }
+});
+</script>
 
-                if (!replyText) {
-                    alert('Please enter a reply.');
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const userId = <?php echo isset($_SESSION['user_id']) ? json_encode($_SESSION['user_id']) : 'null'; ?>;
+
+        if (userId) {
+            // Handle main comment submission
+            document.getElementById('submitComment').addEventListener('click', function() {
+                const commentText = document.querySelector('#commentForm textarea').value;
+                const csrfToken = document.querySelector('#commentForm input[name="csrf_token"]').value;
+
+                if (!commentText) {
+                    alert('Please enter a comment.');
                     return;
                 }
 
                 const formData = new FormData();
-                formData.append('comment', replyText);
+                formData.append('comment', commentText);
                 formData.append('user_id', userId);
                 formData.append('post_id', <?php echo $post_id; ?>);
-                formData.append('parent_id', parentId);
                 formData.append('csrf_token', csrfToken);
 
                 fetch('/includes/comments/submit_comment.php', {
@@ -347,112 +377,161 @@ document.addEventListener("DOMContentLoaded", function() {
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            const replySection = replyForm.parentElement;
-                            const newReply = document.createElement('div');
-                            newReply.classList.add('comment', 'reply');
-                            newReply.innerHTML = `<strong>You</strong><span class="time-ago">just now</span><p class="comment-content">${replyText}</p>`;
-                            replySection.appendChild(newReply);
+                            const commentsSection = document.getElementById('commentsSection');
+                            const noCommentsMsg = commentsSection.querySelector('p');
+                            if (noCommentsMsg && noCommentsMsg.textContent === 'No Comments Yet.') {
+                                commentsSection.removeChild(noCommentsMsg);
+                            }
 
-                            replyForm.querySelector('textarea').value = '';
+                            const newComment = document.createElement('div');
+                            newComment.classList.add('comment');
+                            newComment.innerHTML = `<strong>You</strong><span class="time-ago">just now</span><p class="comment-content">${commentText}</p>`;
+                            commentsSection.appendChild(newComment);
+
+                            document.querySelector('#commentForm textarea').value = '';
                         } else {
                             alert(data.message);
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Error submitting reply.');
+                        alert('Error submitting comment.');
                     });
             });
-        });
 
-        // Handle comment deletion
-        document.querySelectorAll('.deleteComment').forEach(function(button) {
-            button.addEventListener('click', function() {
-                const commentId = this.dataset.commentId;
+            // Handle reply submission
+            document.querySelectorAll('.submitReply').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const replyForm = this.closest('.reply-form');
+                    const replyText = replyForm.querySelector('textarea').value;
+                    const parentId = this.dataset.parentId;
+                    const csrfToken = replyForm.querySelector('input[name="csrf_token"]').value;
 
-                if (confirm('Are you sure you want to delete this comment?')) {
-                    const formData = new FormData();
-                    formData.append('comment_id', commentId);
-                    formData.append('delete_comment', true);
-                    formData.append('csrf_token', '<?php echo $csrf_token; ?>');
-
-                    fetch('/includes/comments/delete_comment.php', {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
-                                if (commentElement) {
-                                    commentElement.remove();
-                                }
-                            } else {
-                                alert(data.message);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Error deleting comment.');
-                        });
-                }
-            });
-        });
-
-        // Handle comment editing
-        document.querySelectorAll('.editComment').forEach(function(button) {
-            button.addEventListener('click', function() {
-                const commentId = this.dataset.commentId;
-                const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
-                const commentContentElement = commentElement.querySelector('.comment-content');
-
-                // Convert the comment text to an editable div (contenteditable)
-                commentContentElement.setAttribute('contenteditable', 'true');
-                commentContentElement.focus();
-
-                // Change the edit button to a save button
-                this.textContent = 'Save';
-                this.classList.add('saveEdit');
-
-                // Handle the save action
-                this.addEventListener('click', function() {
-                    const newText = commentContentElement.textContent.trim();
-                    const csrfToken = '<?php echo $csrf_token; ?>';
+                    if (!replyText) {
+                        alert('Please enter a reply.');
+                        return;
+                    }
 
                     const formData = new FormData();
-                    formData.append('comment_id', commentId);
-                    formData.append('edit_comment', true);
-                    formData.append('content', newText);
+                    formData.append('comment', replyText);
+                    formData.append('user_id', userId);
+                    formData.append('post_id', <?php echo $post_id; ?>);
+                    formData.append('parent_id', parentId);
                     formData.append('csrf_token', csrfToken);
 
-                    fetch('/includes/comments/edit_comment.php', {
+                    fetch('/includes/comments/submit_comment.php', {
                             method: 'POST',
                             body: formData
                         })
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                // Remove contenteditable attribute
-                                commentContentElement.removeAttribute('contenteditable');
+                                const replySection = replyForm.parentElement;
+                                const newReply = document.createElement('div');
+                                newReply.classList.add('comment', 'reply');
+                                newReply.innerHTML = `<strong>You</strong><span class="time-ago">just now</span><p class="comment-content">${replyText}</p>`;
+                                replySection.appendChild(newReply);
 
-                                // Change the save button back to an edit button
-                                this.textContent = 'Edit';
-                                this.classList.remove('saveEdit');
+                                replyForm.querySelector('textarea').value = '';
                             } else {
                                 alert(data.message);
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            alert('Error updating comment.');
+                            alert('Error submitting reply.');
                         });
-                }, {
-                    once: true
-                }); // Ensure the event listener runs only once
+                });
             });
-        });
-    } else {
-        //alert('User is not logged in. Please log in to comment or reply.');
-    }
-});
+
+            // Handle comment deletion
+            document.querySelectorAll('.deleteComment').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const commentId = this.dataset.commentId;
+
+                    if (confirm('Are you sure you want to delete this comment?')) {
+                        const formData = new FormData();
+                        formData.append('comment_id', commentId);
+                        formData.append('delete_comment', true);
+                        formData.append('csrf_token', '<?php echo $csrf_token; ?>');
+
+                        fetch('/includes/comments/delete_comment.php', {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+                                    if (commentElement) {
+                                        commentElement.remove();
+                                    }
+                                } else {
+                                    alert(data.message);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('Error deleting comment.');
+                            });
+                    }
+                });
+            });
+
+            // Handle comment editing
+            document.querySelectorAll('.editComment').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const commentId = this.dataset.commentId;
+                    const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+                    const commentContentElement = commentElement.querySelector('.comment-content');
+
+                    // Convert the comment text to an editable div (contenteditable)
+                    commentContentElement.setAttribute('contenteditable', 'true');
+                    commentContentElement.focus();
+
+                    // Change the edit button to a save button
+                    this.textContent = 'Save';
+                    this.classList.add('saveEdit');
+
+                    // Handle the save action
+                    this.addEventListener('click', function() {
+                        const newText = commentContentElement.textContent.trim();
+                        const csrfToken = '<?php echo $csrf_token; ?>';
+
+                        const formData = new FormData();
+                        formData.append('comment_id', commentId);
+                        formData.append('edit_comment', true);
+                        formData.append('content', newText);
+                        formData.append('csrf_token', csrfToken);
+
+                        fetch('/includes/comments/edit_comment.php', {
+                                method: 'POST',
+                                body: formData
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Remove contenteditable attribute
+                                    commentContentElement.removeAttribute('contenteditable');
+
+                                    // Change the save button back to an edit button
+                                    this.textContent = 'Edit';
+                                    this.classList.remove('saveEdit');
+                                } else {
+                                    alert(data.message);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('Error updating comment.');
+                            });
+                    }, {
+                        once: true
+                    }); // Ensure the event listener runs only once
+                });
+            });
+        } else {
+            //alert('User is not logged in. Please log in to comment or reply.');
+        }
+    });
 </script>

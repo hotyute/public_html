@@ -129,6 +129,11 @@
     color: #007BFF !important; /* Color for regular users */
 }
 
+.highlight {
+    background-color: yellow;
+    transition: background-color 0.3s ease;
+}
+
 
 
 /* Reply Form Styling */
