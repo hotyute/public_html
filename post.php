@@ -280,104 +280,95 @@ include 'footer.php';
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // --- ROBUST HIGHLIGHTING SCRIPT START ---
+         // --- ROBUST HIGHLIGHTING SCRIPT START ---
 
         const audio = document.getElementById('post-audio-player');
         const contentWrapper = document.getElementById('post-content-wrapper');
 
         if (audio && contentWrapper) {
-            // Wait for all metadata (including the VTT track) to be loaded.
             audio.addEventListener('loadedmetadata', () => {
-                // Find the text track. It might not be loaded instantly.
                 const track = audio.textTracks[0];
-                if (!track) {
-                    // This is a rare fallback, but good to have.
-                    audio.textTracks.onaddtrack = (e) => setupCues(e.track);
-                } else {
-                    setupCues(track);
+                if (track) {
+                    // It's crucial to wait for cues to be available.
+                    // If the track is loaded but has 0 cues, it means the browser is still parsing the VTT.
+                    if (track.cues && track.cues.length > 0) {
+                        prepareAndRun(track);
+                    } else {
+                        // If cues aren't ready, wait for the 'load' event on the track itself.
+                        track.addEventListener('load', () => prepareAndRun(track));
+                    }
                 }
             });
         }
 
         /**
-         * PHASE 1: Prepare the content.
-         * This function runs ONCE. It finds all the text from the VTT cues
-         * and wraps them in a <span data-cue-id="..."> so we can easily target them later.
+         * The main function that orchestrates everything.
          */
-        function setupCues(track) {
-            // We need to wait for the cues themselves to be available.
-            // Using a small delay is a reliable way to ensure this.
-            setTimeout(() => {
-                if (!track.cues || track.cues.length === 0) {
-                    console.error("VTT track loaded, but no cues were found. Check the VTT file format.");
-                    return;
-                }
+        function prepareAndRun(track) {
+            // PHASE 1: Prepare the content ONCE by wrapping cues in spans.
+            // This is an efficiency step so we don't have to search the DOM later.
+            const cues = Array.from(track.cues); // Create a static array of all cues
+            cues.forEach((cue, index) => {
+                if (!cue.id) cue.id = `cue-${index}`; // Ensure every cue has a unique ID
 
-                // Give each cue a unique ID if it doesn't have one.
-                // VTT cues get a default ID like "1", "2", etc. which is fine.
-                // We will use this ID to link the cue to a span.
-                for (let i = 0; i < track.cues.length; i++) {
-                    const cue = track.cues[i];
-                    if (!cue.id) cue.id = `cue-${i+1}`;
-                    
-                    const treeWalker = document.createTreeWalker(contentWrapper, NodeFilter.SHOW_TEXT);
-                    let currentNode;
-                    while (currentNode = treeWalker.nextNode()) {
-                        const text = currentNode.nodeValue;
-                        const index = text.indexOf(cue.text);
-
-                        if (index !== -1) {
-                            const range = document.createRange();
-                            range.setStart(currentNode, index);
-                            range.setEnd(currentNode, index + cue.text.length);
-
-                            const span = document.createElement('span');
-                            span.setAttribute('data-cue-id', cue.id);
-                            range.surroundContents(span);
-
-                            // We've wrapped this text, so we break to avoid re-wrapping
-                            // if the same sentence appears twice.
-                            break; 
-                        }
+                const treeWalker = document.createTreeWalker(contentWrapper, NodeFilter.SHOW_TEXT);
+                let currentNode;
+                while (currentNode = treeWalker.nextNode()) {
+                    const text = currentNode.nodeValue;
+                    const index = text.indexOf(cue.text);
+                    if (index !== -1) {
+                        const range = document.createRange();
+                        range.setStart(currentNode, index);
+                        range.setEnd(currentNode, index + cue.text.length);
+                        const span = document.createElement('span');
+                        span.id = cue.id; // Use the cue's ID for the span's ID
+                        range.surroundContents(span);
+                        break;
                     }
                 }
+            });
+            console.log(`Prepared ${cues.length} cues for highlighting.`);
 
-                console.log(`Prepared content by wrapping ${track.cues.length} text cues.`);
-                
-                // Now that the content is prepared, start the animation phase.
-                startHighlighting(track);
-
-            }, 250); // 250ms delay to ensure browser has parsed cues.
+            // PHASE 2: Start the animation loop.
+            startManualHighlighting(cues);
         }
 
         /**
-         * PHASE 2: Animate the highlights.
-         * This runs continuously but is very lightweight. It only adds/removes a class.
+         * This function manually finds the correct cue based on the audio's current time.
          */
-        function startHighlighting(track) {
-            track.mode = 'hidden'; // We control the display, not the browser.
-            let currentHighlightElement = null;
+        function startManualHighlighting(cues) {
+            track.mode = 'hidden'; // We are in control.
+            let currentHighlightId = null;
 
             audio.addEventListener('timeupdate', () => {
-                const activeCue = track.activeCues[0];
+                const now = audio.currentTime;
+                let activeCueId = null;
 
-                let elementToHighlight = null;
-                if (activeCue) {
-                    elementToHighlight = contentWrapper.querySelector(`span[data-cue-id="${activeCue.id}"]`);
+                // Manually find the active cue by iterating through our list.
+                // This is the core logic you suggested.
+                for (const cue of cues) {
+                    if (now >= cue.startTime && now < cue.endTime) {
+                        activeCueId = cue.id;
+                        break; // Found it, no need to continue the loop.
+                    }
                 }
 
-                // If the element that should be highlighted is different from the one that is, update.
-                if (elementToHighlight !== currentHighlightElement) {
+                // Only update the DOM if the highlight needs to change.
+                if (activeCueId !== currentHighlightId) {
                     // Remove highlight from the old element
-                    if (currentHighlightElement) {
-                        currentHighlightElement.classList.remove('highlight');
+                    if (currentHighlightId) {
+                        const oldElement = document.getElementById(currentHighlightId);
+                        if (oldElement) oldElement.classList.remove('highlight');
                     }
+
                     // Add highlight to the new element
-                    if (elementToHighlight) {
-                        elementToHighlight.classList.add('highlight');
+                    if (activeCueId) {
+                        const newElement = document.getElementById(activeCueId);
+                        if (newElement) newElement.classList.add('highlight');
                     }
+
                     // Update our state
-                    currentHighlightElement = elementToHighlight;
+                    currentHighlightId = activeCueId;
                 }
             });
         }
