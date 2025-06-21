@@ -288,33 +288,40 @@ include 'footer.php';
         if (audio && contentWrapper) {
             console.log("✅ Step 1: Found audio player and content wrapper.");
 
-            audio.addEventListener('loadedmetadata', () => {
-                console.log("✅ Step 2: 'loadedmetadata' event fired for the audio element.");
-                const track = audio.textTracks[0];
+            // Check if track is already loaded
+            if (audio.textTracks.length > 0 && audio.textTracks[0].cues && audio.textTracks[0].cues.length > 0) {
+                 console.log("INFO: Track and cues appear to be ready on DOMContentLoaded. Proceeding.");
+                 prepareAndRun(audio.textTracks[0]);
+            } else {
+                 // The standard way: wait for the audio metadata to load, which includes track info
+                audio.addEventListener('loadedmetadata', () => {
+                    console.log("✅ Step 2: 'loadedmetadata' event fired for the audio element.");
+                    const track = audio.textTracks[0];
 
-                if (track) {
-                    console.log("✅ Step 3: Text track found. Checking for cues...");
-                    console.log(`- Track mode is currently: ${track.mode}`);
-                    console.log(`- Number of cues initially found: ${track.cues ? track.cues.length : 'null'}`);
+                    if (track) {
+                        console.log("✅ Step 3: Text track found. Checking for cues...");
+                        console.log(`- Track mode is currently: ${track.mode}`);
+                        console.log(`- Number of cues initially found: ${track.cues ? track.cues.length : 'null'}`);
 
-                    // Cues might not be loaded yet. We MUST wait for the track's 'load' event.
-                    track.addEventListener('load', () => {
-                        console.log("✅ Step 4: Text track 'load' event fired. Cues should now be fully available.");
-                        console.log(`- Number of cues after 'load' event: ${track.cues.length}`);
-                        prepareAndRun(track);
-                    });
+                        // Cues might not be loaded yet. We MUST wait for the track's 'load' event.
+                        track.addEventListener('load', () => {
+                            console.log("✅ Step 4: Text track 'load' event fired. Cues should now be fully available.");
+                            console.log(`- Number of cues after 'load' event: ${track.cues.length}`);
+                            prepareAndRun(track);
+                        });
 
-                    // In some browsers, if the VTT is cached, the cues might be ready immediately.
-                    // This handles that edge case.
-                    if (track.cues && track.cues.length > 0) {
-                        console.log("INFO: Cues were already available. Proceeding immediately.");
-                        prepareAndRun(track);
+                        // In some browsers, if the VTT is cached, the cues might be ready immediately.
+                        // This handles that edge case.
+                        if (track.cues && track.cues.length > 0) {
+                            console.log("INFO: Cues were already available on 'loadedmetadata'. Proceeding immediately.");
+                            prepareAndRun(track);
+                        }
+
+                    } else {
+                        console.error("❌ FATAL: No text track (<track> element) found on the audio player.");
                     }
-
-                } else {
-                    console.error("❌ FATAL: No text track (<track> element) found on the audio player.");
-                }
-            });
+                });
+            }
         } else {
             console.error("❌ FATAL: Could not find audio player or content wrapper on the page.");
         }
@@ -343,7 +350,6 @@ include 'footer.php';
                 let foundMatch = false;
                 while (currentNode = treeWalker.nextNode()) {
                     if (currentNode.nodeValue.includes(cue.text)) {
-                        // Match Found!
                         const range = document.createRange();
                         const index = currentNode.nodeValue.indexOf(cue.text);
                         range.setStart(currentNode, index);
@@ -363,15 +369,16 @@ include 'footer.php';
 
             console.log(`✅ Step 6: Preparation complete. Successfully wrapped ${successfulWraps} out of ${cues.length} cues.`);
             if (successfulWraps > 0) {
-                startManualHighlighting(cues);
+                // *** THE FIX IS HERE: We now pass 'track' to the next function. ***
+                startManualHighlighting(cues, track);
             } else {
                 console.error("❌ FATAL: Failed to wrap any cues. Highlighting cannot start. Check for text mismatches between your VTT file and page content.");
             }
         }
 
-        function startManualHighlighting(cues) {
+        function startManualHighlighting(cues, track) { // <-- The 'track' parameter is now correctly received.
             console.log("✅ Step 7: Starting the highlighting loop ('timeupdate').");
-            track.mode = 'hidden';
+            track.mode = 'hidden'; // <-- This line will now work.
             let currentHighlightId = null;
 
             audio.addEventListener('timeupdate', () => {
