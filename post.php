@@ -127,15 +127,36 @@ if ($post_id > 0) {
             echo '<img src="' . htmlspecialchars($post['thumbnail'], ENT_QUOTES, 'UTF-8') . '" alt="Post Image" class="post-thumbnail">';
         }
 
-        // Check if there is a voiceover URL and display the player
-        if (!empty($post['voiceover_url'])) {
-            echo '<div class="post-voiceover">';
-            echo '<audio controls>';
-            echo '<source src="' . htmlspecialchars($post['voiceover_url'], ENT_QUOTES, 'UTF-8') . '" type="audio/mpeg">';
-            echo 'Your browser does not support the audio element.';
-            echo '</audio>';
-            echo '</div>';
-        }
+
+        // Check if there is a base voiceover URL
+if (!empty($post['voiceover_url'])) {
+    // 1. Deconstruct the original URL to get the base name and extension
+    $path_info = pathinfo($post['voiceover_url']);
+    $base_filename = $path_info['dirname'] . '/' . $path_info['filename'];
+    $extension = $path_info['extension'];
+
+    // 2. Construct the page-specific filename
+    // For page 1, we can use the original or the _p1 version for consistency
+    $page_specific_filename = $base_filename . '_p' . $page . '.' . $extension;
+    
+    // 3. IMPORTANT: Check if the page-specific audio file actually exists on the server
+    // Note: This requires the URL path to be a relative server path. 
+    // Adjust $_SERVER['DOCUMENT_ROOT'] if your files are stored elsewhere.
+    $server_path_to_audio = $_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($page_specific_filename, '/');
+
+    if (file_exists($server_path_to_audio)) {
+        echo '<div class="post-voiceover">';
+        // Give the audio element an ID for our JavaScript to find
+        echo '<audio id="post-audio-player" controls>';
+        echo '<source src="' . htmlspecialchars($page_specific_filename, ENT_QUOTES, 'UTF-8') . '" type="audio/mpeg">';
+        
+        // This is where the track for highlighting will go (See Part 2)
+        
+        echo 'Your browser does not support the audio element.';
+        echo '</audio>';
+        echo '</div>';
+    }
+}
 
         // Pagination controls
         echo '<div class="pagination" style="display: flex; justify-content: space-between; align-items: center; padding: 35px 0;">';
