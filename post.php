@@ -280,100 +280,124 @@ include 'footer.php';
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-         // --- ROBUST HIGHLIGHTING SCRIPT START ---
+         console.log("--- Debugging Initialized ---");
 
         const audio = document.getElementById('post-audio-player');
         const contentWrapper = document.getElementById('post-content-wrapper');
 
         if (audio && contentWrapper) {
+            console.log("✅ Step 1: Found audio player and content wrapper.");
+
             audio.addEventListener('loadedmetadata', () => {
+                console.log("✅ Step 2: 'loadedmetadata' event fired for the audio element.");
                 const track = audio.textTracks[0];
+
                 if (track) {
-                    // It's crucial to wait for cues to be available.
-                    // If the track is loaded but has 0 cues, it means the browser is still parsing the VTT.
-                    if (track.cues && track.cues.length > 0) {
+                    console.log("✅ Step 3: Text track found. Checking for cues...");
+                    console.log(`- Track mode is currently: ${track.mode}`);
+                    console.log(`- Number of cues initially found: ${track.cues ? track.cues.length : 'null'}`);
+
+                    // Cues might not be loaded yet. We MUST wait for the track's 'load' event.
+                    track.addEventListener('load', () => {
+                        console.log("✅ Step 4: Text track 'load' event fired. Cues should now be fully available.");
+                        console.log(`- Number of cues after 'load' event: ${track.cues.length}`);
                         prepareAndRun(track);
-                    } else {
-                        // If cues aren't ready, wait for the 'load' event on the track itself.
-                        track.addEventListener('load', () => prepareAndRun(track));
+                    });
+
+                    // In some browsers, if the VTT is cached, the cues might be ready immediately.
+                    // This handles that edge case.
+                    if (track.cues && track.cues.length > 0) {
+                        console.log("INFO: Cues were already available. Proceeding immediately.");
+                        prepareAndRun(track);
                     }
+
+                } else {
+                    console.error("❌ FATAL: No text track (<track> element) found on the audio player.");
                 }
             });
+        } else {
+            console.error("❌ FATAL: Could not find audio player or content wrapper on the page.");
         }
 
-        /**
-         * The main function that orchestrates everything.
-         */
+        let hasPrepared = false; // A flag to prevent running the preparation twice.
         function prepareAndRun(track) {
-            // PHASE 1: Prepare the content ONCE by wrapping cues in spans.
-            // This is an efficiency step so we don't have to search the DOM later.
-            const cues = Array.from(track.cues); // Create a static array of all cues
+            if (hasPrepared) {
+                console.log("INFO: Preparation has already run. Skipping.");
+                return;
+            }
+            hasPrepared = true;
+            console.log("✅ Step 5: Starting 'prepareAndRun' function...");
+
+            const cues = Array.from(track.cues);
+            if (cues.length === 0) {
+                console.error("❌ FATAL: 'prepareAndRun' was called, but no cues were found in the track. Cannot proceed.");
+                return;
+            }
+
+            let successfulWraps = 0;
             cues.forEach((cue, index) => {
-                if (!cue.id) cue.id = `cue-${index}`; // Ensure every cue has a unique ID
+                if (!cue.id) cue.id = `cue-${index}`;
 
                 const treeWalker = document.createTreeWalker(contentWrapper, NodeFilter.SHOW_TEXT);
                 let currentNode;
+                let foundMatch = false;
                 while (currentNode = treeWalker.nextNode()) {
-                    const text = currentNode.nodeValue;
-                    const index = text.indexOf(cue.text);
-                    if (index !== -1) {
+                    if (currentNode.nodeValue.includes(cue.text)) {
+                        // Match Found!
                         const range = document.createRange();
+                        const index = currentNode.nodeValue.indexOf(cue.text);
                         range.setStart(currentNode, index);
                         range.setEnd(currentNode, index + cue.text.length);
                         const span = document.createElement('span');
-                        span.id = cue.id; // Use the cue's ID for the span's ID
+                        span.id = cue.id;
                         range.surroundContents(span);
+                        successfulWraps++;
+                        foundMatch = true;
                         break;
                     }
                 }
+                if (!foundMatch) {
+                    console.warn(`⚠️ WARNING: Could not find a match on the page for VTT cue text: "${cue.text}"`);
+                }
             });
-            console.log(`Prepared ${cues.length} cues for highlighting.`);
 
-            // PHASE 2: Start the animation loop.
-            startManualHighlighting(cues);
+            console.log(`✅ Step 6: Preparation complete. Successfully wrapped ${successfulWraps} out of ${cues.length} cues.`);
+            if (successfulWraps > 0) {
+                startManualHighlighting(cues);
+            } else {
+                console.error("❌ FATAL: Failed to wrap any cues. Highlighting cannot start. Check for text mismatches between your VTT file and page content.");
+            }
         }
 
-        /**
-         * This function manually finds the correct cue based on the audio's current time.
-         */
         function startManualHighlighting(cues) {
-            track.mode = 'hidden'; // We are in control.
+            console.log("✅ Step 7: Starting the highlighting loop ('timeupdate').");
+            track.mode = 'hidden';
             let currentHighlightId = null;
 
             audio.addEventListener('timeupdate', () => {
                 const now = audio.currentTime;
                 let activeCueId = null;
 
-                // Manually find the active cue by iterating through our list.
-                // This is the core logic you suggested.
                 for (const cue of cues) {
                     if (now >= cue.startTime && now < cue.endTime) {
                         activeCueId = cue.id;
-                        break; // Found it, no need to continue the loop.
+                        break;
                     }
                 }
 
-                // Only update the DOM if the highlight needs to change.
                 if (activeCueId !== currentHighlightId) {
-                    // Remove highlight from the old element
                     if (currentHighlightId) {
                         const oldElement = document.getElementById(currentHighlightId);
                         if (oldElement) oldElement.classList.remove('highlight');
                     }
-
-                    // Add highlight to the new element
                     if (activeCueId) {
                         const newElement = document.getElementById(activeCueId);
                         if (newElement) newElement.classList.add('highlight');
                     }
-
-                    // Update our state
                     currentHighlightId = activeCueId;
                 }
             });
         }
-
-        // --- HIGHLIGHTING SCRIPT END ---
 
         const userId = <?php echo isset($_SESSION['user_id']) ? json_encode($_SESSION['user_id']) : 'null'; ?>;
 
