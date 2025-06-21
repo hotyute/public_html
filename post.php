@@ -283,71 +283,94 @@ include 'footer.php';
         const audio = document.getElementById('post-audio-player');
         const contentWrapper = document.getElementById('post-content-wrapper');
 
-        // Only run the script if the audio player and content exist on the page
         if (audio && contentWrapper) {
-            console.log('✅ Audio player and content wrapper found.');
-
-            // This is a more robust way to handle the track
+            // This function will set up our event listeners once the track is ready
             const setupTrackEvents = (track) => {
-                console.log('🎉 Track found! Mode:', track.mode, 'Label:', track.label);
                 track.mode = 'hidden'; // Don't show browser-native subtitles
 
                 let lastHighlightedElement = null;
+                let currentCueId = null; // Keep track of the currently active cue
 
-                track.oncuechange = () => {
-                    // Remove highlight from the previous element
+                // --- REUSABLE FUNCTION TO CLEAR HIGHLIGHTS ---
+                const clearHighlight = () => {
                     if (lastHighlightedElement) {
-                        // Un-highlight by replacing the span with its text content
                         const parent = lastHighlightedElement.parentNode;
-                        parent.replaceChild(document.createTextNode(lastHighlightedElement.textContent), lastHighlightedElement);
-                        parent.normalize(); // Merges adjacent text nodes
+                        if (parent) { // A safety check
+                            // Replace the <span> with its original text content
+                            parent.replaceChild(document.createTextNode(lastHighlightedElement.textContent), lastHighlightedElement);
+                            parent.normalize(); // Merges adjacent text nodes for a clean DOM
+                        }
                         lastHighlightedElement = null;
                     }
+                };
 
-                    // Find the currently active cue
-                    const activeCue = track.activeCues[0];
+                // --- REUSABLE FUNCTION TO APPLY HIGHLIGHTS ---
+                const applyHighlight = (cue) => {
+                    const cueText = cue.text;
+                    const treeWalker = document.createTreeWalker(contentWrapper, NodeFilter.SHOW_TEXT);
+                    let currentNode;
+                    while (currentNode = treeWalker.nextNode()) {
+                        const text = currentNode.nodeValue;
+                        const index = text.indexOf(cueText);
 
-                    if (activeCue) {
-                        const cueText = activeCue.text;
-                        console.log('🎤 Cue change! Searching for text:', cueText);
+                        if (index !== -1) {
+                            const range = document.createRange();
+                            range.setStart(currentNode, index);
+                            range.setEnd(currentNode, index + cueText.length);
 
-                        const treeWalker = document.createTreeWalker(contentWrapper, NodeFilter.SHOW_TEXT);
-                        let currentNode;
-                        while (currentNode = treeWalker.nextNode()) {
-                            const text = currentNode.nodeValue;
-                            const index = text.indexOf(cueText);
+                            const highlightSpan = document.createElement('span');
+                            highlightSpan.className = 'highlight'; // Ensure you have a .highlight CSS class!
+                            range.surroundContents(highlightSpan);
 
-                            if (index !== -1) {
-                                console.log('✅ Text found! Highlighting now.');
-                                const range = document.createRange();
-                                range.setStart(currentNode, index);
-                                range.setEnd(currentNode, index + cueText.length);
-
-                                const highlightSpan = document.createElement('span');
-                                highlightSpan.className = 'highlight'; // Make sure you have a .highlight CSS class!
-                                range.surroundContents(highlightSpan);
-
-                                lastHighlightedElement = highlightSpan;
-                                break; // Stop searching once found
-                            }
+                            lastHighlightedElement = highlightSpan;
+                            break; // Stop searching once we've highlighted
                         }
                     }
                 };
+                
+                // --- THE MAIN UPDATE FUNCTION ---
+                // This is the core logic that runs on cue changes or seeks.
+                const updateHighlight = () => {
+                    const activeCue = track.activeCues[0];
+                    const activeCueId = activeCue ? activeCue.id : null; // Get ID of active cue, or null if none
+
+                    // If the cue hasn't changed, do nothing. This prevents unnecessary work.
+                    if (activeCueId === currentCueId) {
+                        return;
+                    }
+                    
+                    // A new cue is active (or no cue is active), so first clear any old highlight.
+                    clearHighlight();
+
+                    // If there's a new cue, highlight it.
+                    if (activeCue) {
+                        applyHighlight(activeCue);
+                    }
+
+                    // Finally, update the current cue ID.
+                    currentCueId = activeCueId;
+                };
+
+                // --- ATTACH THE EVENT LISTENERS ---
+                // 1. Fires during normal playback when a cue starts or ends.
+                track.oncuechange = updateHighlight;
+
+                // 2. Fires when the user finishes skipping to a new time.
+                audio.addEventListener('seeked', updateHighlight);
+                
+                // 3. Initial check in case the user reloads the page mid-playback
+                audio.addEventListener('loadedmetadata', updateHighlight);
             };
 
             // Check if tracks are already loaded (can happen if VTT file loads fast)
             if (audio.textTracks.length > 0) {
-                console.log('Tracks were already loaded.');
-                setupTrackEvents(audio.textTracks[0]);
+                 setupTrackEvents(audio.textTracks[0]);
             } else {
-                // Otherwise, wait for the track to be added
-                console.log('Waiting for track to be added...');
-                audio.textTracks.onaddtrack = (event) => {
-                    setupTrackEvents(event.track);
-                };
+                 // Otherwise, wait for the track to be added
+                 audio.textTracks.onaddtrack = (event) => {
+                     setupTrackEvents(event.track);
+                 };
             }
-        } else {
-            console.error('❌ Could not find audio player or content wrapper.');
         }
 
         const userId = <?php echo isset($_SESSION['user_id']) ? json_encode($_SESSION['user_id']) : 'null'; ?>;
