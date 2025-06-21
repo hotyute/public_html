@@ -281,76 +281,72 @@ include 'footer.php';
 ?>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const audio = document.getElementById('post-audio-player');
-    const contentWrapper = document.getElementById('post-content-wrapper');
+    document.addEventListener("DOMContentLoaded", function() {
+        const audio = document.getElementById('post-audio-player');
+        const contentWrapper = document.getElementById('post-content-wrapper');
 
-    // Only run the script if the audio player and content exist on the page
-    if (audio && contentWrapper) {
-        // Wait for the track data to be loaded
-        audio.textTracks.onaddtrack = (event) => {
-            const track = event.track;
-            track.mode = 'hidden'; // Don't show browser-native subtitles
+        // Only run the script if the audio player and content exist on the page
+        if (audio && contentWrapper) {
+            // Wait for the track data to be loaded
+            audio.textTracks.onaddtrack = (event) => {
+                const track = event.track;
+                track.mode = 'hidden'; // Don't show browser-native subtitles
 
-            let lastHighlightedElement = null;
+                let lastHighlightedElement = null;
 
-            track.oncuechange = () => {
-                // Find the currently active cue
-                const activeCue = track.activeCues[0];
+                track.oncuechange = () => {
+                    // Find the currently active cue
+                    const activeCue = track.activeCues[0];
 
-                // Remove highlight from the previous element
-                if (lastHighlightedElement) {
-                    lastHighlightedElement.classList.remove('highlight');
-                }
+                    // Remove highlight from the previous element
+                    if (lastHighlightedElement) {
+                        lastHighlightedElement.classList.remove('highlight');
+                    }
 
-                if (activeCue) {
-                    // This is the text from the VTT file for the current time
-                    const cueText = activeCue.text;
-                    
-                    // A robust way to find and wrap the text
-                    // It iterates through all text nodes in the content area
-                    const treeWalker = document.createTreeWalker(contentWrapper, NodeFilter.SHOW_TEXT);
-                    let currentNode;
-                    while (currentNode = treeWalker.nextNode()) {
-                        const text = currentNode.nodeValue;
-                        const index = text.indexOf(cueText);
+                    if (activeCue) {
+                        // This is the text from the VTT file for the current time
+                        const cueText = activeCue.text;
 
-                        if (index !== -1) {
-                            // Found the text. Now, wrap it in a span to highlight it.
-                            const range = document.createRange();
-                            range.setStart(currentNode, index);
-                            range.setEnd(currentNode, index + cueText.length);
+                        // A robust way to find and wrap the text
+                        // It iterates through all text nodes in the content area
+                        const treeWalker = document.createTreeWalker(contentWrapper, NodeFilter.SHOW_TEXT);
+                        let currentNode;
+                        while (currentNode = treeWalker.nextNode()) {
+                            const text = currentNode.nodeValue;
+                            const index = text.indexOf(cueText);
 
-                            const highlightSpan = document.createElement('span');
-                            highlightSpan.className = 'highlight';
-                            range.surroundContents(highlightSpan);
+                            if (index !== -1) {
+                                // Found the text. Now, wrap it in a span to highlight it.
+                                const range = document.createRange();
+                                range.setStart(currentNode, index);
+                                range.setEnd(currentNode, index + cueText.length);
 
-                            lastHighlightedElement = highlightSpan;
-                            break; // Stop searching once found
+                                const highlightSpan = document.createElement('span');
+                                highlightSpan.className = 'highlight';
+                                range.surroundContents(highlightSpan);
+
+                                lastHighlightedElement = highlightSpan;
+                                break; // Stop searching once found
+                            }
                         }
                     }
-                }
+                };
+
+                // This part handles "un-highlighting"
+                // When a cue ends, we want to remove the highlight by replacing the <span>
+                // back with its original text content.
+                audio.addEventListener('timeupdate', () => {
+                    if (lastHighlightedElement && track.activeCues.length === 0) {
+                        const parent = lastHighlightedElement.parentNode;
+                        parent.replaceChild(document.createTextNode(lastHighlightedElement.textContent), lastHighlightedElement);
+                        // Normalize the parent to merge adjacent text nodes for cleaner DOM
+                        parent.normalize();
+                        lastHighlightedElement = null;
+                    }
+                });
             };
+        }
 
-            // This part handles "un-highlighting"
-            // When a cue ends, we want to remove the highlight by replacing the <span>
-            // back with its original text content.
-            audio.addEventListener('timeupdate', () => {
-                if (lastHighlightedElement && track.activeCues.length === 0) {
-                    const parent = lastHighlightedElement.parentNode;
-                    parent.replaceChild(document.createTextNode(lastHighlightedElement.textContent), lastHighlightedElement);
-                    // Normalize the parent to merge adjacent text nodes for cleaner DOM
-                    parent.normalize(); 
-                    lastHighlightedElement = null;
-                }
-            });
-        };
-    }
-});
-</script>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
         const userId = <?php echo isset($_SESSION['user_id']) ? json_encode($_SESSION['user_id']) : 'null'; ?>;
 
         if (userId) {
