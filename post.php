@@ -280,128 +280,74 @@ include 'footer.php';
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-         console.log("--- Debugging Initialized ---");
-
         const audio = document.getElementById('post-audio-player');
         const contentWrapper = document.getElementById('post-content-wrapper');
 
+        // Only run the script if the audio player and content exist on the page
         if (audio && contentWrapper) {
-            console.log("✅ Step 1: Found audio player and content wrapper.");
+            console.log('✅ Audio player and content wrapper found.');
 
-            const setupListeners = () => {
-                const track = audio.textTracks[0];
-                if (track) {
-                    console.log("✅ Step 3: Text track found. Checking for cues...");
-                    track.addEventListener('load', () => {
-                        console.log("✅ Step 4: Text track 'load' event fired.");
-                        prepareAndRun(track);
-                    });
-                    if (track.cues && track.cues.length > 0) {
-                        console.log("INFO: Cues were already available. Proceeding.");
-                        prepareAndRun(track);
+            // This is a more robust way to handle the track
+            const setupTrackEvents = (track) => {
+                console.log('🎉 Track found! Mode:', track.mode, 'Label:', track.label);
+                track.mode = 'hidden'; // Don't show browser-native subtitles
+
+                let lastHighlightedElement = null;
+
+                track.oncuechange = () => {
+                    // Remove highlight from the previous element
+                    if (lastHighlightedElement) {
+                        // Un-highlight by replacing the span with its text content
+                        const parent = lastHighlightedElement.parentNode;
+                        parent.replaceChild(document.createTextNode(lastHighlightedElement.textContent), lastHighlightedElement);
+                        parent.normalize(); // Merges adjacent text nodes
+                        lastHighlightedElement = null;
                     }
-                } else {
-                    console.error("❌ FATAL: No text track found.");
-                }
+
+                    // Find the currently active cue
+                    const activeCue = track.activeCues[0];
+
+                    if (activeCue) {
+                        const cueText = activeCue.text;
+                        console.log('🎤 Cue change! Searching for text:', cueText);
+
+                        const treeWalker = document.createTreeWalker(contentWrapper, NodeFilter.SHOW_TEXT);
+                        let currentNode;
+                        while (currentNode = treeWalker.nextNode()) {
+                            const text = currentNode.nodeValue;
+                            const index = text.indexOf(cueText);
+
+                            if (index !== -1) {
+                                console.log('✅ Text found! Highlighting now.');
+                                const range = document.createRange();
+                                range.setStart(currentNode, index);
+                                range.setEnd(currentNode, index + cueText.length);
+
+                                const highlightSpan = document.createElement('span');
+                                highlightSpan.className = 'highlight'; // Make sure you have a .highlight CSS class!
+                                range.surroundContents(highlightSpan);
+
+                                lastHighlightedElement = highlightSpan;
+                                break; // Stop searching once found
+                            }
+                        }
+                    }
+                };
             };
 
-            if (audio.readyState >= 1) { // 1 means HAVE_METADATA
-                console.log("✅ Step 2: Audio metadata was already loaded. Setting up listeners.");
-                setupListeners();
+            // Check if tracks are already loaded (can happen if VTT file loads fast)
+            if (audio.textTracks.length > 0) {
+                console.log('Tracks were already loaded.');
+                setupTrackEvents(audio.textTracks[0]);
             } else {
-                audio.addEventListener('loadedmetadata', () => {
-                    console.log("✅ Step 2: 'loadedmetadata' event fired. Setting up listeners.");
-                    setupListeners();
-                });
+                // Otherwise, wait for the track to be added
+                console.log('Waiting for track to be added...');
+                audio.textTracks.onaddtrack = (event) => {
+                    setupTrackEvents(event.track);
+                };
             }
         } else {
-            console.error("❌ FATAL: Could not find audio player or content wrapper.");
-        }
-
-        let hasPrepared = false;
-        function prepareAndRun(track) {
-            if (hasPrepared) return;
-            hasPrepared = true;
-            console.log("✅ Step 5: Starting 'prepareAndRun' function...");
-
-            const cues = Array.from(track.cues);
-            if (cues.length === 0) {
-                console.error("❌ FATAL: No cues found in the track.");
-                return;
-            }
-
-            let successfulWraps = 0;
-            cues.forEach((cue, index) => {
-                if (!cue.id) cue.id = `cue-${index}`;
-                
-                // *** THE FIX IS HERE ***
-                // Create a temporary div to strip HTML tags from the cue text.
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = cue.text;
-                const plainTextCue = tempDiv.textContent || tempDiv.innerText || "";
-                // *** END OF FIX ***
-
-
-                const treeWalker = document.createTreeWalker(contentWrapper, NodeFilter.SHOW_TEXT);
-                let currentNode;
-                let foundMatch = false;
-                while (currentNode = treeWalker.nextNode()) {
-                    // We now search for the PLAIN TEXT version of the cue.
-                    if (currentNode.nodeValue.includes(plainTextCue)) {
-                        const range = document.createRange();
-                        const startIndex = currentNode.nodeValue.indexOf(plainTextCue);
-                        range.setStart(currentNode, startIndex);
-                        range.setEnd(currentNode, startIndex + plainTextCue.length);
-                        const span = document.createElement('span');
-                        span.id = cue.id;
-                        range.surroundContents(span);
-                        successfulWraps++;
-                        foundMatch = true;
-                        break;
-                    }
-                }
-                if (!foundMatch) {
-                    // This log now shows the plain text it was looking for, making it easier to debug.
-                    console.warn(`⚠️ WARNING: Could not find a match for plain text: "${plainTextCue}"`);
-                }
-            });
-
-            console.log(`✅ Step 6: Preparation complete. Successfully wrapped ${successfulWraps} out of ${cues.length} cues.`);
-            if (successfulWraps > 0) {
-                startManualHighlighting(cues, track);
-            } else {
-                console.error("❌ FATAL: Failed to wrap any cues. Highlighting cannot start.");
-            }
-        }
-
-        function startManualHighlighting(cues, track) {
-            console.log("✅ Step 7: Starting the highlighting loop.");
-            track.mode = 'hidden';
-            let currentHighlightId = null;
-
-            audio.addEventListener('timeupdate', () => {
-                const now = audio.currentTime;
-                let activeCueId = null;
-
-                for (const cue of cues) {
-                    if (now >= cue.startTime && now < cue.endTime) {
-                        activeCueId = cue.id;
-                        break;
-                    }
-                }
-
-                if (activeCueId !== currentHighlightId) {
-                    if (currentHighlightId) {
-                        const oldElement = document.getElementById(currentHighlightId);
-                        if (oldElement) oldElement.classList.remove('highlight');
-                    }
-                    if (activeCueId) {
-                        const newElement = document.getElementById(activeCueId);
-                        if (newElement) newElement.classList.add('highlight');
-                    }
-                    currentHighlightId = activeCueId;
-                }
-            });
+            console.error('❌ Could not find audio player or content wrapper.');
         }
 
         const userId = <?php echo isset($_SESSION['user_id']) ? json_encode($_SESSION['user_id']) : 'null'; ?>;
