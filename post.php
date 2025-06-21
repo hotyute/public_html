@@ -280,89 +280,109 @@ include 'footer.php';
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // --- HIGHLIGHTING SCRIPT START ---
+        // --- ROBUST HIGHLIGHTING SCRIPT START ---
 
         const audio = document.getElementById('post-audio-player');
         const contentWrapper = document.getElementById('post-content-wrapper');
 
         if (audio && contentWrapper) {
-            // Wait for the track data to be ready before setting up listeners
+            // Wait for all metadata (including the VTT track) to be loaded.
             audio.addEventListener('loadedmetadata', () => {
-                if (audio.textTracks && audio.textTracks.length > 0) {
-                    setupHighlighting(audio.textTracks[0]);
+                // Find the text track. It might not be loaded instantly.
+                const track = audio.textTracks[0];
+                if (!track) {
+                    // This is a rare fallback, but good to have.
+                    audio.textTracks.onaddtrack = (e) => setupCues(e.track);
                 } else {
-                    // Fallback if loadedmetadata fires before track is added
-                    audio.textTracks.onaddtrack = (event) => {
-                        setupHighlighting(event.track);
-                    };
+                    setupCues(track);
                 }
             });
         }
-        
-        function setupHighlighting(track) {
-            track.mode = 'hidden'; // We are handling the display ourselves
-            let currentCueId = null; // Stores the ID of the currently highlighted cue
 
-            // This is our main engine. It runs frequently but only acts when needed.
-            const updateHighlight = () => {
-                const activeCue = track.activeCues[0];
-                const activeCueId = activeCue ? activeCue.id : null;
+        /**
+         * PHASE 1: Prepare the content.
+         * This function runs ONCE. It finds all the text from the VTT cues
+         * and wraps them in a <span data-cue-id="..."> so we can easily target them later.
+         */
+        function setupCues(track) {
+            // We need to wait for the cues themselves to be available.
+            // Using a small delay is a reliable way to ensure this.
+            setTimeout(() => {
+                if (!track.cues || track.cues.length === 0) {
+                    console.error("VTT track loaded, but no cues were found. Check the VTT file format.");
+                    return;
+                }
 
-                //
-                // THE CORE LOGIC: Only do work if the active cue has changed.
-                //
-                if (activeCueId !== currentCueId) {
-                    // 1. First, clear any existing highlight.
-                    const existingHighlight = contentWrapper.querySelector('span.highlight');
-                    if (existingHighlight) {
-                        const parent = existingHighlight.parentNode;
-                        parent.replaceChild(document.createTextNode(existingHighlight.textContent), existingHighlight);
-                        parent.normalize(); // Clean up the DOM by merging text nodes
-                    }
+                // Give each cue a unique ID if it doesn't have one.
+                // VTT cues get a default ID like "1", "2", etc. which is fine.
+                // We will use this ID to link the cue to a span.
+                for (let i = 0; i < track.cues.length; i++) {
+                    const cue = track.cues[i];
+                    if (!cue.id) cue.id = `cue-${i+1}`;
+                    
+                    const treeWalker = document.createTreeWalker(contentWrapper, NodeFilter.SHOW_TEXT);
+                    let currentNode;
+                    while (currentNode = treeWalker.nextNode()) {
+                        const text = currentNode.nodeValue;
+                        const index = text.indexOf(cue.text);
 
-                    // 2. If there is a new cue, highlight its text.
-                    if (activeCue) {
-                        const cueText = activeCue.text;
-                        const treeWalker = document.createTreeWalker(contentWrapper, NodeFilter.SHOW_TEXT);
-                        let currentNode;
-                        while (currentNode = treeWalker.nextNode()) {
-                            const text = currentNode.nodeValue;
-                            const index = text.indexOf(cueText);
+                        if (index !== -1) {
+                            const range = document.createRange();
+                            range.setStart(currentNode, index);
+                            range.setEnd(currentNode, index + cue.text.length);
 
-                            if (index !== -1) {
-                                const range = document.createRange();
-                                range.setStart(currentNode, index);
-                                range.setEnd(currentNode, index + cueText.length);
+                            const span = document.createElement('span');
+                            span.setAttribute('data-cue-id', cue.id);
+                            range.surroundContents(span);
 
-                                const highlightSpan = document.createElement('span');
-                                highlightSpan.className = 'highlight';
-                                try {
-                                    range.surroundContents(highlightSpan);
-                                } catch(e) {
-                                    console.error("Error highlighting text. Is the cue text split across HTML tags?", e);
-                                }
-                                break; // Found and highlighted, so stop searching
-                            }
+                            // We've wrapped this text, so we break to avoid re-wrapping
+                            // if the same sentence appears twice.
+                            break; 
                         }
                     }
-                    
-                    // 3. Finally, update our state to remember what's now highlighted.
-                    currentCueId = activeCueId;
                 }
-            };
 
-            // Use 'timeupdate' as the single event to drive everything.
-            // It fires during playback and also after a seek operation completes.
-            audio.addEventListener('timeupdate', updateHighlight);
+                console.log(`Prepared content by wrapping ${track.cues.length} text cues.`);
+                
+                // Now that the content is prepared, start the animation phase.
+                startHighlighting(track);
 
-            // Also check when playback ends to clear the final highlight
-            audio.addEventListener('ended', () => {
-                 currentCueId = 'end'; // Force a change
-                 updateHighlight();
+            }, 250); // 250ms delay to ensure browser has parsed cues.
+        }
+
+        /**
+         * PHASE 2: Animate the highlights.
+         * This runs continuously but is very lightweight. It only adds/removes a class.
+         */
+        function startHighlighting(track) {
+            track.mode = 'hidden'; // We control the display, not the browser.
+            let currentHighlightElement = null;
+
+            audio.addEventListener('timeupdate', () => {
+                const activeCue = track.activeCues[0];
+
+                let elementToHighlight = null;
+                if (activeCue) {
+                    elementToHighlight = contentWrapper.querySelector(`span[data-cue-id="${activeCue.id}"]`);
+                }
+
+                // If the element that should be highlighted is different from the one that is, update.
+                if (elementToHighlight !== currentHighlightElement) {
+                    // Remove highlight from the old element
+                    if (currentHighlightElement) {
+                        currentHighlightElement.classList.remove('highlight');
+                    }
+                    // Add highlight to the new element
+                    if (elementToHighlight) {
+                        elementToHighlight.classList.add('highlight');
+                    }
+                    // Update our state
+                    currentHighlightElement = elementToHighlight;
+                }
             });
         }
 
-
+        // --- HIGHLIGHTING SCRIPT END ---
 
         const userId = <?php echo isset($_SESSION['user_id']) ? json_encode($_SESSION['user_id']) : 'null'; ?>;
 
