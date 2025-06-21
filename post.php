@@ -285,28 +285,32 @@ include 'footer.php';
 
         // Only run the script if the audio player and content exist on the page
         if (audio && contentWrapper) {
-            // Wait for the track data to be loaded
-            audio.textTracks.onaddtrack = (event) => {
-                const track = event.track;
+            console.log('✅ Audio player and content wrapper found.');
+
+            // This is a more robust way to handle the track
+            const setupTrackEvents = (track) => {
+                console.log('🎉 Track found! Mode:', track.mode, 'Label:', track.label);
                 track.mode = 'hidden'; // Don't show browser-native subtitles
 
                 let lastHighlightedElement = null;
 
                 track.oncuechange = () => {
+                    // Remove highlight from the previous element
+                    if (lastHighlightedElement) {
+                        // Un-highlight by replacing the span with its text content
+                        const parent = lastHighlightedElement.parentNode;
+                        parent.replaceChild(document.createTextNode(lastHighlightedElement.textContent), lastHighlightedElement);
+                        parent.normalize(); // Merges adjacent text nodes
+                        lastHighlightedElement = null;
+                    }
+
                     // Find the currently active cue
                     const activeCue = track.activeCues[0];
 
-                    // Remove highlight from the previous element
-                    if (lastHighlightedElement) {
-                        lastHighlightedElement.classList.remove('highlight');
-                    }
-
                     if (activeCue) {
-                        // This is the text from the VTT file for the current time
                         const cueText = activeCue.text;
+                        console.log('🎤 Cue change! Searching for text:', cueText);
 
-                        // A robust way to find and wrap the text
-                        // It iterates through all text nodes in the content area
                         const treeWalker = document.createTreeWalker(contentWrapper, NodeFilter.SHOW_TEXT);
                         let currentNode;
                         while (currentNode = treeWalker.nextNode()) {
@@ -314,13 +318,13 @@ include 'footer.php';
                             const index = text.indexOf(cueText);
 
                             if (index !== -1) {
-                                // Found the text. Now, wrap it in a span to highlight it.
+                                console.log('✅ Text found! Highlighting now.');
                                 const range = document.createRange();
                                 range.setStart(currentNode, index);
                                 range.setEnd(currentNode, index + cueText.length);
 
                                 const highlightSpan = document.createElement('span');
-                                highlightSpan.className = 'highlight';
+                                highlightSpan.className = 'highlight'; // Make sure you have a .highlight CSS class!
                                 range.surroundContents(highlightSpan);
 
                                 lastHighlightedElement = highlightSpan;
@@ -329,20 +333,21 @@ include 'footer.php';
                         }
                     }
                 };
-
-                // This part handles "un-highlighting"
-                // When a cue ends, we want to remove the highlight by replacing the <span>
-                // back with its original text content.
-                audio.addEventListener('timeupdate', () => {
-                    if (lastHighlightedElement && track.activeCues.length === 0) {
-                        const parent = lastHighlightedElement.parentNode;
-                        parent.replaceChild(document.createTextNode(lastHighlightedElement.textContent), lastHighlightedElement);
-                        // Normalize the parent to merge adjacent text nodes for cleaner DOM
-                        parent.normalize();
-                        lastHighlightedElement = null;
-                    }
-                });
             };
+
+            // Check if tracks are already loaded (can happen if VTT file loads fast)
+            if (audio.textTracks.length > 0) {
+                console.log('Tracks were already loaded.');
+                setupTrackEvents(audio.textTracks[0]);
+            } else {
+                // Otherwise, wait for the track to be added
+                console.log('Waiting for track to be added...');
+                audio.textTracks.onaddtrack = (event) => {
+                    setupTrackEvents(event.track);
+                };
+            }
+        } else {
+            console.error('❌ Could not find audio player or content wrapper.');
         }
 
         const userId = <?php echo isset($_SESSION['user_id']) ? json_encode($_SESSION['user_id']) : 'null'; ?>;
