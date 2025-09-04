@@ -105,39 +105,7 @@ include '../header.php';
 </style>
 
 <!-- CKEditor 4 (free, open-source) -->
-<script>
-(function loadCK(callback) {
-  var s = document.createElement('script');
-  s.src = "https://cdn.ckeditor.com/4.25.1-lts/full-all/ckeditor.js";
-  s.onload = callback;
-  s.onerror = function () {
-    // Fallback to self-hosted copy (see Option C)
-    var l = document.createElement('script');
-    l.src = "/vendor/ckeditor4/ckeditor.js";
-    l.onload = callback;
-    document.head.appendChild(l);
-  };
-  document.head.appendChild(s);
-})(function initCK() {
-  // Initialize the editor (keep your existing config here)
-  CKEDITOR.replace('content', {
-    height: 650,
-    extraPlugins: 'pagebreak,colorbutton,font,justify',
-    removePlugins: 'elementspath',
-    resize_enabled: true,
-    allowedContent: true, // server still sanitizes
-    toolbar: [
-      { name: 'document', items: ['Source','Preview','Maximize','ShowBlocks'] },
-      { name: 'clipboard', items: ['Undo','Redo'] },
-      { name: 'styles', items: ['Styles','Format','Font','FontSize'] },
-      { name: 'basicstyles', items: ['Bold','Italic','Underline','Strike','Subscript','Superscript','RemoveFormat'] },
-      { name: 'colors', items: ['TextColor','BGColor'] },
-      { name: 'paragraph', items: ['NumberedList','BulletedList','Outdent','Indent','Blockquote','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'] },
-      { name: 'insert', items: ['Table','HorizontalRule','PageBreak','Link','Unlink'] }
-    ]
-  });
-});
-</script>
+<script src="/vendor/ckeditor4/ckeditor.js"></script>
 
 <div class="admin-content">
     <h2>Edit Post</h2>
