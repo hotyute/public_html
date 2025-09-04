@@ -1,4 +1,1 @@
-  /* Ensure nothing sits above the editor unintentionally */
-  .tox-tinymce, .tox .tox-editor-container { position: relative; z-index: 10; }
-  /* If some overlay is blocking clicks, this keeps the editor interactive */
-  .tox-tinymce { pointer-events: auto; }
+.cke { position: relative; z-index: 10; }

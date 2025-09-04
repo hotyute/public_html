@@ -105,23 +105,40 @@ include '../header.php';
 </style>
 
 <!-- CKEditor 4 (free, open-source) -->
-<script src="/vendor/ckeditor4/ckeditor.js"></script>
+<!-- Self-hosted CKEditor 4 LTS loader -->
 <script>
-  CKEDITOR.replace('content', {
-    height: 650,
-    extraPlugins: 'pagebreak,colorbutton,font,justify',
-    removePlugins: 'elementspath',
-    resize_enabled: true,
-    allowedContent: true,
-    toolbar: [
-      { name: 'document', items: ['Source','Preview','Maximize','ShowBlocks'] },
-      { name: 'clipboard', items: ['Undo','Redo'] },
-      { name: 'styles', items: ['Styles','Format','Font','FontSize'] },
-      { name: 'basicstyles', items: ['Bold','Italic','Underline','Strike','Subscript','Superscript','RemoveFormat'] },
-      { name: 'colors', items: ['TextColor','BGColor'] },
-      { name: 'paragraph', items: ['NumberedList','BulletedList','Outdent','Indent','Blockquote','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'] },
-      { name: 'insert', items: ['Table','HorizontalRule','PageBreak','Link','Unlink'] }
-    ]
+  // IMPORTANT: this must point to the folder that contains ckeditor.js, plugins/, skins/, lang/
+  window.CKEDITOR_BASEPATH = '/vendor/ckeditor4/';
+
+  (function loadCK(callback) {
+    var s = document.createElement('script');
+    s.src = CKEDITOR_BASEPATH + 'ckeditor.js';
+    s.onload = callback;
+    s.onerror = function () {
+      console.error('Failed to load', s.src, 'Check path and Nginx static route.');
+    };
+    document.head.appendChild(s);
+  })(function initCK() {
+    if (!window.CKEDITOR) {
+      console.error('CKEDITOR global missing after load. Check CSP and console errors.');
+      return;
+    }
+    CKEDITOR.replace('content', {
+      height: 650,
+      extraPlugins: 'pagebreak,colorbutton,font,justify',
+      removePlugins: 'elementspath',
+      resize_enabled: true,
+      allowedContent: true, // server still sanitizes
+      toolbar: [
+        { name: 'document', items: ['Source','Preview','Maximize','ShowBlocks'] },
+        { name: 'clipboard', items: ['Undo','Redo'] },
+        { name: 'styles', items: ['Styles','Format','Font','FontSize'] },
+        { name: 'basicstyles', items: ['Bold','Italic','Underline','Strike','Subscript','Superscript','RemoveFormat'] },
+        { name: 'colors', items: ['TextColor','BGColor'] },
+        { name: 'paragraph', items: ['NumberedList','BulletedList','Outdent','Indent','Blockquote','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'] },
+        { name: 'insert', items: ['Table','HorizontalRule','PageBreak','Link','Unlink'] }
+      ]
+    });
   });
 </script>
 
