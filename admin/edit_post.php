@@ -106,6 +106,24 @@ include '../header.php';
 
 <!-- CKEditor 4 (free, open-source) -->
 <script src="/vendor/ckeditor4/ckeditor.js"></script>
+<script>
+  CKEDITOR.replace('content', {
+    height: 650,
+    extraPlugins: 'pagebreak,colorbutton,font,justify',
+    removePlugins: 'elementspath',
+    resize_enabled: true,
+    allowedContent: true,
+    toolbar: [
+      { name: 'document', items: ['Source','Preview','Maximize','ShowBlocks'] },
+      { name: 'clipboard', items: ['Undo','Redo'] },
+      { name: 'styles', items: ['Styles','Format','Font','FontSize'] },
+      { name: 'basicstyles', items: ['Bold','Italic','Underline','Strike','Subscript','Superscript','RemoveFormat'] },
+      { name: 'colors', items: ['TextColor','BGColor'] },
+      { name: 'paragraph', items: ['NumberedList','BulletedList','Outdent','Indent','Blockquote','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'] },
+      { name: 'insert', items: ['Table','HorizontalRule','PageBreak','Link','Unlink'] }
+    ]
+  });
+</script>
 
 <div class="admin-content">
     <h2>Edit Post</h2>
