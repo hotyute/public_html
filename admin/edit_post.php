@@ -11,14 +11,14 @@ require_once '../base_config.php';
 require_once '../includes/database.php';
 require_once '../includes/sanitize.php';
 
-// Fetch all posts for dropdown
+// Fetch posts for dropdown
 $stmt = $pdo->prepare("SELECT id, title, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') as formatted_date FROM posts ORDER BY created_at DESC");
 $stmt->execute();
 $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Handle POST (update/delete)
+$status_message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // CSRF
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
         die('Invalid CSRF token');
     }
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['delete']) && isset($_POST['post_id'])) {
         $post_id = (int)$_POST['post_id'];
 
-        // Delete thumbnail file if any
+        // Remove thumbnail if exists
         $existing_thumbnail_stmt = $pdo->prepare("SELECT thumbnail FROM posts WHERE id = ?");
         $existing_thumbnail_stmt->execute([$post_id]);
         $existing_thumbnail = $existing_thumbnail_stmt->fetchColumn();
@@ -44,22 +44,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $post_id = (int)$_POST['post_id'];
         $title   = sanitize_html($_POST['title'] ?? '');
 
-        // Convert CKEditor pagebreaks (<hr class="pagebreak">) to <!-- pagebreak -->
+        // Convert Summernote pagebreak (<hr class="pagebreak">) to <!-- pagebreak -->
         $rawContent = $_POST['content'] ?? '';
         $rawContent = preg_replace('/<hr\b[^>]*class="[^"]*\bpagebreak\b[^"]*"[^>]*>/i', '<!-- pagebreak -->', $rawContent);
 
-        // Sanitize but keep formatting
-        $content    = sanitize_html2($rawContent);
+        // Sanitize while preserving formatting; custom filter keeps <!-- pagebreak -->
+        $content = sanitize_html2($rawContent);
 
         // Handle thumbnail (optional)
         $existing_thumbnail_stmt = $pdo->prepare("SELECT thumbnail FROM posts WHERE id = ?");
         $existing_thumbnail_stmt->execute([$post_id]);
         $existing_thumbnail = $existing_thumbnail_stmt->fetchColumn();
-
         $thumbnail = $existing_thumbnail;
 
         if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
-            // Validate image
             $allowed = ['image/jpeg','image/png','image/gif','image/webp'];
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $mime  = finfo_file($finfo, $_FILES['thumbnail']['tmp_name']);
@@ -98,14 +96,17 @@ include '../header.php';
 ?>
 <style>
   .admin-content { max-width: 1200px; margin: 40px auto; }
-  .admin-content .form-group label { font-weight: bold; }
+  .admin-content .form-group label { font-weight: bold; display: block; margin: 8px 0; }
   #current_thumbnail img { max-width: 240px; border-radius: 4px; border: 1px solid #ddd; }
-  /* Ensure editor is clickable above other UI */
-  .cke { position: relative; z-index: 10; }
+  /* Keep editor interactive above surrounding UI */
+  .note-editor.note-frame { z-index: 10; position: relative; }
 </style>
 
-<!-- CKEditor 4 (free, open-source) -->
-<script src="https://cdn.ckeditor.com/4.22.1/full-all/ckeditor.js"></script>
+<!-- Summernote Lite (self-hosted) + jQuery (self-hosted with CDN fallback) -->
+<link href="/vendor/summernote/summernote-lite.min.css" rel="stylesheet">
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"><\/script>');</script>
+<script src="/vendor/summernote/summernote-lite.min.js"></script>
 
 <div class="admin-content">
     <h2>Edit Post</h2>
@@ -132,7 +133,7 @@ include '../header.php';
         </div>
 
         <div class="form-group">
-            <label for="content">Content (Bold/Italic/Underline, Colors/Highlight, Fonts, Alignment, Lists, Tables, Links, Page Breaks, Fullscreen):</label>
+            <label for="content">Content (Bold/Italic/Underline, Colors/Highlight, Fonts, Size, Alignment, Lists, Tables, Links, Page Breaks, Fullscreen):</label>
             <textarea id="content" name="content" rows="18"></textarea>
         </div>
 
@@ -154,72 +155,91 @@ include '../header.php';
 </div>
 
 <script>
-// Transform between server format and editor format for page breaks
+// Convert between server comments and editor HR markers for page breaks
 function serverToEditor(html) {
-  // Convert <!-- pagebreak --> to a visible rule for CKEditor
-  return html.replace(/<!--\s*pagebreak\s*-->/gi, '<hr class="pagebreak" />');
+  return (html || '').replace(/<!--\s*pagebreak\s*-->/gi, '<hr class="pagebreak">');
 }
 function editorToServer(html) {
-  // Convert CKEditor pagebreaks back to <!-- pagebreak -->
-  return html.replace(/<hr\b[^>]*class="[^"]*\bpagebreak\b[^"]*"[^>]*>/gi, '<!-- pagebreak -->');
+  return (html || '').replace(/<hr\b[^>]*class="[^"]*\bpagebreak\b[^"]*"[^>]*>/gi, '<!-- pagebreak -->');
 }
 
-// Initialize CKEditor with a Word-like toolbar
-CKEDITOR.replace('content', {
-  height: 650,
-  extraPlugins: 'pagebreak,colorbutton,font,justify',
-  removePlugins: 'elementspath',
-  resize_enabled: true,
-  allowedContent: true, // keep formatting; server still sanitizes
-  toolbar: [
-    { name: 'document', items: ['Source','Preview','Maximize','ShowBlocks'] },
-    { name: 'clipboard', items: ['Undo','Redo'] },
-    { name: 'styles', items: ['Styles','Format','Font','FontSize'] },
-    { name: 'basicstyles', items: ['Bold','Italic','Underline','Strike','Subscript','Superscript','RemoveFormat'] },
-    { name: 'colors', items: ['TextColor','BGColor'] },
-    { name: 'paragraph', items: ['NumberedList','BulletedList','Outdent','Indent','Blockquote','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'] },
-    { name: 'insert', items: ['Table','HorizontalRule','PageBreak','Link','Unlink'] }
-  ],
+// Custom Page Break button (PB) for Summernote
+function pageBreakButton(context) {
+  const ui = $.summernote.ui;
+  return ui.button({
+    contents: '<span style="font-weight:bold;">PB</span>',
+    tooltip: 'Page Break',
+    click: function () {
+      const hr = document.createElement('hr');
+      hr.className = 'pagebreak';
+      context.invoke('editor.insertNode', hr);
+    }
+  }).render();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  $('#content').summernote({
+    height: 650,
+    placeholder: 'Write your post...',
+    toolbar: [
+      ['style', ['style']],
+      ['font', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
+      ['font2', ['fontname', 'fontsize', 'color']],
+      ['para', ['ul', 'ol', 'paragraph']],
+      // Note: 'picture' is intentionally omitted to avoid base64 images in content.
+      ['insert', ['link', 'table', 'hr']],
+      ['view', ['codeview', 'fullscreen', 'help']],
+      ['custom', ['pagebreak']]
+    ],
+    buttons: { pagebreak: pageBreakButton },
+    fontNames: ['Georgia', 'Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Verdana'],
+    fontSizes: ['10', '12', '14', '16', '18', '20', '24', '28', '32'],
+    callbacks: {
+      onInit: function() {
+        $('.note-editable').attr('contenteditable', 'true');
+      }
+    }
+  });
+
+  // Convert to <!-- pagebreak --> on submit
+  const form = document.getElementById('edit-post-form');
+  if (form) {
+    form.addEventListener('submit', function() {
+      const html = $('#content').summernote('code');
+      document.getElementById('content').value = editorToServer(html);
+    });
+  }
 });
 
-// Load post data into editor (converting pagebreak comments to visible rules)
+// Load post data
 function loadPostData(postId) {
-    if (!postId) {
-        document.getElementById('title').value = '';
-        if (CKEDITOR.instances.content) CKEDITOR.instances.content.setData('');
-        document.getElementById('current_thumbnail').innerHTML = 'No thumbnail.';
-        return;
-    }
-    fetch('/includes/posts/get_post_data.php?post_id=' + encodeURIComponent(postId))
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('title').value = decodeHtmlEntities(data.title || '');
-            const html = serverToEditor(decodeHtmlEntities(data.content || ''));
-            if (CKEDITOR.instances.content) CKEDITOR.instances.content.setData(html);
+  if (!postId) {
+    $('#title').val('');
+    $('#content').summernote('code', '');
+    $('#current_thumbnail').html('No thumbnail.');
+    return;
+  }
+  fetch('/includes/posts/get_post_data.php?post_id=' + encodeURIComponent(postId))
+    .then(r => r.json())
+    .then(data => {
+      $('#title').val(decodeHtmlEntities(data.title || ''));
+      const html = serverToEditor(decodeHtmlEntities(data.content || ''));
+      $('#content').summernote('code', html);
 
-            var currentThumbnailDiv = document.getElementById('current_thumbnail');
-            if (data.thumbnail) {
-                var thumbnailPath = data.thumbnail.replace('../', '/');
-                currentThumbnailDiv.innerHTML = '<img src="' + thumbnailPath + '" alt="Current Thumbnail">';
-            } else {
-                currentThumbnailDiv.innerHTML = 'No thumbnail.';
-            }
-        });
+      const div = document.getElementById('current_thumbnail');
+      if (data.thumbnail) {
+        const path = data.thumbnail.replace('../', '/');
+        div.innerHTML = '<img src="' + path + '" alt="Current Thumbnail">';
+      } else {
+        div.innerHTML = 'No thumbnail.';
+      }
+    });
 }
 
 function decodeHtmlEntities(str) {
-    var textarea = document.createElement('textarea');
-    textarea.innerHTML = str || '';
-    return textarea.value;
+  var ta = document.createElement('textarea');
+  ta.innerHTML = str || '';
+  return ta.value;
 }
-
-// On submit: convert pagebreak rules to <!-- pagebreak --> and move content into the textarea
-document.getElementById('edit-post-form').addEventListener('submit', function() {
-    if (CKEDITOR.instances.content) {
-        var html = CKEDITOR.instances.content.getData();
-        html = editorToServer(html);
-        document.getElementById('content').value = html; // set textarea value
-    }
-});
 </script>
 <?php include '../footer.php'; ?>
