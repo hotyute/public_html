@@ -282,255 +282,205 @@ include 'footer.php';
     document.addEventListener("DOMContentLoaded", function() {
         const audio = document.getElementById('post-audio-player');
         const contentWrapper = document.getElementById('post-content-wrapper');
+        if (!audio || !contentWrapper) return;
 
-        // Only run the script if the audio player and content exist on the page
-        if (audio && contentWrapper) {
-            console.log('✅ Audio player and content wrapper found.');
+        const HIGHLIGHT_CLASS = 'highlight'; // uses your existing .highlight CSS
+        const CUE_SPAN_CLASS = 'cue-frag'; // wrapper for each cue’s text
+        let track = null;
+        let cueSpans = new Map(); // Map<number index, HTMLElement span>
+        let wrapped = false;
 
-            // This is a more robust way to handle the track
-            const setupTrackEvents = (track) => {
-                console.log('🎉 Track found! Mode:', track.mode, 'Label:', track.label);
-                track.mode = 'hidden'; // Don't show browser-native subtitles
-
-                let lastHighlightedElement = null;
-
-                track.oncuechange = () => {
-                    // Remove highlight from the previous element
-                    if (lastHighlightedElement) {
-                        // Un-highlight by replacing the span with its text content
-                        const parent = lastHighlightedElement.parentNode;
-                        parent.replaceChild(document.createTextNode(lastHighlightedElement.textContent), lastHighlightedElement);
-                        parent.normalize(); // Merges adjacent text nodes
-                        lastHighlightedElement = null;
-                    }
-
-                    // Find the currently active cue
-                    const activeCue = track.activeCues[0];
-
-                    if (activeCue) {
-                        const cueText = activeCue.text;
-                        console.log('🎤 Cue change! Searching for text:', cueText);
-
-                        const treeWalker = document.createTreeWalker(contentWrapper, NodeFilter.SHOW_TEXT);
-                        let currentNode;
-                        while (currentNode = treeWalker.nextNode()) {
-                            const text = currentNode.nodeValue;
-                            const index = text.indexOf(cueText);
-
-                            if (index !== -1) {
-                                console.log('✅ Text found! Highlighting now.');
-                                const range = document.createRange();
-                                range.setStart(currentNode, index);
-                                range.setEnd(currentNode, index + cueText.length);
-
-                                const highlightSpan = document.createElement('span');
-                                highlightSpan.className = 'highlight'; // Make sure you have a .highlight CSS class!
-                                range.surroundContents(highlightSpan);
-
-                                lastHighlightedElement = highlightSpan;
-                                break; // Stop searching once found
-                            }
-                        }
-                    }
-                };
+        // Throttle helper for timeupdate
+        function throttle(fn, wait) {
+            let last = 0,
+                t = null;
+            return function(...args) {
+                const now = Date.now();
+                if (now - last >= wait) {
+                    last = now;
+                    fn.apply(this, args);
+                } else {
+                    clearTimeout(t);
+                    t = setTimeout(() => {
+                        last = Date.now();
+                        fn.apply(this, args);
+                    }, wait - (now - last));
+                }
             };
-
-            // Check if tracks are already loaded (can happen if VTT file loads fast)
-            if (audio.textTracks.length > 0) {
-                console.log('Tracks were already loaded.');
-                setupTrackEvents(audio.textTracks[0]);
-            } else {
-                // Otherwise, wait for the track to be added
-                console.log('Waiting for track to be added...');
-                audio.textTracks.onaddtrack = (event) => {
-                    setupTrackEvents(event.track);
-                };
-            }
-        } else {
-            console.error('❌ Could not find audio player or content wrapper.');
         }
 
-        const userId = <?php echo isset($_SESSION['user_id']) ? json_encode($_SESSION['user_id']) : 'null'; ?>;
+        // Find the first occurrence of `needle` across text nodes starting from startNode/startOffset
+        function findNextOccurrence(root, needle, startNode = null, startOffset = 0) {
+            if (!needle) return null;
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+            if (startNode) {
+                walker.currentNode = startNode;
+                // Workaround: resume after startNode by advancing once if we already consumed part of it
+                if (startOffset > 0) walker.nextNode();
+            }
 
-        if (userId) {
-            // Handle main comment submission
-            document.getElementById('submitComment').addEventListener('click', function() {
-                const commentText = document.querySelector('#commentForm textarea').value;
-                const csrfToken = document.querySelector('#commentForm input[name="csrf_token"]').value;
+            let node;
+            while ((node = walker.nextNode())) {
+                const text = node.nodeValue || '';
+                const idx = text.indexOf(needle);
+                if (idx !== -1) {
+                    const range = document.createRange();
+                    range.setStart(node, idx);
+                    range.setEnd(node, idx + needle.length);
+                    return range;
+                }
+            }
+            return null;
+        }
 
-                if (!commentText) {
-                    alert('Please enter a comment.');
-                    return;
+        // Pre-wrap all cues’ text (in order) with spans so we can just toggle classes later.
+        async function wrapAllCues() {
+            if (!track || !track.cues || track.cues.length === 0 || wrapped) return;
+
+            // Safety: remove any previous wrappers if re-initializing
+            contentWrapper.querySelectorAll('.' + CUE_SPAN_CLASS).forEach(el => {
+                const parent = el.parentNode;
+                if (!parent) return;
+                parent.replaceChild(document.createTextNode(el.textContent), el);
+                parent.normalize();
+            });
+            cueSpans.clear();
+
+            let searchStartNode = null;
+            let searchStartOffset = 0;
+
+            for (let i = 0; i < track.cues.length; i++) {
+                const cue = track.cues[i];
+                const cueText = (cue.text || '').trim();
+                if (!cueText) continue;
+
+                const range = findNextOccurrence(contentWrapper, cueText, searchStartNode, searchStartOffset);
+                if (!range) {
+                    // If a text occurrence can’t be found, skip gracefully (still keeps others synced)
+                    console.warn('Cue text not found in content:', cueText);
+                    continue;
                 }
 
-                const formData = new FormData();
-                formData.append('comment', commentText);
-                formData.append('user_id', userId);
-                formData.append('post_id', <?php echo $post_id; ?>);
-                formData.append('csrf_token', csrfToken);
+                const span = document.createElement('span');
+                span.className = CUE_SPAN_CLASS;
+                span.dataset.cueIndex = String(i);
 
-                fetch('/includes/comments/submit_comment.php', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            const commentsSection = document.getElementById('commentsSection');
-                            const noCommentsMsg = commentsSection.querySelector('p');
-                            if (noCommentsMsg && noCommentsMsg.textContent === 'No Comments Yet.') {
-                                commentsSection.removeChild(noCommentsMsg);
-                            }
+                try {
+                    range.surroundContents(span);
+                    cueSpans.set(i, span);
 
-                            const newComment = document.createElement('div');
-                            newComment.classList.add('comment');
-                            newComment.innerHTML = `<strong>You</strong><span class="time-ago">just now</span><p class="comment-content">${commentText}</p>`;
-                            commentsSection.appendChild(newComment);
+                    // Move the search start to immediately after this span to keep mapping sequential
+                    searchStartNode = span;
+                    searchStartOffset = 1; // force the walker to progress beyond this wrapper
+                } catch (e) {
+                    // If surroundContents fails (e.g., partially overlapping non-text nodes), fallback:
+                    console.warn('surroundContents failed, skipping cue:', cueText, e);
+                }
+            }
 
-                            document.querySelector('#commentForm textarea').value = '';
-                        } else {
-                            alert(data.message);
+            wrapped = true;
+        }
+
+        function clearActiveHighlights() {
+            contentWrapper.querySelectorAll('.' + CUE_SPAN_CLASS + '.' + HIGHLIGHT_CLASS)
+                .forEach(el => el.classList.remove(HIGHLIGHT_CLASS));
+        }
+
+        function updateHighlightsByTime() {
+            if (!track) return;
+            const t = audio.currentTime;
+
+            clearActiveHighlights();
+
+            // Some browsers’ activeCues can lag on scrubs. We compute by currentTime.
+            // Highlight all cues active at time t (usually 1 cue).
+            for (let i = 0; i < track.cues.length; i++) {
+                const cue = track.cues[i];
+                if (t >= cue.startTime && t < cue.endTime) {
+                    const span = cueSpans.get(i);
+                    if (span) span.classList.add(HIGHLIGHT_CLASS);
+                }
+            }
+        }
+
+        function onCueChange() {
+            // Keep in sync with native cuechange as well
+            updateHighlightsByTime();
+        }
+
+        function getFirstTextTrack() {
+            if (!audio.textTracks) return null;
+            // Prefer the first "subtitles" or "captions" track; else use the first
+            for (let i = 0; i < audio.textTracks.length; i++) {
+                const tt = audio.textTracks[i];
+                if (tt.kind === 'subtitles' || tt.kind === 'captions') return tt;
+            }
+            return audio.textTracks[0] || null;
+        }
+
+        function waitForTrackAndCues() {
+            return new Promise(resolve => {
+                // Try now
+                let tt = getFirstTextTrack();
+                if (tt && tt.cues && tt.cues.length) return resolve(tt);
+
+                // Hook up load/polling in case cues aren’t ready yet
+                const trackEl = audio.querySelector('track');
+                let attempts = 0;
+                const maxAttempts = 50; // ~5s
+
+                function tryResolve() {
+                    tt = getFirstTextTrack();
+                    if (tt && tt.cues && tt.cues.length) {
+                        resolve(tt);
+                        return true;
+                    }
+                    return false;
+                }
+
+                if (!tryResolve()) {
+                    const poll = setInterval(() => {
+                        attempts++;
+                        if (tryResolve() || attempts >= maxAttempts) {
+                            clearInterval(poll);
+                            resolve(getFirstTextTrack()); // may be null; code guards later
                         }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Error submitting comment.');
-                    });
-            });
+                    }, 100);
+                }
 
-            // Handle reply submission
-            document.querySelectorAll('.submitReply').forEach(function(button) {
-                button.addEventListener('click', function() {
-                    const replyForm = this.closest('.reply-form');
-                    const replyText = replyForm.querySelector('textarea').value;
-                    const parentId = this.dataset.parentId;
-                    const csrfToken = replyForm.querySelector('input[name="csrf_token"]').value;
-
-                    if (!replyText) {
-                        alert('Please enter a reply.');
-                        return;
-                    }
-
-                    const formData = new FormData();
-                    formData.append('comment', replyText);
-                    formData.append('user_id', userId);
-                    formData.append('post_id', <?php echo $post_id; ?>);
-                    formData.append('parent_id', parentId);
-                    formData.append('csrf_token', csrfToken);
-
-                    fetch('/includes/comments/submit_comment.php', {
-                            method: 'POST',
-                            body: formData
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                const replySection = replyForm.parentElement;
-                                const newReply = document.createElement('div');
-                                newReply.classList.add('comment', 'reply');
-                                newReply.innerHTML = `<strong>You</strong><span class="time-ago">just now</span><p class="comment-content">${replyText}</p>`;
-                                replySection.appendChild(newReply);
-
-                                replyForm.querySelector('textarea').value = '';
-                            } else {
-                                alert(data.message);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Error submitting reply.');
-                        });
-                });
-            });
-
-            // Handle comment deletion
-            document.querySelectorAll('.deleteComment').forEach(function(button) {
-                button.addEventListener('click', function() {
-                    const commentId = this.dataset.commentId;
-
-                    if (confirm('Are you sure you want to delete this comment?')) {
-                        const formData = new FormData();
-                        formData.append('comment_id', commentId);
-                        formData.append('delete_comment', true);
-                        formData.append('csrf_token', '<?php echo $csrf_token; ?>');
-
-                        fetch('/includes/comments/delete_comment.php', {
-                                method: 'POST',
-                                body: formData
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
-                                    if (commentElement) {
-                                        commentElement.remove();
-                                    }
-                                } else {
-                                    alert(data.message);
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('Error deleting comment.');
-                            });
-                    }
-                });
-            });
-
-            // Handle comment editing
-            document.querySelectorAll('.editComment').forEach(function(button) {
-                button.addEventListener('click', function() {
-                    const commentId = this.dataset.commentId;
-                    const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
-                    const commentContentElement = commentElement.querySelector('.comment-content');
-
-                    // Convert the comment text to an editable div (contenteditable)
-                    commentContentElement.setAttribute('contenteditable', 'true');
-                    commentContentElement.focus();
-
-                    // Change the edit button to a save button
-                    this.textContent = 'Save';
-                    this.classList.add('saveEdit');
-
-                    // Handle the save action
-                    this.addEventListener('click', function() {
-                        const newText = commentContentElement.textContent.trim();
-                        const csrfToken = '<?php echo $csrf_token; ?>';
-
-                        const formData = new FormData();
-                        formData.append('comment_id', commentId);
-                        formData.append('edit_comment', true);
-                        formData.append('content', newText);
-                        formData.append('csrf_token', csrfToken);
-
-                        fetch('/includes/comments/edit_comment.php', {
-                                method: 'POST',
-                                body: formData
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    // Remove contenteditable attribute
-                                    commentContentElement.removeAttribute('contenteditable');
-
-                                    // Change the save button back to an edit button
-                                    this.textContent = 'Edit';
-                                    this.classList.remove('saveEdit');
-                                } else {
-                                    alert(data.message);
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('Error updating comment.');
-                            });
+                if (trackEl) {
+                    trackEl.addEventListener('load', () => {
+                        setTimeout(() => tryResolve(), 0);
                     }, {
                         once: true
-                    }); // Ensure the event listener runs only once
-                });
+                    });
+                }
             });
-        } else {
-            //alert('User is not logged in. Please log in to comment or reply.');
         }
+
+        (async function init() {
+            track = await waitForTrackAndCues();
+            if (!track) return;
+            track.mode = 'hidden'; // ensure activeCues/cues are maintained
+
+            await wrapAllCues();
+            updateHighlightsByTime();
+
+            // Keep in sync on all relevant events
+            if (typeof track.addEventListener === 'function') {
+                track.addEventListener('cuechange', onCueChange);
+            } else {
+                // Fallback for browsers that only support oncuechange
+                track.oncuechange = onCueChange;
+            }
+
+            audio.addEventListener('seeked', updateHighlightsByTime);
+            audio.addEventListener('timeupdate', throttle(updateHighlightsByTime, 100));
+            audio.addEventListener('play', updateHighlightsByTime);
+            audio.addEventListener('pause', updateHighlightsByTime);
+            audio.addEventListener('ratechange', updateHighlightsByTime);
+            audio.addEventListener('loadedmetadata', updateHighlightsByTime);
+            audio.addEventListener('ended', clearActiveHighlights);
+        })();
     });
 </script>
