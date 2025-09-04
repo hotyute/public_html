@@ -163,7 +163,7 @@ function editorToServer(html) {
   return (html || '').replace(/<hr\b[^>]*class="[^"]*\bpagebreak\b[^"]*"[^>]*>/gi, '<!-- pagebreak -->');
 }
 
-// Custom Page Break button (PB) for Summernote
+// Custom Page Break button (PB)
 function pageBreakButton(context) {
   const ui = $.summernote.ui;
   return ui.button({
@@ -177,6 +177,53 @@ function pageBreakButton(context) {
   }).render();
 }
 
+// Raw HTML viewer button (opens modal)
+function rawHtmlButton(context) {
+  const ui = $.summernote.ui;
+  return ui.button({
+    contents: '<span style="font-weight:bold;">Raw</span>',
+    tooltip: 'View Raw HTML',
+    click: function () {
+      const html = $('#content').summernote('code');
+      openRawModal('Raw HTML (read-only)', html);
+    }
+  }).render();
+}
+
+// Plain text viewer button (opens modal)
+function plainTextButton(context) {
+  const ui = $.summernote.ui;
+  return ui.button({
+    contents: '<span style="font-weight:bold;">TXT</span>',
+    tooltip: 'View Plain Text',
+    click: function () {
+      const html = $('#content').summernote('code');
+      const text = htmlToPlainText(html);
+      openRawModal('Plain Text (read-only)', text);
+    }
+  }).render();
+}
+
+function htmlToPlainText(html) {
+  const div = document.createElement('div');
+  div.innerHTML = html || '';
+  // Keep pagebreaks visible in text preview
+  div.querySelectorAll('hr.pagebreak').forEach(hr => {
+    hr.replaceWith(document.createTextNode('\n[PAGEBREAK]\n'));
+  });
+  return div.textContent || div.innerText || '';
+}
+
+// Modal helpers
+function openRawModal(title, content) {
+  $('#rawModalTitle').text(title);
+  $('#rawModalTextarea').val(content);
+  $('#rawModal').css('display', 'flex').attr('aria-hidden', 'false');
+}
+function closeRawModal() {
+  $('#rawModal').css('display', 'none').attr('aria-hidden', 'true');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   $('#content').summernote({
     height: 650,
@@ -186,12 +233,16 @@ document.addEventListener('DOMContentLoaded', function() {
       ['font', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
       ['font2', ['fontname', 'fontsize', 'color']],
       ['para', ['ul', 'ol', 'paragraph']],
-      // Note: 'picture' is intentionally omitted to avoid base64 images in content.
       ['insert', ['link', 'table', 'hr']],
       ['view', ['codeview', 'fullscreen', 'help']],
+      ['raw', ['rawhtml', 'plaintext']],
       ['custom', ['pagebreak']]
     ],
-    buttons: { pagebreak: pageBreakButton },
+    buttons: {
+      pagebreak: pageBreakButton,
+      rawhtml: rawHtmlButton,
+      plaintext: plainTextButton
+    },
     fontNames: ['Georgia', 'Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Verdana'],
     fontSizes: ['10', '12', '14', '16', '18', '20', '24', '28', '32'],
     callbacks: {
@@ -201,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Convert to <!-- pagebreak --> on submit
+  // Submit: convert HR markers to <!-- pagebreak -->
   const form = document.getElementById('edit-post-form');
   if (form) {
     form.addEventListener('submit', function() {
@@ -209,37 +260,29 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('content').value = editorToServer(html);
     });
   }
+
+  // Modal wiring
+  $('#closeRawBtn').on('click', closeRawModal);
+  $('#rawModal').on('click', function(e){
+    if (e.target === this) closeRawModal();
+  });
+  $('#copyRawBtn').on('click', function() {
+    const ta = document.getElementById('rawModalTextarea');
+    ta.select(); ta.setSelectionRange(0, 999999);
+    document.execCommand('copy');
+  });
 });
-
-// Load post data
-function loadPostData(postId) {
-  if (!postId) {
-    $('#title').val('');
-    $('#content').summernote('code', '');
-    $('#current_thumbnail').html('No thumbnail.');
-    return;
-  }
-  fetch('/includes/posts/get_post_data.php?post_id=' + encodeURIComponent(postId))
-    .then(r => r.json())
-    .then(data => {
-      $('#title').val(decodeHtmlEntities(data.title || ''));
-      const html = serverToEditor(decodeHtmlEntities(data.content || ''));
-      $('#content').summernote('code', html);
-
-      const div = document.getElementById('current_thumbnail');
-      if (data.thumbnail) {
-        const path = data.thumbnail.replace('../', '/');
-        div.innerHTML = '<img src="' + path + '" alt="Current Thumbnail">';
-      } else {
-        div.innerHTML = 'No thumbnail.';
-      }
-    });
-}
-
-function decodeHtmlEntities(str) {
-  var ta = document.createElement('textarea');
-  ta.innerHTML = str || '';
-  return ta.value;
-}
 </script>
+
+<!-- Raw viewer modal -->
+<div id="rawModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal-box">
+    <h3 id="rawModalTitle">Raw Content</h3>
+    <textarea id="rawModalTextarea" readonly></textarea>
+    <div class="modal-actions">
+      <button type="button" id="copyRawBtn">Copy</button>
+      <button type="button" id="closeRawBtn">Close</button>
+    </div>
+  </div>
+</div>
 <?php include '../footer.php'; ?>
