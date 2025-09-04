@@ -1,20 +1,23 @@
 document.getElementById('searchForm').addEventListener('submit', function (event) {
     event.preventDefault();
-    const query = document.getElementById('searchQuery').value;
-    fetch(`/includes/users/search_users.php?query=${query}`)
+    const query = document.getElementById('searchQuery').value.trim();
+    if (query.length < 2) {
+        alert('Please enter at least 2 characters.');
+        return;
+    }
+    fetch(`/includes/users/search_users.php?query=${encodeURIComponent(query)}`)
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
+            if (!response.ok) throw new Error('Network response was not ok');
             return response.json();
         })
         .then(data => {
             const resultsDiv = document.getElementById('searchResults');
             resultsDiv.innerHTML = '';
-            if (data.users) {
+            if (data.users && data.users.length) {
                 data.users.forEach(user => {
                     const userDiv = document.createElement('div');
                     userDiv.textContent = `${user.username} (${user.displayname})`;
+                    userDiv.style.cursor = 'pointer';
                     userDiv.addEventListener('click', () => {
                         document.getElementById('userId').value = user.id;
                         document.getElementById('displayName').value = user.displayname;
@@ -22,99 +25,81 @@ document.getElementById('searchForm').addEventListener('submit', function (event
                         document.getElementById('assignTestUserId').value = user.id;
                         document.getElementById('removeTestUserId').value = user.id;
 
-                        // Fetch assigned tests for this user
-                        fetch(`/includes/tests/get_assigned_tests.php?user_id=${user.id}`)
+                        fetch(`/includes/tests/get_assigned_tests.php?user_id=${encodeURIComponent(user.id)}`)
                             .then(response => response.json())
                             .then(data => {
                                 const assignedTestsDiv = document.getElementById('assignedTests');
                                 assignedTestsDiv.innerHTML = '';
+                                const assignTestSelect = document.getElementById('assignTestId');
+                                const removeTestSelect = document.getElementById('removeTestId');
+                                const assignTestName = document.getElementById('assignTestName');
+                                const removeTestName = document.getElementById('removeTestName');
+
+                                assignTestSelect.innerHTML = '';
+                                removeTestSelect.innerHTML = '';
+
                                 if (data.tests) {
                                     data.tests.forEach(test => {
-                                        const testDiv = document.createElement('div');
-                                        testDiv.textContent = test.test_name;
-                                        assignedTestsDiv.appendChild(testDiv);
+                                        const t = document.createElement('div');
+                                        t.textContent = test.test_name;
+                                        assignedTestsDiv.appendChild(t);
+                                        const opt = document.createElement('option');
+                                        opt.value = test.id;
+                                        opt.textContent = test.test_name;
+                                        removeTestSelect.appendChild(opt);
                                     });
-
-                                    const assignTestSelect = document.getElementById('assignTestId');
-                                    const removeTestSelect = document.getElementById('removeTestId');
-                                    const assignTestName = document.getElementById('assignTestName');
-                                    const removeTestName = document.getElementById('removeTestName');
-                                    assignTestSelect.innerHTML = '';
-                                    removeTestSelect.innerHTML = '';
-
-                                    // Populate the assign test select box with tests not assigned to the user
-                                    if (data.available_tests) {
-                                        data.available_tests.forEach(test => {
-                                            const option = document.createElement('option');
-                                            option.value = test.id;
-                                            option.textContent = test.test_name;
-                                            assignTestSelect.appendChild(option);
-                                            assignTestName.value = option.textContent;
-                                        });
-                                    }
-
-                                    // Populate the remove test select box with tests assigned to the user
-                                    data.tests.forEach(test => {
-                                        const option = document.createElement('option');
-                                        option.value = test.id;
-                                        option.textContent = test.test_name;
-                                        removeTestSelect.appendChild(option);
-                                        removeTestName.value = option.textContent;
-                                    });
-
-                                    // Add event listeners to update the hidden test name fields
-                                    assignTestSelect.addEventListener('change', function () {
-                                        const selectedOption = assignTestSelect.options[assignTestSelect.selectedIndex];
-                                        assignTestName.value = selectedOption.textContent;
-                                    });
-
-                                    removeTestSelect.addEventListener('change', function () {
-                                        const selectedOption = removeTestSelect.options[removeTestSelect.selectedIndex];
-                                        removeTestName.value = selectedOption.textContent;
-                                    });
-                                } else {
-                                    console.error('No tests data found:', data);
                                 }
-                            });
+
+                                if (data.available_tests) {
+                                    data.available_tests.forEach(test => {
+                                        const opt = document.createElement('option');
+                                        opt.value = test.id;
+                                        opt.textContent = test.test_name;
+                                        assignTestSelect.appendChild(opt);
+                                    });
+                                }
+
+                                if (assignTestSelect.options.length > 0) {
+                                    assignTestName.value = assignTestSelect.options[assignTestSelect.selectedIndex].textContent;
+                                }
+                                if (removeTestSelect.options.length > 0) {
+                                    removeTestName.value = removeTestSelect.options[removeTestSelect.selectedIndex].textContent;
+                                }
+
+                                assignTestSelect.addEventListener('change', function () {
+                                    assignTestName.value = assignTestSelect.options[assignTestSelect.selectedIndex].textContent;
+                                });
+                                removeTestSelect.addEventListener('change', function () {
+                                    removeTestName.value = removeTestSelect.options[removeTestSelect.selectedIndex].textContent;
+                                });
+                            })
+                            .catch(err => console.error('Fetch tests error:', err));
+
                         document.getElementById('userDetails').style.display = 'block';
                     });
                     resultsDiv.appendChild(userDiv);
                 });
             } else {
-                console.error('No users data found:', data);
+                resultsDiv.textContent = 'No users found.';
             }
         })
-        .catch(error => console.error('There has been a problem with your fetch operation:', error));
+        .catch(error => console.error('Search error:', error));
 });
-
-function loadUserDetails(userId) {
-    fetch(`/includes/users/get_user_details.php?id=${userId}`)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('userId').value = data.id;
-            document.getElementById('displayName').value = data.displayname;
-            document.getElementById('role').value = data.role;
-            document.getElementById('userDetails').style.display = 'block';
-        });
-}
 
 document.getElementById('editUserForm').addEventListener('submit', function (event) {
     event.preventDefault();
-
-    // FormData uses the 'name' attribute to collect data
     const formData = new FormData(this);
+    const token = document.querySelector('meta[name="csrf-token"]')?.content;
+    if (token) formData.append('csrf_token', token);
 
     fetch('/includes/users/update_user.php', {
         method: 'POST',
         body: formData
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('User updated successfully');
-            } else {
-                alert('Failed to update user');
-            }
-        })
-        .catch(error => console.error('Error:', error));
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) alert('User updated successfully');
+        else alert(data.message || 'Failed to update user');
+    })
+    .catch(error => console.error('Update error:', error));
 });

@@ -1,30 +1,42 @@
 let currentUserRole = 'guest';
-let isEditMode = false; // State to track edit mode
+let isEditMode = false;
 
 document.addEventListener('DOMContentLoaded', function() {
-    fetchRoster();
+    fetchUserRole().then(() => fetchRoster());
 
-    // Add click event listener to table cells
     document.querySelector('.roster-table').addEventListener('click', function(event) {
         if (event.target.tagName === 'TD') {
-            // Handle cell click, for example, you can toggle a class for a clicked state
             event.target.classList.toggle('clicked');
         }
     });
 });
 
-// Fetch and display the roster
+function fetchUserRole() {
+    return fetch('/includes/users/get_user_role_json.php')
+        .then(r => r.json())
+        .then(data => {
+            currentUserRole = data.role;
+            if (currentUserRole === 'admin') {
+                const editButton = document.createElement('button');
+                editButton.id = 'editModeButton';
+                editButton.textContent = 'Enter Edit Mode';
+                editButton.addEventListener('click', toggleEditMode);
+                const rosterContainer = document.querySelector('.roster-container');
+                rosterContainer.insertBefore(editButton, rosterContainer.firstChild);
+            }
+        })
+        .catch(err => console.error('Role fetch error:', err));
+}
+
 function fetchRoster() {
     fetch('/includes/roster/fetch_roster.php')
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
+            if (!response.ok) throw new Error('Network response was not ok');
             return response.json();
         })
         .then(users => {
             let rosterTableBody = document.querySelector('.roster-container #rosterTable tbody');
-            rosterTableBody.innerHTML = ''; // Clear the existing rows
+            rosterTableBody.innerHTML = '';
 
             users.forEach(user => {
                 let row = document.createElement('tr');
@@ -57,24 +69,21 @@ function fetchRoster() {
                 rosterTableBody.appendChild(row);
             });
         })
-        .catch(error => console.error('There has been a problem with your fetch operation:', error));
+        .catch(error => console.error('Roster fetch error:', error));
 }
 
 function createDevotionDropdown(selectedValue) {
     const select = document.createElement('select');
     const options = ['red', 'blue', 'yellow', 'green'];
-    
+
     options.forEach(option => {
         const opt = document.createElement('option');
         opt.value = option;
         opt.textContent = option.charAt(0).toUpperCase() + option.slice(1);
-        if (option === selectedValue) {
-            opt.selected = true;
-        }
+        if (option === selectedValue) opt.selected = true;
         select.appendChild(opt);
     });
 
-    // Apply styles for rounded corners, shadowing, and textured shading
     select.style.backgroundColor = getDevotionColor(selectedValue);
     select.style.borderRadius = '5px';
     select.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.2)';
@@ -104,48 +113,32 @@ function getDevotionColor(devotion) {
 }
 
 function updateDevotion(userId, devotion) {
+    const token = document.querySelector('meta[name="csrf-token"]')?.content || '';
     fetch('/includes/roster/update_devotion.php', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': token
         },
-        body: JSON.stringify({ userId: userId, devotion: devotion })
+        body: JSON.stringify({ userId, devotion })
     })
     .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
+        if (!response.ok) throw new Error('Network response was not ok');
         return response.json();
     })
     .then(data => {
         if (data.success) {
-            fetchRoster(); // Refresh the roster to show updated devotion
+            fetchRoster();
         } else {
-            console.error('Failed to update devotion:', data.error);
+            console.error('Failed to update devotion:', data.message || data.error);
         }
     })
-    .catch(error => console.error('There has been a problem with your fetch operation:', error));
+    .catch(error => console.error('Update error:', error));
 }
 
 function toggleEditMode() {
     isEditMode = !isEditMode;
     fetchRoster();
-    document.getElementById('editModeButton').textContent = isEditMode ? 'Exit Edit Mode' : 'Enter Edit Mode';
+    const btn = document.getElementById('editModeButton');
+    if (btn) btn.textContent = isEditMode ? 'Exit Edit Mode' : 'Enter Edit Mode';
 }
-
-// Fetch user role and then fetch the roster
-fetch('/includes/users/get_user_role_json.php')
-    .then(response => response.json())
-    .then(data => {
-        currentUserRole = data.role;
-        if (currentUserRole === 'admin') {
-            const editButton = document.createElement('button');
-            editButton.id = 'editModeButton';
-            editButton.textContent = 'Enter Edit Mode';
-            editButton.addEventListener('click', toggleEditMode);
-            const rosterContainer = document.querySelector('.roster-container');
-            rosterContainer.insertBefore(editButton, rosterContainer.firstChild);
-        }
-        fetchRoster();
-    })
-    .catch(error => console.error('There has been a problem with fetching the user role:', error));

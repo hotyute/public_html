@@ -77,7 +77,7 @@ function truncateContent($content, $limit = 100)
                     </button>
                 </div>
                 <div class="carousel">
-                    <div class="carousel-slides">
+                    echo '<div class="carousel-slide grid-container"">';
                         <?php
                         require 'includes/database.php';
                         // Removed LIMIT clause to fetch all posts

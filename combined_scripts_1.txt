@@ -1,0 +1,378 @@
+/* --- Start of js\manage_users.js --- */
+document.getElementById('searchForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+    const query = document.getElementById('searchQuery').value;
+    fetch(`/includes/users/search_users.php?query=${query}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = '';
+            if (data.users) {
+                data.users.forEach(user => {
+                    const userDiv = document.createElement('div');
+                    userDiv.textContent = `${user.username} (${user.displayname})`;
+                    userDiv.addEventListener('click', () => {
+                        document.getElementById('userId').value = user.id;
+                        document.getElementById('displayName').value = user.displayname;
+                        document.getElementById('role').value = user.role;
+                        document.getElementById('assignTestUserId').value = user.id;
+                        document.getElementById('removeTestUserId').value = user.id;
+
+                        // Fetch assigned tests for this user
+                        fetch(`/includes/tests/get_assigned_tests.php?user_id=${user.id}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                const assignedTestsDiv = document.getElementById('assignedTests');
+                                assignedTestsDiv.innerHTML = '';
+                                if (data.tests) {
+                                    data.tests.forEach(test => {
+                                        const testDiv = document.createElement('div');
+                                        testDiv.textContent = test.test_name;
+                                        assignedTestsDiv.appendChild(testDiv);
+                                    });
+
+                                    const assignTestSelect = document.getElementById('assignTestId');
+                                    const removeTestSelect = document.getElementById('removeTestId');
+                                    const assignTestName = document.getElementById('assignTestName');
+                                    const removeTestName = document.getElementById('removeTestName');
+                                    assignTestSelect.innerHTML = '';
+                                    removeTestSelect.innerHTML = '';
+
+                                    // Populate the assign test select box with tests not assigned to the user
+                                    if (data.available_tests) {
+                                        data.available_tests.forEach(test => {
+                                            const option = document.createElement('option');
+                                            option.value = test.id;
+                                            option.textContent = test.test_name;
+                                            assignTestSelect.appendChild(option);
+                                            assignTestName.value = option.textContent;
+                                        });
+                                    }
+
+                                    // Populate the remove test select box with tests assigned to the user
+                                    data.tests.forEach(test => {
+                                        const option = document.createElement('option');
+                                        option.value = test.id;
+                                        option.textContent = test.test_name;
+                                        removeTestSelect.appendChild(option);
+                                        removeTestName.value = option.textContent;
+                                    });
+
+                                    // Add event listeners to update the hidden test name fields
+                                    assignTestSelect.addEventListener('change', function () {
+                                        const selectedOption = assignTestSelect.options[assignTestSelect.selectedIndex];
+                                        assignTestName.value = selectedOption.textContent;
+                                    });
+
+                                    removeTestSelect.addEventListener('change', function () {
+                                        const selectedOption = removeTestSelect.options[removeTestSelect.selectedIndex];
+                                        removeTestName.value = selectedOption.textContent;
+                                    });
+                                } else {
+                                    console.error('No tests data found:', data);
+                                }
+                            });
+                        document.getElementById('userDetails').style.display = 'block';
+                    });
+                    resultsDiv.appendChild(userDiv);
+                });
+            } else {
+                console.error('No users data found:', data);
+            }
+        })
+        .catch(error => console.error('There has been a problem with your fetch operation:', error));
+});
+
+function loadUserDetails(userId) {
+    fetch(`/includes/users/get_user_details.php?id=${userId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('userId').value = data.id;
+            document.getElementById('displayName').value = data.displayname;
+            document.getElementById('role').value = data.role;
+            document.getElementById('userDetails').style.display = 'block';
+        });
+}
+
+document.getElementById('editUserForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    // FormData uses the 'name' attribute to collect data
+    const formData = new FormData(this);
+
+    fetch('/includes/users/update_user.php', {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('User updated successfully');
+            } else {
+                alert('Failed to update user');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+});
+
+/* --- End of js\manage_users.js --- */
+
+/* --- Start of js\post-preview.js --- */
+function getCharacterCount(width, height) {
+    // Define ranges for character count adjustment
+    const minWidth = 320;
+    const maxWidth = 1200;
+    const minHeight = 480;
+    const maxHeight = 800;
+
+    const minCharsWidth = 30; // Minimum characters at minimum width
+    const maxCharsWidth = 75; // Maximum characters at maximum width
+    const minCharsHeight = 30; // Minimum characters at minimum height
+    const maxCharsHeight = 75; // Maximum characters at maximum height
+
+    // Linear scaling calculations
+    const slopeWidth = (maxCharsWidth - minCharsWidth) / (maxWidth - minWidth);
+    const slopeHeight = (maxCharsHeight - minCharsHeight) / (maxHeight - minHeight);
+
+    const charLimitWidth = width <= minWidth ? minCharsWidth :
+        width >= maxWidth ? maxCharsWidth :
+        Math.floor(minCharsWidth + slopeWidth * (width - minWidth));
+
+    const charLimitHeight = height <= minHeight ? minCharsHeight :
+        height >= maxHeight ? maxCharsHeight :
+        Math.floor(minCharsHeight + slopeHeight * (height - minHeight));
+
+    // Use the smaller of the two calculated character limits
+    return Math.min(charLimitWidth, charLimitHeight);
+}
+
+function adjustFontSize(width, height) {
+    // Base font size
+    const baseFontSize = 14; // Base font size in pixels
+
+    // Scaling factors
+    const widthFactor = 0.01;
+    const heightFactor = 0.015;
+
+    // Calculate font size based on width and height
+    const fontSizeWidth = baseFontSize + (width - 320) * widthFactor;
+    const fontSizeHeight = baseFontSize + (height - 480) * heightFactor;
+
+    // Use the smaller of the two to adjust font size
+    return Math.min(fontSizeWidth, fontSizeHeight);
+}
+
+function adjustContentPreview() {
+    const previews = document.querySelectorAll('.content-preview');
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const charLimit = getCharacterCount(screenWidth, screenHeight);
+    const fontSize = adjustFontSize(screenWidth, screenHeight);
+
+    previews.forEach(preview => {
+        const fullText = preview.getAttribute('data-content');
+        preview.textContent = fullText.length > charLimit ? fullText.substring(0, charLimit) + '...' : fullText;
+        preview.style.fontSize = `${fontSize}px`; // Apply the dynamically calculated font size
+    });
+}
+
+// Adjust content on load and resize
+window.addEventListener('load', adjustContentPreview);
+window.addEventListener('resize', adjustContentPreview);
+/* --- End of js\post-preview.js --- */
+
+/* --- Start of js\roster.js --- */
+let currentUserRole = 'guest';
+let isEditMode = false; // State to track edit mode
+
+document.addEventListener('DOMContentLoaded', function() {
+    fetchRoster();
+
+    // Add click event listener to table cells
+    document.querySelector('.roster-table').addEventListener('click', function(event) {
+        if (event.target.tagName === 'TD') {
+            // Handle cell click, for example, you can toggle a class for a clicked state
+            event.target.classList.toggle('clicked');
+        }
+    });
+});
+
+// Fetch and display the roster
+function fetchRoster() {
+    fetch('/includes/roster/fetch_roster.php')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(users => {
+            let rosterTableBody = document.querySelector('.roster-container #rosterTable tbody');
+            rosterTableBody.innerHTML = ''; // Clear the existing rows
+
+            users.forEach(user => {
+                let row = document.createElement('tr');
+
+                let usernameCell = document.createElement('td');
+                usernameCell.textContent = user.username;
+                row.appendChild(usernameCell);
+
+                let displayNameCell = document.createElement('td');
+                displayNameCell.textContent = user.displayname;
+                row.appendChild(displayNameCell);
+
+                let roleCell = document.createElement('td');
+                roleCell.textContent = user.role;
+                row.appendChild(roleCell);
+
+                let devotionCell = document.createElement('td');
+                if (currentUserRole === 'admin' && isEditMode) {
+                    let select = createDevotionDropdown(user.devotion);
+                    select.addEventListener('change', function () {
+                        updateDevotion(user.id, select.value);
+                    });
+                    devotionCell.appendChild(select);
+                } else {
+                    devotionCell.textContent = user.devotion;
+                    devotionCell.style.backgroundColor = getDevotionColor(user.devotion);
+                }
+                row.appendChild(devotionCell);
+
+                rosterTableBody.appendChild(row);
+            });
+        })
+        .catch(error => console.error('There has been a problem with your fetch operation:', error));
+}
+
+function createDevotionDropdown(selectedValue) {
+    const select = document.createElement('select');
+    const options = ['red', 'blue', 'yellow', 'green'];
+    
+    options.forEach(option => {
+        const opt = document.createElement('option');
+        opt.value = option;
+        opt.textContent = option.charAt(0).toUpperCase() + option.slice(1);
+        if (option === selectedValue) {
+            opt.selected = true;
+        }
+        select.appendChild(opt);
+    });
+
+    // Apply styles for rounded corners, shadowing, and textured shading
+    select.style.backgroundColor = getDevotionColor(selectedValue);
+    select.style.borderRadius = '5px';
+    select.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.2)';
+    select.style.padding = '5px';
+    select.style.outline = 'none';
+    select.style.border = '1px solid #ccc';
+    select.style.margin = '5px 0';
+    select.style.backgroundImage = 'linear-gradient(white, #f2f2f2)';
+    select.style.fontFamily = 'Arial, sans-serif';
+    select.style.fontSize = '14px';
+
+    select.addEventListener('change', function () {
+        select.style.backgroundColor = getDevotionColor(select.value);
+    });
+
+    return select;
+}
+
+function getDevotionColor(devotion) {
+    switch (devotion) {
+        case 'red': return 'red';
+        case 'blue': return '#2565AE';
+        case 'yellow': return 'yellow';
+        case 'green': return 'green';
+        default: return 'white';
+    }
+}
+
+function updateDevotion(userId, devotion) {
+    fetch('/includes/roster/update_devotion.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId: userId, devotion: devotion })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            fetchRoster(); // Refresh the roster to show updated devotion
+        } else {
+            console.error('Failed to update devotion:', data.error);
+        }
+    })
+    .catch(error => console.error('There has been a problem with your fetch operation:', error));
+}
+
+function toggleEditMode() {
+    isEditMode = !isEditMode;
+    fetchRoster();
+    document.getElementById('editModeButton').textContent = isEditMode ? 'Exit Edit Mode' : 'Enter Edit Mode';
+}
+
+// Fetch user role and then fetch the roster
+fetch('/includes/users/get_user_role_json.php')
+    .then(response => response.json())
+    .then(data => {
+        currentUserRole = data.role;
+        if (currentUserRole === 'admin') {
+            const editButton = document.createElement('button');
+            editButton.id = 'editModeButton';
+            editButton.textContent = 'Enter Edit Mode';
+            editButton.addEventListener('click', toggleEditMode);
+            const rosterContainer = document.querySelector('.roster-container');
+            rosterContainer.insertBefore(editButton, rosterContainer.firstChild);
+        }
+        fetchRoster();
+    })
+    .catch(error => console.error('There has been a problem with fetching the user role:', error));
+
+/* --- End of js\roster.js --- */
+
+/* --- Start of js\script.js --- */
+document.addEventListener('DOMContentLoaded', function () {
+    const hamburger = document.querySelector('.hamburger');
+    const allNavULs = document.querySelectorAll('nav ul');  // Select all ul elements within nav
+
+    hamburger.addEventListener('click', function () {
+        allNavULs.forEach(navUL => {  // Apply changes to each ul element
+            if (navUL.classList.contains('open')) {
+                navUL.style.maxHeight = "0"; // Collapse the menu
+                navUL.classList.remove('open');
+            } else {
+                navUL.style.maxHeight = "none"; // Remove any max-height limit
+                const fullHeight = navUL.scrollHeight + "px"; // Calculate full height
+                navUL.style.maxHeight = "0"; // Reset to zero before animation
+                
+                requestAnimationFrame(function() {
+                    requestAnimationFrame(function() {
+                        navUL.style.maxHeight = fullHeight; // Set to full height on the next frame
+                        navUL.classList.add('open');
+                    });
+                });
+            }
+        });
+    });
+});
+
+/* --- End of js\script.js --- */
+
+/* --- Start of js\tools.js --- */
+function autoExpand(textarea) {
+    textarea.style.height = 'auto'; // Reset height
+    textarea.style.height = textarea.scrollHeight + 'px'; // Set height based on content
+}
+/* --- End of js\tools.js --- */
+

@@ -1,0 +1,1370 @@
+/* --- Start of admin\manage_users.php --- */
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+include '../header.php'; // Admin panel header
+include_once '../includes/config.php'; // Database connection and other configuration
+include_once '../includes/notifications/notification_data.php';
+
+// Check if admin is logged in
+if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+    header('Location: /login.php');
+    exit();
+}
+
+try {
+    $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Handle form submissions for assigning/removing tests
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (isset($_POST['assign_test'])) {
+            $user_id = $_POST['user_id'];
+            $test_id = $_POST['test_id'];
+            $test_name = $_POST['test_name'];
+
+            $stmt = $pdo->prepare("INSERT INTO user_tests (user_id, test_id) VALUES (?, ?)");
+            $stmt->execute([$user_id, $test_id]);
+
+            $message = "Test '{$test_name}' assigned successfully! Take the test at <a href='/test.php?test_id={$test_id}'";
+            $message .= " style='color: blue; font-size: 1.0em; font-weight: bold;'>this link</a>";
+            add_notification($user_id, "Test Assigned", $message);
+
+            echo "Test {$test_name} assigned successfully!";
+        } else if (isset($_POST['remove_test'])) {
+            $user_id = $_POST['user_id'];
+            $test_id = $_POST['test_id'];
+            $test_name = $_POST['test_name'];
+
+            $stmt = $pdo->prepare("DELETE FROM user_tests WHERE user_id = ? AND test_id = ?");
+            $stmt->execute([$user_id, $test_id]);
+
+            $message = "Test '{$test_name}' removed successfully.";
+            add_notification($user_id, "Test Removed", $message);
+
+            echo "Test removed successfully!";
+        }
+    }
+
+    // Fetch existing tests
+    $tests = $pdo->query("SELECT id, test_name FROM tests")->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Database error: " . $e->getMessage());
+}
+?>
+
+<div class="musers-container">
+    <h2>User Management</h2>
+    <form id="searchForm">
+        <input type="text" id="searchQuery" placeholder="Search by username or display name">
+        <button type="submit">Search</button>
+    </form>
+    
+    <div id="searchResults"></div>
+    <div id="userDetails" style="display: none;">
+        <form id="editUserForm">
+            <input type="hidden" id="userId" name="userId">
+            <label for="displayName">Display Name:</label>
+            <input type="text" id="displayName" name="displayName">
+            <label for="role">Role:</label>
+            <select id="role" name="role">
+                <option value="admin">Admin</option>
+                <option value="editor">Editor</option>
+                <option value="member">Member</option>
+            </select>
+            <button type="submit">Update User</button>
+        </form>
+
+        <h2>Assign Test to User</h2>
+        <form method="POST" id="assignTestForm">
+            <input type="hidden" name="user_id" id="assignTestUserId">
+            <label for="test_id">Test:</label>
+            <select name="test_id" id="assignTestId" required></select>
+            <input type="hidden" name="test_name" id="assignTestName">
+            <button type="submit" name="assign_test">Assign Test</button>
+        </form>
+
+        <h2>Remove Test from User</h2>
+        <form method="POST" id="removeTestForm">
+            <input type="hidden" name="user_id" id="removeTestUserId">
+            <label for="test_id">Test:</label>
+            <select name="test_id" id="removeTestId" required></select>
+            <input type="hidden" name="test_name" id="removeTestName">
+            <button type="submit" name="remove_test">Remove Test</button>
+        </form>
+
+        <h2>Assigned Tests</h2>
+        <div id="assignedTests"></div>
+    </div>
+</div>
+
+<script>
+
+</script>
+
+<?php
+include '../footer.php'; // Admin panel footer
+
+/* --- End of admin\manage_users.php --- */
+
+/* --- Start of admin\test_manage.php --- */
+session_start();
+require_once '../base_config.php';
+require 'includes/config.php';
+
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
+    die("Unauthorized access.");
+}
+
+try {
+    $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Handle form submissions
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (isset($_POST['add_test'])) {
+            $test_name = $_POST['test_name'];
+            $num_questions = $_POST['num_questions'];
+            $stmt = $pdo->prepare("INSERT INTO tests (test_name, num_questions) VALUES (?, ?)");
+            $stmt->execute([$test_name, $num_questions]);
+            echo "Test added successfully!";
+        } elseif (isset($_POST['delete_test'])) {
+            $test_id = $_POST['test_id'];
+            $stmt = $pdo->prepare("DELETE FROM tests WHERE id = ?");
+            $stmt->execute([$test_id]);
+            echo "Test deleted successfully!";
+        } elseif (isset($_POST['add_question'])) {
+            $test_id = $_POST['test_id'];
+            $question = $_POST['question'];
+            $options = $_POST['options'];
+            $correct_option = $_POST['correct_option'];
+            $num_options = count($options);
+            $option_struct = str_repeat('s', $num_options); // Dynamic option structure
+            $options_json = json_encode($options);
+
+            $stmt = $pdo->prepare("INSERT INTO questions (question, num_options, option_struct, options, correct_option, test_ids) VALUES (?, ?, ?, ?, ?, JSON_ARRAY(?))");
+            $stmt->execute([$question, $num_options, $option_struct, $options_json, $correct_option, $test_id]);
+
+            echo "Question added successfully!";
+        } elseif (isset($_POST['delete_question'])) {
+            $question_id = $_POST['question_id'];
+            $stmt = $pdo->prepare("DELETE FROM questions WHERE id = ?");
+            $stmt->execute([$question_id]);
+            echo "Question deleted successfully!";
+        } elseif (isset($_POST['edit_question'])) {
+            $question_id = $_POST['question_id'];
+            $question = $_POST['question'];
+            $options = $_POST['options'];
+            $correct_option = $_POST['correct_option'];
+            $num_options = count($options);
+            $option_struct = str_repeat('s', $num_options);
+            $options_json = json_encode($options);
+
+            $stmt = $pdo->prepare("UPDATE questions SET question = ?, num_options = ?, option_struct = ?, options = ?, correct_option = ? WHERE id = ?");
+            $stmt->execute([$question, $num_options, $option_struct, $options_json, $correct_option, $question_id]);
+
+            echo "Question edited successfully!";
+        }
+    }
+
+    // Fetch existing tests and questions
+    $tests = $pdo->query("SELECT * FROM tests")->fetchAll(PDO::FETCH_ASSOC);
+    $questions = $pdo->query("SELECT * FROM questions")->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Database error: " . $e->getMessage());
+}
+?>
+
+<?php include '../header.php'; ?>
+<style>
+    .admin-container textarea {
+        height: 150px;
+        width: 400px;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+</style>
+<div class="admin-container">
+    <h1>Manage Tests and Questions</h1>
+
+    <!-- Form to add a new test -->
+    <h2>Add New Test</h2>
+    <form method="POST">
+        <input type="text" name="test_name" placeholder="Test Name" required>
+        <input type="number" name="num_questions" placeholder="Number of Questions" required>
+        <button type="submit" name="add_test">Add Test</button>
+    </form>
+
+    <!-- Form to delete a test -->
+    <h2>Delete Test</h2>
+    <form method="POST">
+        <select name="test_id" required>
+            <?php foreach ($tests as $test) : ?>
+                <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
+            <?php endforeach; ?>
+        </select>
+        <button type="submit" name="delete_test">Delete Test</button>
+    </form>
+
+    <!-- Form to add a new question -->
+    <h2>Add New Question</h2>
+    <form method="POST" id="questionForm">
+        <select name="test_id" required>
+            <?php foreach ($tests as $test) : ?>
+                <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
+            <?php endforeach; ?>
+        </select><br>
+        <textarea name="question" placeholder="Question" required></textarea><br>
+        <div id="options">
+            <div class="option" data-option="a">
+                <input type="text" name="options[a]" placeholder="Option A" required>
+                <button type="button" class="removeOption">Remove Option</button>
+            </div>
+            <div class="option" data-option="b">
+                <input type="text" name="options[b]" placeholder="Option B" required>
+                <button type="button" class="removeOption">Remove Option</button>
+            </div>
+            <div class="option" data-option="c">
+                <input type="text" name="options[c]" placeholder="Option C" required>
+                <button type="button" class="removeOption">Remove Option</button>
+            </div>
+            <div class="option" data-option="d">
+                <input type="text" name="options[d]" placeholder="Option D" required>
+                <button type="button" class="removeOption">Remove Option</button>
+            </div>
+        </div>
+        <button type="button" id="addOption">Add Option</button><br>
+        <label for="correct_option">Correct Option:</label>
+        <select name="correct_option" id="correct_option" required>
+            <option value="a">A</option>
+            <option value="b">B</option>
+            <option value="c">C</option>
+            <option value="d">D</option>
+        </select><br>
+        <button type="submit" name="add_question">Add Question</button>
+    </form>
+
+    <!-- Form to delete a question -->
+    <h2>Delete Question</h2>
+    <form method="POST">
+        <select name="question_id" required>
+            <?php foreach ($questions as $question) : ?>
+                <option value="<?= htmlspecialchars($question['id']) ?>"><?= htmlspecialchars($question['question']) ?></option>
+            <?php endforeach; ?>
+        </select>
+        <button type="submit" name="delete_question">Delete Question</button>
+    </form>
+
+    <!-- Form to edit a question -->
+    <h2>Edit Question</h2>
+    <form method="POST" id="editQuestionForm">
+        <label for="edit_question_id">Select Question:</label>
+        <select name="question_id" id="edit_question_id" required>
+            <option value="">-- Select a Question --</option>
+            <?php foreach ($questions as $question) : ?>
+                <option value="<?= htmlspecialchars($question['id']) ?>"><?= htmlspecialchars($question['question']) ?></option>
+            <?php endforeach; ?>
+        </select><br><br>
+
+        <textarea name="question" id="edit_question_text" placeholder="Question" required></textarea><br>
+
+        <div id="edit_options">
+            <!-- Options will be dynamically loaded here based on the selected question -->
+        </div>
+        <button type="button" id="edit_addOption">Add Option</button><br><br>
+
+        <label for="edit_correct_option">Correct Option:</label>
+        <select name="correct_option" id="edit_correct_option" required>
+            <!-- Correct options will be dynamically populated based on the selected question -->
+        </select><br><br>
+
+        <button type="submit" name="edit_question">Edit Question</button>
+    </form>
+
+
+</div>
+
+<?php include '../footer.php'; ?>
+
+<script>
+    // Adding new options dynamically in the "Add Question" form
+    document.getElementById('addOption').addEventListener('click', function() {
+        var optionsDiv = document.getElementById('options');
+        var optionCount = optionsDiv.getElementsByClassName('option').length;
+        var optionLetter = String.fromCharCode(97 + optionCount); // a, b, c, d, ...
+
+        var newOptionDiv = document.createElement('div');
+        newOptionDiv.className = 'option';
+        newOptionDiv.setAttribute('data-option', optionLetter);
+
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.name = 'options[' + optionLetter + ']';
+        input.placeholder = 'Option ' + optionLetter.toUpperCase();
+        input.required = true;
+
+        var removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'removeOption';
+        removeButton.textContent = 'Remove Option';
+        removeButton.addEventListener('click', function() {
+            optionsDiv.removeChild(newOptionDiv);
+            updateOptions();
+        });
+
+        newOptionDiv.appendChild(input);
+        newOptionDiv.appendChild(removeButton);
+        optionsDiv.appendChild(newOptionDiv);
+
+        updateOptions();
+    });
+
+    // Removing options in the "Add Question" form
+    document.querySelectorAll('.removeOption').forEach(function(button) {
+        button.addEventListener('click', function() {
+            var optionDiv = button.parentElement;
+            optionDiv.parentElement.removeChild(optionDiv);
+            updateOptions();
+        });
+    });
+
+    // Update options in the "Add Question" form to keep them consistent
+    function updateOptions() {
+        var optionsDiv = document.getElementById('options');
+        var correctOptionSelect = document.getElementById('correct_option');
+        correctOptionSelect.innerHTML = '';
+
+        var optionLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+        optionsDiv.querySelectorAll('.option').forEach(function(optionDiv, index) {
+            var optionLetter = optionLetters[index];
+            optionDiv.setAttribute('data-option', optionLetter);
+            var input = optionDiv.querySelector('input');
+            input.name = 'options[' + optionLetter + ']';
+            input.placeholder = 'Option ' + optionLetter.toUpperCase();
+
+            var newOption = document.createElement('option');
+            newOption.value = optionLetter;
+            newOption.textContent = optionLetter.toUpperCase();
+            correctOptionSelect.appendChild(newOption);
+        });
+    }
+
+    // Edit question functionality: Fetching and populating the selected question's details
+    document.getElementById('edit_question_id').addEventListener('change', function() {
+        var questionId = this.value;
+        if (questionId) {
+            console.log("questionId: " + questionId);
+            fetchQuestionDetails(questionId);
+        }
+    });
+
+    // Fetch question details via AJAX and populate the edit form
+    function fetchQuestionDetails(questionId) {
+        fetch('/includes/tests/fetch_question.php?question_id=' + questionId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    populateEditForm(data);
+                }
+            })
+            .catch(error => console.error('Error fetching question details:', error));
+    }
+
+    // Populate the edit form with the fetched question details
+    function populateEditForm(question) {
+        document.getElementById('edit_question_text').value = question.question;
+
+        var optionsDiv = document.getElementById('edit_options');
+        optionsDiv.innerHTML = ''; // Clear current options
+
+        var options = {};
+        try {
+            options = JSON.parse(question.options);
+            if (typeof options !== 'object' || options === null) {
+                throw new Error('Options is not a valid object');
+            }
+        } catch (e) {
+            console.error('Error parsing options:', e);
+            alert('Failed to load options. Please check the question data.');
+            return;
+        }
+
+        Object.keys(options).forEach(function(optionLetter) {
+            var optionValue = options[optionLetter];
+
+            var optionDiv = document.createElement('div');
+            optionDiv.className = 'option';
+            optionDiv.setAttribute('data-option', optionLetter);
+
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.name = 'options[' + optionLetter + ']';
+            input.value = optionValue;
+            input.placeholder = 'Option ' + optionLetter.toUpperCase();
+            input.required = true;
+
+            var removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'removeOption';
+            removeButton.textContent = 'Remove Option';
+            removeButton.addEventListener('click', function() {
+                optionsDiv.removeChild(optionDiv);
+                updateEditOptions();
+            });
+
+            optionDiv.appendChild(input);
+            optionDiv.appendChild(removeButton);
+            optionsDiv.appendChild(optionDiv);
+        });
+
+        updateEditOptions();
+        document.getElementById('edit_correct_option').value = question.correct_option;
+    }
+
+    // Update the edit form's correct option dropdown
+    function updateEditOptions() {
+        var optionsDiv = document.getElementById('edit_options');
+        var correctOptionSelect = document.getElementById('edit_correct_option');
+        correctOptionSelect.innerHTML = ''; // Clear the current dropdown options
+
+        optionsDiv.querySelectorAll('.option').forEach(function(optionDiv) {
+            var optionLetter = optionDiv.getAttribute('data-option'); // Get the option letter (e.g., 'a', 'b', etc.)
+
+            var newOption = document.createElement('option');
+            newOption.value = optionLetter; // Set the option value
+            newOption.textContent = optionLetter.toUpperCase(); // Set the option display text (e.g., 'A', 'B', etc.)
+            correctOptionSelect.appendChild(newOption); // Add the option to the select dropdown
+        });
+    }
+</script>
+
+/* --- End of admin\test_manage.php --- */
+
+/* --- Start of includes\config.php --- */
+// config.php
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'christian_site');
+define('DB_USER', getenv('DB_USERNAME') ?: 'root');
+define('DB_PASS', getenv('DB_PASSWORD') ?: '!Cessna172');
+
+/* --- End of includes\config.php --- */
+
+/* --- Start of includes\database.php --- */
+require_once 'config.php';
+
+$dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME;
+$options = [
+    PDO::ATTR_PERSISTENT => true,
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+];
+
+try {
+    $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+    // Optionally check for a specific table or database availability
+    $stmt = $pdo->query("SHOW TABLES LIKE 'users'");
+    if ($stmt->rowCount() == 0) {
+        // Include setup.php if tables are not set up
+        require 'setup.php';
+    }
+} catch (PDOException $e) {
+    // Redirect to setup if database connection fails, implying it might not exist
+    header("Location: setup.php");
+    exit;
+}
+
+/* --- End of includes\database.php --- */
+
+/* --- Start of includes\HTMLPurifier_Filter_PageBreak.php --- */
+class HTMLPurifier_Filter_PageBreak extends HTMLPurifier_Filter
+{
+    public $name = 'PageBreak';
+
+    public function preFilter($html, $config, $context) {
+        // Replace <!-- pagebreak --> with a placeholder
+        return str_replace('<!-- pagebreak -->', 'PLACEHOLDER_PAGEBREAK', $html);
+    }
+
+    public function postFilter($html, $config, $context) {
+        // Replace the placeholder with the actual <!-- pagebreak -->
+        return str_replace('PLACEHOLDER_PAGEBREAK', '<!-- pagebreak -->', $html);
+    }
+}
+
+/* --- End of includes\HTMLPurifier_Filter_PageBreak.php --- */
+
+/* --- Start of includes\sanitize.php --- */
+require_once 'session.php';
+require_once 'C:/htmlpurifier/library/HTMLPurifier.auto.php'; // Adjust the path based on where you extracted HTMLPurifier
+require_once 'HTMLPurifier_Filter_PageBreak.php';
+
+// CSRF token generation
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+$csrf_token = $_SESSION['csrf_token'];
+
+function sanitize_html($content) {
+    $config = HTMLPurifier_Config::createDefault();
+    
+    // Allow specific tags and attributes
+    $config->set('HTML.Allowed', 'p[style],b,a[href],i,em,strong,ul,ol,li,br,h1,h2,h3,span[style],div[style],img[src|alt|width|height]');
+    
+    // Add the custom filter for pagebreak
+    $config->set('Filter.Custom', array(new HTMLPurifier_Filter_PageBreak()));
+    
+    $purifier = new HTMLPurifier($config);
+    return $purifier->purify($content);
+}
+
+function sanitize_html2($content) {
+    $config = HTMLPurifier_Config::createDefault();
+    
+    // Allow specific tags and attributes
+    $config->set('HTML.Allowed', 'p[style],b,a[href],i,em,strong,ul,ol,li,br,h1,h2,h3,span[style],div[style|class],img[src|alt|width|height|style|class],audio[controls],source[src]');
+    
+    // Add the custom filter for pagebreak
+    $config->set('Filter.Custom', array(new HTMLPurifier_Filter_PageBreak()));
+    
+    $purifier = new HTMLPurifier($config);
+    return $purifier->purify($content);
+}
+
+// Function to apply nl2br while skipping <li> elements
+function nl2br_skip($content) {
+    // Split the content into individual lines
+    $lines = explode("\n", $content);
+
+    // Process each line
+    foreach ($lines as &$line) {
+        // Trim whitespace for accurate checks
+        $trimmedLine = trim($line);
+
+        // Check if the line meets any of the skip conditions
+        if ((preg_match('/^<li>/', $trimmedLine) && preg_match('/<\/li>$/', $trimmedLine)) || // Starts AND ends with <li>...</li>
+            preg_match('/^<ul>/', $trimmedLine) ||                                            // Starts with <ul>
+            preg_match('/<\/ul>$/', $trimmedLine)                                            // Ends with </ul>
+        ) {
+            // Skip nl2br for this line
+            continue;
+        }
+
+        // Apply nl2br to all other lines
+        $line = nl2br($line);
+    }
+
+    // Reassemble the content
+    return implode("\n", $lines);
+}
+
+
+
+/* --- End of includes\sanitize.php --- */
+
+/* --- Start of includes\session.php --- */
+// session.php
+
+if (session_status() == PHP_SESSION_NONE) {
+
+    // Set secure session cookie parameters
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'domain' => '', // Set to your domain if needed
+        'secure' => isset($_SERVER['HTTPS']), // Ensure this is only used over HTTPS
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+    
+    session_start();
+
+    // Regenerate session ID to prevent session fixation attacks
+    session_regenerate_id(true);
+}
+
+// Generate CSRF token if it doesn't exist
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+$csrf_token = $_SESSION['csrf_token'];
+
+/* --- End of includes\session.php --- */
+
+/* --- Start of includes\stylesheets.php --- */
+$current_page = basename($_SERVER['SCRIPT_NAME'], '.php'); ?>
+<link rel="stylesheet" type="text/css" href="/styles/style.css">
+<link rel="stylesheet" type="text/css" href="/styles/header.css">
+<?php if ($current_page == 'index') : ?>
+    <link rel="stylesheet" type="text/css" href="/styles/surplus.css">
+    <link rel="stylesheet" type="text/css" href="/styles/featuredvid.css">
+    <link rel="stylesheet" type="text/css" href="/styles/sidebar.css">
+    <link rel="stylesheet" type="text/css" href="/styles/index.css">
+<?php endif; ?>
+<?php if ($current_page == 'login') : ?>
+    <link rel="stylesheet" type="text/css" href="/styles/surplus.css">
+<?php endif; ?>
+<?php if (($current_page == 'admin_panel') || ($current_page ==  'edit_post') || ($current_page == 'create_post') || ($current_page == 'test_manage') || $current_page == 'user_portal') : ?>
+    <link rel="stylesheet" type="text/css" href="/styles/admin.css">
+<?php endif; ?>
+<?php if ($current_page == 'post') : ?>
+    <link rel="stylesheet" type="text/css" href="/styles/post.css">
+<?php endif; ?>
+<?php if ($current_page == 'members') : ?>
+    <link rel="stylesheet" type="text/css" href="/styles/roster.css">
+<?php endif; ?>
+<?php if ($current_page == 'contact') : ?>
+    <link rel="stylesheet" type="text/css" href="/styles/surplus.css">
+    <link rel="stylesheet" type="text/css" href="/styles/contact.css">
+<?php endif; ?>
+<?php if ($current_page == 'archive') : ?>
+    <link rel="stylesheet" type="text/css" href="/styles/archive.css">
+<?php endif; ?>
+<?php if ($current_page == 'manage_users') : ?>
+    <link rel="stylesheet" type="text/css" href="/styles/surplus.css">
+    <link rel="stylesheet" type="text/css" href="/styles/manage_users.css">
+<?php endif; ?>
+<?php if ($current_page == 'notifications') : ?>
+    <link rel="stylesheet" type="text/css" href="/styles/notifications.css">
+<?php endif; ?>
+<?php if ($current_page == 'test_history') : ?>
+    <link rel="stylesheet" type="text/css" href="/styles/test_history.css">
+<?php endif; ?>
+<?php if ($current_page == 'register') : ?>
+    <link rel="stylesheet" type="text/css" href="/styles/register.css">
+<?php endif; ?>
+<?php if ($current_page == 'user_settings') : ?>
+    <link rel="stylesheet" type="text/css" href="/styles/user_settings.css">
+<?php endif; ?>
+<?php if ($current_page == '404') : ?>
+    <link rel="stylesheet" type="text/css" href="/styles/404.css">
+<?php endif; ?>
+<link rel="stylesheet" type="text/css" href="/styles/footer.css">
+
+/* --- End of includes\stylesheets.php --- */
+
+/* --- Start of includes\comments\delete_comment.php --- */
+require '../session.php'; // Ensure session management is initialized
+require '../database.php'; // Include the database connection
+
+header('Content-Type: application/json');
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF token validation to prevent CSRF attacks
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
+        exit;
+    }
+
+    // Check if the user is logged in
+    $user_id = $_SESSION['user_id'] ?? null;
+    $comment_id = filter_var($_POST['comment_id'], FILTER_VALIDATE_INT);
+
+    if ($user_id && $comment_id) {
+        // Retrieve the owner of the comment
+        $comment_owner_query = $pdo->prepare("SELECT user_id FROM comments WHERE id = ?");
+        $comment_owner_query->execute([$comment_id]);
+        $comment_owner_id = $comment_owner_query->fetchColumn();
+
+        // Check if the current user is the owner of the comment or an admin
+        if ($user_id == $comment_owner_id || $_SESSION['user_role'] === 'admin') {
+            // Delete the comment
+            $delete_stmt = $pdo->prepare("DELETE FROM comments WHERE id = ?");
+            if ($delete_stmt->execute([$comment_id])) {
+                echo json_encode(['success' => true, 'message' => 'Comment deleted successfully']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to delete comment']);
+            }
+        } else {
+            // User is not authorized to delete this comment
+            echo json_encode(['success' => false, 'message' => 'You do not have permission to delete this comment']);
+        }
+    } else {
+        // Invalid input, either user_id or comment_id is missing or invalid
+        echo json_encode(['success' => false, 'message' => 'Invalid input']);
+    }
+}
+
+/* --- End of includes\comments\delete_comment.php --- */
+
+/* --- Start of includes\comments\edit_comment.php --- */
+require '../session.php';
+require '../sanitize.php';
+require '../database.php';
+
+header('Content-Type: application/json');
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF token validation to prevent CSRF attacks
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
+        exit;
+    }
+
+    // Check if the user is logged in
+    $user_id = $_SESSION['user_id'] ?? null;
+    $comment_id = filter_var($_POST['comment_id'], FILTER_VALIDATE_INT);
+    $content = trim($_POST['content']);
+
+    if ($user_id && $comment_id && !empty($content)) {
+        // Retrieve the owner of the comment
+        $comment_owner_query = $pdo->prepare("SELECT user_id FROM comments WHERE id = ?");
+        $comment_owner_query->execute([$comment_id]);
+        $comment_owner_id = $comment_owner_query->fetchColumn();
+
+        // Check if the current user is the owner of the comment or an admin
+        if ($user_id == $comment_owner_id || $_SESSION['user_role'] === 'admin') {
+            // Sanitize and update the comment
+            $sanitized_content = sanitize_html($content);
+            $update_stmt = $pdo->prepare("UPDATE comments SET content = ? WHERE id = ?");
+            if ($update_stmt->execute([$sanitized_content, $comment_id])) {
+                echo json_encode(['success' => true, 'message' => 'Comment updated successfully']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Failed to update comment']);
+            }
+        } else {
+            // User is not authorized to edit this comment
+            echo json_encode(['success' => false, 'message' => 'You do not have permission to edit this comment']);
+        }
+    } else {
+        // Invalid input, either user_id, comment_id or content is missing or invalid
+        echo json_encode(['success' => false, 'message' => 'Invalid input']);
+    }
+}
+
+/* --- End of includes\comments\edit_comment.php --- */
+
+/* --- Start of includes\comments\submit_comment.php --- */
+require '../session.php'; // Ensure session management is initialized
+require '../database.php';
+require '../sanitize.php';
+
+header('Content-Type: application/json');
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF token validation
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
+        exit;
+    }
+
+    // Check if the user is logged in
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'message' => 'User not authenticated']);
+        exit;
+    }
+
+    $user_id = $_SESSION['user_id'];
+    $post_id = filter_var($_POST['post_id'], FILTER_VALIDATE_INT);
+    $content = trim($_POST['comment']);
+    $parent_id = isset($_POST['parent_id']) ? $_POST['parent_id'] : NULL;
+
+    if ($post_id && !empty($content)) {
+        $sanitized_content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
+        $stmt = $pdo->prepare("INSERT INTO comments (user_id, post_id, content, created_at, parent_id) VALUES (?, ?, ?, NOW(), ?)");
+        if ($stmt->execute([$user_id, $post_id, $sanitized_content, $parent_id])) {
+            echo json_encode(['success' => true, 'message' => 'Comment added successfully']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to add comment']);
+        }
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Invalid input']);
+    }
+}
+
+/* --- End of includes\comments\submit_comment.php --- */
+
+/* --- Start of includes\notifications\notification_data.php --- */
+require __DIR__ . '/../database.php'; // Ensure the path is correct
+
+function add_notification($user_id, $title, $message) {
+    global $pdo;
+    $stmt = $pdo->prepare("INSERT INTO notifications (user_id, title, message) VALUES (?, ?, ?)");
+    $stmt->execute([$user_id, $title, $message]);
+}
+
+function get_notifications($user_id, $all = false) {
+    global $pdo;
+    if ($all) {
+        $stmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = ?");
+    } else {
+        $stmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = ? AND is_read = FALSE");
+    }
+    $stmt->execute([$user_id]);
+    $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if (!$all) {
+        mark_notifications_as_read($user_id);
+    }
+    return $notifications;
+}
+
+function mark_notifications_as_read($user_id) {
+    global $pdo;
+    $stmt = $pdo->prepare("UPDATE notifications SET is_read = TRUE WHERE user_id = ?");
+    $stmt->execute([$user_id]);
+}
+
+function remove_notification($notification_id, $user_id) {
+    global $pdo;
+    $stmt = $pdo->prepare("DELETE FROM notifications WHERE id = ? AND user_id = ?");
+    $stmt->execute([$notification_id, $user_id]);
+}
+
+/* --- End of includes\notifications\notification_data.php --- */
+
+/* --- Start of includes\posts\get_post_data.php --- */
+require '../database.php';
+
+$post_id = $_GET['post_id'] ?? 0;
+$post = null;
+
+if ($post_id > 0) {
+    $stmt = $pdo->prepare("SELECT title, content, thumbnail FROM posts WHERE id = ?");
+    $stmt->execute([$post_id]);
+    $post = $stmt->fetch(PDO::FETCH_ASSOC);
+    echo json_encode($post);
+}
+
+/* --- End of includes\posts\get_post_data.php --- */
+
+/* --- Start of includes\roster\fetch_roster.php --- */
+require '../database.php';
+require '../sanitize.php'; // Include the sanitization function
+
+// Function to create default roster data for users without it
+function createDefaultRosterData($pdo) {
+    // Find users without roster data
+    $stmt = $pdo->prepare("
+        SELECT users.id 
+        FROM users 
+        LEFT JOIN roster_data ON users.id = roster_data.user_id 
+        WHERE roster_data.user_id IS NULL
+    ");
+    $stmt->execute();
+    $usersWithoutRoster = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Insert default roster data for each user without it
+    $insertStmt = $pdo->prepare("INSERT INTO roster_data (user_id, devotion) VALUES (?, 'red')");
+    foreach ($usersWithoutRoster as $user) {
+        $insertStmt->execute([$user['id']]);
+    }
+}
+
+// Create default roster data if it doesn't exist
+createDefaultRosterData($pdo);
+
+// Prepare the SQL statement to join users and roster_data tables
+$stmt = $pdo->prepare("
+    SELECT users.id, users.username, users.displayname, users.role, roster_data.devotion 
+    FROM users
+    LEFT JOIN roster_data ON users.id = roster_data.user_id
+");
+
+$stmt->execute();
+$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($users as &$user) {
+    $user['username'] = sanitize_html($user['username']);
+}
+
+header('Content-Type: application/json');
+echo json_encode($users);
+
+/* --- End of includes\roster\fetch_roster.php --- */
+
+/* --- Start of includes\roster\update_devotion.php --- */
+require '../database.php';
+
+// Get the POST data
+$data = json_decode(file_get_contents('php://input'), true);
+$userId = $data['userId'];
+$devotion = $data['devotion'];
+
+// Update the user's devotion in the database
+$stmt = $pdo->prepare("UPDATE roster_data SET devotion = ? WHERE user_id = ?");
+$success = $stmt->execute([$devotion, $userId]);
+
+header('Content-Type: application/json');
+
+echo json_encode(['success' => $success]);
+
+/* --- End of includes\roster\update_devotion.php --- */
+
+/* --- Start of includes\tests\fetch_question.php --- */
+session_start();
+require '../database.php';
+
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
+    die("Unauthorized access.");
+}
+
+if (isset($_GET['question_id'])) {
+
+    $question_id = $_GET['question_id'];
+    $stmt = $pdo->prepare("SELECT * FROM questions WHERE id = ?");
+    $stmt->execute([$question_id]);
+    $question = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($question) {
+        echo json_encode($question);
+    } else {
+        echo json_encode(['error' => 'Question not found']);
+    }
+} else {
+    echo json_encode(['error' => 'Invalid request']);
+}
+
+
+/* --- End of includes\tests\fetch_question.php --- */
+
+/* --- Start of includes\tests\get_assigned_tests.php --- */
+require '../database.php';
+
+if (!isset($_GET['user_id'])) {
+    die("Invalid request.");
+}
+
+$user_id = $_GET['user_id'];
+
+try {
+    $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $stmt = $pdo->prepare("SELECT t.id, t.test_name FROM tests t JOIN user_tests ut ON t.id = ut.test_id WHERE ut.user_id = ?");
+    $stmt->execute([$user_id]);
+    $assigned_tests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $stmt = $pdo->prepare("SELECT t.id, t.test_name FROM tests t WHERE t.id NOT IN (SELECT test_id FROM user_tests WHERE user_id = ?)");
+    $stmt->execute([$user_id]);
+    $available_tests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode(['tests' => $assigned_tests, 'available_tests' => $available_tests]);
+} catch (PDOException $e) {
+    die("Database error: " . $e->getMessage());
+}
+
+/* --- End of includes\tests\get_assigned_tests.php --- */
+
+/* --- Start of includes\tests\unset_test_session.php --- */
+session_start();
+
+if (isset($_SESSION['test_started'])) {
+    unset($_SESSION['test_started']);
+}
+
+if (isset($_SESSION['test_completed'])) {
+    unset($_SESSION['test_completed']);
+}
+
+echo "Session variables unset.";
+
+/* --- End of includes\tests\unset_test_session.php --- */
+
+/* --- Start of includes\users\get_user_details.php --- */
+require '../database.php';
+
+$userId = $_GET['id'];
+
+$stmt = $pdo->prepare("SELECT id, displayname, role FROM users WHERE id = ?");
+$stmt->execute([$userId]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+header('Content-Type: application/json');
+echo json_encode($user);
+
+/* --- End of includes\users\get_user_details.php --- */
+
+/* --- Start of includes\users\get_user_role_json.php --- */
+session_start();
+
+header('Content-Type: application/json');
+
+if (isset($_SESSION['user_role'])) {
+    echo json_encode(['role' => $_SESSION['user_role']]);
+} else {
+    echo json_encode(['role' => 'guest']); // Default role if not set
+}
+
+/* --- End of includes\users\get_user_role_json.php --- */
+
+/* --- Start of includes\users\search_users.php --- */
+require '../database.php';
+
+$searchQuery = '%' . $_GET['query'] . '%';
+$response = [];
+
+$stmt = $pdo->prepare("SELECT id, username, displayname, role FROM users WHERE username LIKE ? OR displayname LIKE ?");
+$stmt->execute([$searchQuery, $searchQuery]);
+$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+if ($results) {
+    $response['users'] = $results;
+} else {
+    $response['error'] = 'No results found';
+}
+
+header('Content-Type: application/json');
+echo json_encode($response);
+
+/* --- End of includes\users\search_users.php --- */
+
+/* --- Start of includes\users\update_user.php --- */
+require '../database.php';
+
+$userId = $_POST['userId'];
+$displayName = $_POST['displayName'];
+$role = $_POST['role'];
+
+$stmt = $pdo->prepare("UPDATE users SET displayname = ?, role = ? WHERE id = ?");
+$stmt->execute([$displayName, $role, $userId]);
+
+header('Content-Type: application/json');
+echo json_encode(['success' => true]);
+
+/* --- End of includes\users\update_user.php --- */
+
+/* --- Start of magazines\all_issues.php --- */
+include '../header.php'; ?>
+
+<?php
+// Include the database connection
+require '../includes/database.php';
+
+// Fetch the most recent thumbnail for each unique issue
+$query = "
+    SELECT issue, MIN(image_url) AS thumbnail 
+    FROM magazine_articles 
+    GROUP BY issue 
+    ORDER BY issue DESC";
+$issues = $pdo->query($query)->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<div class="main-container">
+    <main>
+        <section>
+            <h2>All Magazine Issues</h2>
+            <hr>
+            <div class="issue-list">
+                <?php if (count($issues) > 0) : ?>
+                    <?php foreach ($issues as $issue) : ?>
+                        <div class="issue-item">
+                            <?php if ($issue['thumbnail']) : ?>
+                                <img src="<?php echo htmlspecialchars($issue['thumbnail']); ?>" alt="<?php echo htmlspecialchars($issue['issue']); ?>" class="issue-thumbnail">
+                            <?php endif; ?>
+                            <h3><?php echo htmlspecialchars($issue['issue']); ?></h3>
+                            <a href="issue.php?issue=<?php echo urlencode($issue['issue']); ?>" class="view-articles">View Articles</a>
+                        </div>
+                        <hr>
+                    <?php endforeach; ?>
+                <?php else : ?>
+                    <p>No issues found.</p>
+                <?php endif; ?>
+            </div>
+        </section>
+    </main>
+</div>
+
+<?php include '../footer.php';
+
+/* --- End of magazines\all_issues.php --- */
+
+/* --- Start of magazines\issue.php --- */
+include '../header.php'; ?>
+
+<?php
+// Include the database connection
+require '../includes/database.php';
+
+// Get the selected issue from the URL
+$selected_issue = isset($_GET['issue']) ? urldecode($_GET['issue']) : '';
+
+if ($selected_issue) {
+    // Fetch all articles related to the selected issue
+    $stmt = $pdo->prepare("SELECT title, author, image_url, article_url FROM magazine_articles WHERE issue = :issue ORDER BY id DESC");
+    $stmt->bindParam(':issue', $selected_issue);
+    $stmt->execute();
+    $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+?>
+
+<div class="main-container">
+    <main>
+        <section>
+            <h2>Articles for <?php echo htmlspecialchars($selected_issue); ?></h2>
+            <hr>
+            <div class="articles-list">
+                <?php if ($selected_issue && count($articles) > 0) : ?>
+                    <?php foreach ($articles as $article) : ?>
+                        <div class="article-item">
+                            <?php if ($article['image_url']) : ?>
+                                <img src="<?php echo htmlspecialchars($article['image_url']); ?>" alt="<?php echo htmlspecialchars($article['title']); ?>" class="article-thumbnail">
+                            <?php endif; ?>
+                            <h3><?php echo htmlspecialchars($article['title']); ?></h3>
+                            <p><strong>Author:</strong> <?php echo htmlspecialchars($article['author']); ?></p>
+                            <a href="<?php echo htmlspecialchars($article['article_url']); ?>" class="read-more">Read More</a>
+                        </div>
+                        <hr>
+                    <?php endforeach; ?>
+                <?php else : ?>
+                    <p>No articles found for this issue.</p>
+                <?php endif; ?>
+            </div>
+        </section>
+    </main>
+</div>
+
+<?php include '../footer.php';
+
+/* --- End of magazines\issue.php --- */
+
+/* --- Start of userportal\test_history.php --- */
+// Start the session and check if the user is authenticated and is an admin.
+session_start();
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], ['admin', 'editor', 'member'])) {
+    header('Location: /login.php'); // Redirect to login if not authenticated as admin.
+    exit();
+}
+
+// Include database connection
+require '../base_config.php';
+require 'includes/database.php';
+
+// Fetch test history
+$userId = $_SESSION['user_id'];
+$testHistoryQuery = "
+    SELECT th.id, th.score, th.percent, th.taken_at, t.test_name AS test_name 
+    FROM scores th 
+    JOIN tests t ON th.test_id = t.id 
+    WHERE th.user_id = :userId";
+$stmt = $pdo->prepare($testHistoryQuery);
+$stmt->execute(['userId' => $userId]);
+$testHistoryResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch currently assigned tests
+$assignedTestsQuery = "
+    SELECT at.id, at.assigned_at, t.test_name AS test_name 
+    FROM user_tests at 
+    JOIN tests t ON at.test_id = t.id 
+    WHERE at.user_id = :userId";
+$stmt = $pdo->prepare($assignedTestsQuery);
+$stmt->execute(['userId' => $userId]);
+$assignedTestsResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<?php
+// Include header file
+include 'header.php';
+?>
+
+<div class="test-container">
+    <h1>Test History</h1>
+    <table class="test-table">
+        <thead>
+            <tr>
+                <th>Test Name</th>
+                <th>Score</th>
+                <th>Status</th>
+                <th>Percent</th>
+                <th>Taken At</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($testHistoryResult as $row): ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($row['test_name']); ?></td>
+                    <td><?php echo htmlspecialchars($row['score']); ?></td>
+                    <td><?php echo '<strong><span style="color:' . ($row['percent'] >= 80 ? 'green;">PASS' : 'red;">FAIL') . '</span></strong>'; ?></td>
+                    <td><?php echo '<span style="color:' . ($row['percent'] >= 80 ? 'green;">' : 'red;">') . $row['percent'] . '</span>'; ?></td>
+                    <td><?php echo htmlspecialchars($row['taken_at']); ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+
+    <h1>Currently Assigned Tests</h1>
+    <table class="test-table">
+        <thead>
+            <tr>
+                <th>Test Name</th>
+                <th>Assigned At</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($assignedTestsResult as $row): ?>
+                <tr onclick="window.location.href='/test.php?test_id=<?php echo $row['id']; ?>';" style="cursor:pointer;">
+                    <td><?php echo htmlspecialchars($row['test_name']); ?></td>
+                    <td><?php echo htmlspecialchars($row['assigned_at']); ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+
+<?php
+// Include footer file
+include 'footer.php';
+
+/* --- End of userportal\test_history.php --- */
+
+/* --- Start of userportal\user_portal.php --- */
+// Start the session and check if the user is authenticated and is an admin.
+session_start();
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], ['admin', 'editor', 'member'])) {
+    header('Location: /login.php'); // Redirect to login if not authenticated as admin.
+    exit();
+}
+
+require_once '../base_config.php';
+
+// Include header file
+include 'header.php';
+?>
+
+<div class="admin-container">
+    <h1>Portal Dashboard</h1>
+    <p>Welcome to the portal dashboard. Use the links below to access your data:</p>
+    <ul class="admin-links">
+        <li><a href="test_history.php">Test History</a></li>
+        <li><a href="user_settings.php">User Settings</a></li>
+        <!-- Additional links for other admin tasks can be added here -->
+    </ul>
+</div>
+
+<?php
+// Include footer file
+include 'footer.php';
+
+/* --- End of userportal\user_portal.php --- */
+
+/* --- Start of userportal\user_settings.php --- */
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: /login.php');
+    exit();
+}
+
+require_once '../base_config.php';  // Include the database connection
+require 'includes/database.php';
+
+// Check if the request is for email validation via AJAX
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['check_email'])) {
+    $email = htmlspecialchars($_POST['email']);
+    $user_id = $_SESSION['user_id'];
+
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND id != ?");
+    $stmt->execute([$email, $user_id]);
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['exists' => true]);
+    } else {
+        echo json_encode(['exists' => false]);
+    }
+    exit();
+}
+
+// Handle form submission for updating email
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_email'])) {
+    $new_email = htmlspecialchars($_POST['email']);
+    // TODO: Add further validation for the email
+
+    $stmt = $pdo->prepare("UPDATE users SET email = ? WHERE id = ?");
+    if ($stmt->execute([$new_email, $_SESSION['user_id']])) {
+        $success_message = "Email updated successfully!";
+    } else {
+        $error_message = "Failed to update email.";
+    }
+}
+
+// Handle form submission for updating password
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_password'])) {
+    $new_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    // TODO: Add further validation for the password
+
+    $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+    if ($stmt->execute([$new_password, $_SESSION['user_id']])) {
+        $success_message = "Password updated successfully!";
+    } else {
+        $error_message = "Failed to update password.";
+    }
+}
+
+// Include necessary files and the header
+include 'header.php';
+?>
+
+<div class="settings-container">
+    <h1>User Settings</h1>
+
+    <?php if (!empty($error_message)): ?>
+        <p style="color: red;"><?= $error_message ?></p>
+    <?php endif; ?>
+    <?php if (!empty($success_message)): ?>
+        <p style="color: green;"><?= $success_message ?></p>
+    <?php endif; ?>
+
+    <!-- Form to update email -->
+    <form id="email-form" method="POST" action="user_settings.php">
+        <div class="form-group">
+            <label for="email">Update Email:</label>
+            <input type="email" id="email" name="email" required>
+            <p id="email-error" style="color: red;"></p>
+        </div>
+        <button type="submit" name="update_email">Update Email</button>
+    </form>
+
+    <!-- Form to update password -->
+    <form method="POST" action="user_settings.php">
+        <div class="form-group">
+            <label for="password">Update Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit" name="update_password">Update Password</button>
+    </form>
+</div>
+
+<?php
+// Include the footer
+include 'footer.php';
+?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const emailInput = document.getElementById('email');
+    const emailError = document.getElementById('email-error');
+    const submitButton = document.querySelector('button[name="update_email"]');
+
+    emailInput.addEventListener('input', function() {
+        checkEmailAvailability(emailInput.value);
+    });
+
+    function checkEmailAvailability(email) {
+        if (email === '') {
+            emailError.textContent = '';
+            submitButton.disabled = false;
+            return;
+        }
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'user_settings.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                if (response.exists) {
+                    emailError.textContent = 'Email is already taken.';
+                    submitButton.disabled = true;
+                } else {
+                    emailError.textContent = '';
+                    submitButton.disabled = false;
+                }
+            }
+        };
+        xhr.send('check_email=true&email=' + encodeURIComponent(email));
+    }
+});
+</script>
+
+
+/* --- End of userportal\user_settings.php --- */
+

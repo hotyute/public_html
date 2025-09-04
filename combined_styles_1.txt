@@ -1,0 +1,2073 @@
+/* --- Start of styles\404.css --- */
+.fourzerofour-container {
+    display: flex;
+    justify-content: center; /* Center the content horizontally */
+    max-width: 90%; /* Limit the maximum width for larger screens */
+    margin: 0 auto; /* Center the entire container */
+}
+/* --- End of styles\404.css --- */
+
+/* --- Start of styles\admin.css --- */
+/* Admin Page Base Styles */
+.admin-content {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    max-width: 800px;
+    margin: 30px auto;
+}
+
+/* Style for Form Fields */
+.admin-form input[type="text"],
+.admin-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Style for Form Labels */
+.admin-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+/* Style for the Submit Button */
+.admin-form button {
+    padding: 10px 20px;
+    color: white;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.admin-form button:hover {
+    background-color: #0056b3;
+}
+
+.admin-container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2em;
+    color: #333;
+}
+
+.admin-container p {
+    text-align: center;
+    font-size: 1.2em;
+    color: #555;
+}
+
+.admin-links {
+    list-style-type: none;
+    padding: 0;
+    margin: 30px 0; /* Increased margin for better spacing */
+    text-align: center;
+}
+
+.admin-links li {
+    margin: 20px 0; /* Increased margin for better spacing */
+}
+
+.admin-links a {
+    text-decoration: none;
+    color: #007bff;
+    font-size: 1.2em;
+    padding: 10px 20px;
+    border: 1px solid #007bff;
+    border-radius: 4px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.admin-links a:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .admin-content {
+        padding: 10px;
+        margin: 10px;
+    }
+}
+
+/* --- End of styles\admin.css --- */
+
+/* --- Start of styles\archive.css --- */
+.archive-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.archive-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.archive-thumbnail {
+    width: 100px; /* Adjust the size as needed */
+    height: auto;
+    margin-right: 15px;
+}
+
+.archive-details {
+    flex: 1;
+}
+
+.archive-details a {
+    font-size: 1.2em; /* Adjust font size as desired */
+    font-weight: bold;
+    text-decoration: none;
+    color: #333;
+}
+
+.archive-details a:hover {
+    text-decoration: underline;
+}
+
+/* Existing link styles can be kept or adjusted */
+.archive-list a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+
+.archive-list a:hover {
+    text-decoration: underline;
+}
+
+.pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    padding: 10px 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin: 0 5px;
+    text-decoration: none;
+    color: #333;
+    background-color: #f9f9f9;
+}
+
+.pagination a:hover {
+    background-color: #f1f1f1;
+}
+
+.main-container form {
+    margin-bottom: 20px;
+}
+
+/* --- End of styles\archive.css --- */
+
+/* --- Start of styles\contact.css --- */
+.contact-container {
+    display: flex;
+    justify-content: center; /* Center the content horizontally */
+    width: 100%;
+    max-width: 800px; /* Limit the maximum width for larger screens */
+    margin: 0 auto; /* Center the entire container */
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.contact-us h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.contact-us p {
+    margin-bottom: 20px;
+    font-size: 16px;
+    color: #555;
+}
+
+.contact-us form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.contact-us label {
+    text-align: left;
+    font-size: 14px;
+    color: #333;
+}
+
+.contact-us input[type="text"],
+.contact-us input[type="email"],
+.contact-us textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.contact-us textarea {
+    resize: vertical;
+    /* Allow vertical resize */
+}
+
+.contact-us button[type="submit"] {
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.contact-us button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Success and error messages */
+.contact-us .message {
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.contact-us .message.success {
+    color: green;
+}
+
+.contact-us .message.error {
+    color: red;
+}
+/* --- End of styles\contact.css --- */
+
+/* --- Start of styles\featuredvid.css --- */
+.featured-video {
+    margin: 20px auto;
+    padding: 20px;
+    max-width: 700px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.featured-video h2 {
+    margin-top: 0;
+    font-size: 24px;
+    text-align: center;
+}
+
+.featured-video iframe {
+    display: block;
+    width: 100%;
+    height: 315px;
+    border: none;
+    border-radius: 4px;
+}
+
+.featured-video p {
+    text-align: center;
+    font-size: 16px;
+    color: #555;
+}
+/* --- End of styles\featuredvid.css --- */
+
+/* --- Start of styles\footer.css --- */
+footer {
+    background-repeat: no-repeat; 
+    background-size: cover; 
+    text-align: center; 
+    background-position: center center;
+}
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.footer-links ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.footer-links li {
+    margin: 10px;
+}
+
+.footer-link-item {
+    text-align: center;
+    margin: 10px;
+}
+
+.footer-thumbnail {
+    width: 50px;
+    height: 50px;
+    display: block;
+    margin: 0 auto 5px;
+}
+
+.footer-links a {
+    text-decoration: none;
+    color: #000;
+    font-weight: bold;
+}
+
+.footer-links a:hover {
+    color: #007BFF;
+}
+
+footer p {
+    color: #000;
+}
+
+.registerl {
+    text-decoration: underline;
+    color: darkgoldenrod;
+    transition: text-shadow 0.3s ease-in-out;
+}
+
+.registerl:hover {
+    text-shadow: 0 0 8px darkgoldenrod, 0 0 12px darkgoldenrod;
+}
+
+
+@media screen and (max-width: 768px) {
+
+    footer {
+        background-position: center center; /* Center the image on smaller screens */
+        height: auto; /* Let the height adjust based on content */
+    }
+
+}
+/* --- End of styles\footer.css --- */
+
+/* --- Start of styles\header.css --- */
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping for smaller screens */
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    color: #ffd700;
+}
+
+.search-bar {
+    margin-bottom: 10px; /* Add some space between the search bar and user info */
+    flex: 1; /* Allow search bar to grow */
+    text-align: center; /* Center align on smaller screens */
+}
+
+.search-bar form {
+    display: flex;
+    justify-content: center; /* Center the form elements */
+}
+
+.search-bar input[type="text"] {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+    width: 100%; /* Full width on smaller screens */
+    max-width: 200px; /* Limit maximum width */
+}
+
+.search-bar button {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-left: none;
+    background-color: #333;
+    color: white;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+}
+
+.search-bar button:hover {
+    background-color: #555;
+}
+
+nav {
+    background-color: #333;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(to bottom, #444 0%, #222 100%);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 1;
+}
+
+nav:before {
+    content: "";
+    display: block;
+    height: 4px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav ul.nav-links {
+    float: left;
+}
+
+nav ul.auth {
+    float: right;
+}
+
+nav ul li {
+    float: left;
+}
+
+header {
+    position: relative;
+    padding: 10px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+.logo {
+    display: block;
+}
+
+.logo img {
+    width: 100%; /* Responsive width */
+    max-width: 300px; /* Limit maximum width */
+    height: auto;
+}
+
+/* Ensure that padding and border are included in the width and height calculations */
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+
+nav ul li a,
+nav ul li button.auth-button {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-weight: bold;
+    position: relative;
+    z-index: 2;
+    text-shadow: 1px 1px 5px rgba(100, 100, 100, 0.5);
+    background: linear-gradient(to top, #ffffff, #cccccc);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: all 0.3s ease;
+}
+
+nav ul li a:hover,
+nav ul li button.auth-button:hover {
+    background-color: #111;
+    color: #ffd700;
+    text-shadow: 2px 2px 8px rgba(100, 100, 100, 0.7);
+    -webkit-background-clip: initial;
+    background-clip: initial;
+    -webkit-text-fill-color: initial;
+}
+
+.notifications {
+    position: relative;
+    margin-left: 10px;
+}
+
+.notifications-button {
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+    position: relative;
+}
+
+.notifications-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 30px;
+    background-color: white;
+    color: black !important;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.notifications-dropdown a {
+    font-size: 1.0em;
+    color: black; /* Ensure links have black text */
+}
+
+.notifications-dropdown .notification {
+    color: black; /* Ensure individual notifications have black text */
+}
+
+.notification {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.notification:last-child {
+    border-bottom: none;
+}
+
+.notification:hover {
+    background-color: #f9f9f9;
+}
+
+@media screen and (max-width: 768px) {
+
+    header {
+        background-position: center center; /* Center the image on smaller screens */
+        height: auto; /* Let the height adjust based on content */
+    }
+    
+    nav ul li {
+        float: none;
+    }
+
+    nav ul.nav-links,
+    nav ul.auth {
+        float: none;
+        width: 100%;
+        text-align: center;
+    }
+
+    nav ul {
+        display: block;
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 2s ease-out;
+        width: 100%;
+    }
+
+    nav ul.open {
+        max-height: 100%;
+    }
+
+    nav ul li {
+        display: block;
+        text-align: center;
+    }
+
+    .logo {
+        text-align: center;
+        margin-bottom: 10px; /* Space between logo and other elements */
+    }
+
+    .header-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .user-info {
+        align-items: center;
+    }
+
+    .notifications {
+        margin-left: 0;
+        margin-top: 10px; /* Add space between notifications and other elements */
+        justify-content: center; /* Center notifications icon */
+    }
+
+    .search-bar input[type="text"] {
+        width: 80%; /* Adjust width for smaller screens */
+    }
+}
+
+/* --- End of styles\header.css --- */
+
+/* --- Start of styles\index.css --- */
+/* preview-styles.css */
+
+:root {
+    /* you can override these in your theme or per-component */
+    --carousel-btn-bg: rgba(255,255,255,0.9);
+    --carousel-btn-size: 48px;
+    --carousel-btn-icon-color: #333;
+    --carousel-btn-hover-scale: 1.2;
+    --carousel-btn-transition: 0.3s ease;
+  }
+
+/* Carousel Container Styling */
+.carousel-container {
+    position: relative;
+    /* Keep overflow: hidden so the slides don't show off to the side */
+    overflow: hidden;
+    margin: 20px;
+}
+
+.carousel {
+    overflow: hidden;
+    width: 100%;
+}
+
+.carousel-slides {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+.carousel-slide {
+    min-width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columns layout */
+    gap: 20px;
+    padding: 20px;
+}
+  
+  /* Base button */
+  .carousel-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: var(--carousel-btn-size);
+    height: var(--carousel-btn-size);
+    background: var(--carousel-btn-bg);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: transform var(--carousel-btn-transition),
+                background var(--carousel-btn-transition),
+                box-shadow var(--carousel-btn-transition);
+    z-index: 1000;
+  }
+  
+  /* Positioning */
+  .carousel-button.prev { left: 1rem; }
+  .carousel-button.next { right: 1rem; }
+  
+  /* Icon styling */
+  .carousel-button svg {
+    width: 60%;
+    height: 60%;
+  }
+  .carousel-button path {
+    fill: var(--carousel-btn-icon-color);
+    transition: fill var(--carousel-btn-transition),
+                transform var(--carousel-btn-transition);
+  }
+  
+  /* Hover & focus */
+  .carousel-button:hover,
+  .carousel-button:focus {
+    background: rgba(255,255,255,1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    outline: none;
+  }
+  .carousel-button:hover path,
+  .carousel-button:focus path {
+    transform: scale(var(--carousel-btn-hover-scale));
+    fill: #000;
+  }
+  
+  
+  
+
+.carousel-button.prev {
+    left: 0px;
+}
+
+.carousel-button.next {
+    right: 0px;
+}
+
+/* Individual Post Preview Styling */
+.post-preview {
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 10px; /* Increased padding for better visual spacing */
+    border-radius: 10px; /* Rounded corners for a softer look */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions for hover effects */
+}
+
+.post-preview:hover {
+    transform: translateY(-5px); /* Slight raise effect on hover */
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15); /* Enhanced shadow on hover for a 'lifting' effect */
+}
+
+.post-preview p {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Image Styling within Post Previews */
+.post-preview img {
+    width: 100%; /* Ensures image takes full width of the container */
+    height: auto; /* Maintains the aspect ratio */
+    border-radius: 8px; /* Rounded corners for images */
+}
+
+.post-preview .admin-owner {
+    color: rgb(180, 2, 2) !important; /* Red color for owners and admins */
+}
+
+.post-preview .editor-user {
+    color: #cd8d01 !important; /* Color for editors */
+}
+
+.post-preview .regular-user {
+    color: #007BFF !important; /* Color for regular users */
+}
+
+/* Responsive adjustments */
+/*———————————————————————
+  Tablet & small‑desktop (≤768px)
+———————————————————————*/
+@media only screen and (max-width: 768px) {
+  /* 2‑column grid */
+  .grid-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Ensure the carousel container is positioned */
+  .carousel-container {
+    position: relative;
+  }
+
+  /* Enlarge and reposition floating arrows for touch */
+  .carousel-button {
+    display: flex !important;                /* override any earlier hide/display rules */
+    position: absolute;                      /* float over the slides */
+    top: 50%;                                /* vertical center */
+    transform: translateY(-50%);             /* true mid‑point */
+    width: 50px;                             /* 50×50px minimum touch target */
+    height: 50px;
+    background: var(--carousel-btn-bg);
+    border-radius: 50%;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    transition: transform var(--carousel-btn-transition),
+                background var(--carousel-btn-transition),
+                box-shadow var(--carousel-btn-transition);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .carousel-button svg {
+    width: 65%;
+    height: 65%;
+  }
+
+  /* Off‑edge, but still reachable with a thumb */
+  .carousel-button.prev {
+    left: 0.75rem;
+  }
+  .carousel-button.next {
+    right: 0.75rem;
+  }
+
+  /* Hover/focus tweaks (optional on touch devices) */
+  .carousel-button:hover,
+  .carousel-button:focus {
+    background: rgba(255,255,255,1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+  .carousel-button:hover path,
+  .carousel-button:focus path {
+    transform: scale(var(--carousel-btn-hover-scale));
+    fill: #000;
+  }
+}
+
+  
+  
+  
+  /* ------------------------------------------
+     Phone & Super‑Small (up to 480px)
+     ------------------------------------------ */
+/*---------------------------------------
+  Mobile override: keep floating arrows
+---------------------------------------*/
+/*———————————————————————
+  Phone & super‑small (≤480px)
+———————————————————————*/
+@media only screen and (max-width: 480px) {
+  /* 1‑column grid for each slide */
+  .grid-container {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Hide the old absolute arrows */
+  .carousel-container > button.carousel-button {
+    display: none !important;
+  }
+
+  /* Show our new top/bottom rows */
+  .carousel-button-row.mobile-only {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin: 8px 0;
+  }
+
+  .carousel-button-row.mobile-only .carousel-button {
+    display: flex;
+    position: relative;
+    width: 40px;   /* min touch target */
+    height: 40px;
+    background: var(--carousel-btn-bg);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    align-items: center;
+    justify-content: center;
+    transition: transform var(--carousel-btn-transition),
+                background var(--carousel-btn-transition),
+                box-shadow var(--carousel-btn-transition);
+  }
+
+  .carousel-button-row.mobile-only .carousel-button svg {
+    width: 60%;
+    height: 60%;
+  }
+
+  /* Optional: active/hover feedback */
+  .carousel-button-row.mobile-only .carousel-button:active,
+  .carousel-button-row.mobile-only .carousel-button:hover {
+    background: rgba(255,255,255,1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+}
+
+  
+
+/* --- End of styles\index.css --- */
+
+/* --- Start of styles\manage_users.css --- */
+/* styles/manage_users.css */
+
+.musers-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+.musers-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+#searchForm {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+#searchForm input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#searchForm button {
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#searchForm button:hover {
+    background-color: #0056b3;
+}
+
+#userDetails {
+    margin-top: 20px;
+}
+
+#userDetails label {
+    display: block;
+    margin: 10px 0 5px;
+}
+
+#userDetails input, #userDetails select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+#userDetails button {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#userDetails button:hover {
+    background-color: #218838;
+}
+
+/* --- End of styles\manage_users.css --- */
+
+/* --- Start of styles\notifications.css --- */
+.container {
+    width: 80%;
+    margin: 0 auto;
+}
+
+.notification-main {
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+.notification-main strong {
+    font-size: 1.2em;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.notification-main form {
+    display: inline;
+}
+
+.remove-button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 0.9em;
+}
+
+.remove-button:hover {
+    background-color: #d32f2f;
+}
+
+/* --- End of styles\notifications.css --- */
+
+/* --- Start of styles\post.css --- */
+/* Post Page Styles */
+.post-container {
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.post-title {
+    font-size: 2em;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.post-author {
+    font-size: 1em;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.post-content {
+    font-size: 1.2em;
+    line-height: 1.6;
+    padding: 0 20px;
+    color: #333;
+}
+
+.post-thumbnail {
+    width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.post-container img {
+    max-width: 256px;
+    height: auto;
+    margin: auto;
+    padding-bottom: 20px;
+    display: block;
+}
+
+/* Pagination Styling */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    background-color: #007BFF;
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.pagination a:hover {
+    background-color: #0056b3;
+}
+
+.pagination span {
+    font-size: 1.2em;
+    color: #666;
+}
+
+/* Comments Section Styling */
+.comments-section {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f8f8;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+}
+
+.comments-title {
+    font-size: 22px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.comment {
+    padding: 15px;
+    margin-top: 15px;
+    background-color: #e9e9e9;
+    border-radius: 5px;
+    position: relative;
+}
+
+.comment strong {
+    color: #007BFF;
+    font-size: 1.1em;
+    margin-right: 10px; /* Adds space between the username and time ago */
+    display: inline; /* Change display to inline to keep it on the same line */
+}
+
+.comment .time-ago {
+    font-size: 0.9em;
+    color: #666; /* A slightly lighter color for the time ago text */
+}
+
+.comment p {
+    margin: 5px 0 0 0; /* Adjust the margin for the paragraph to give some space above it */
+    font-size: 1em;
+    color: #333;
+}
+
+/* Reply Comment Styling */
+.comment.reply {
+    margin-top: 15px;
+    margin-left: 20px;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border-left: 3px solid #007BFF;
+    border-radius: 5px;
+}
+
+.post-container .admin-owner, .comment .admin-owner {
+    color: rgb(180, 2, 2) !important; /* Red color for owners and admins */
+}
+
+.post-container .editor-user, .comment .editor-user {
+    color: #cd8d01 !important; /* Color for editors */
+}
+
+.post-container .regular-user, .comment .regular-user {
+    color: #007BFF !important; /* Color for regular users */
+}
+
+.highlight {
+    background-color: yellow;
+    transition: background-color 0.3s ease;
+}
+
+
+
+/* Reply Form Styling */
+.reply-form {
+    margin-top: 10px;
+}
+
+.reply-form textarea {
+    width: 100%;
+    padding: 8px;
+    font-size: 1em;
+    margin-bottom: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    resize: none;
+}
+
+.reply-form button {
+    background-color: #007BFF;
+    color: #fff;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.reply-form button:hover {
+    background-color: #0056b3;
+}
+
+/* Comment Form Styling */
+.comment-form {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+.comment-form textarea {
+    resize: none;
+    width: 100%;
+    min-height: 100px;
+    padding: 10px;
+    font-size: 1em;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.comment-form button {
+    align-self: flex-end;
+    background-color: #28a745;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.comment-form button:hover {
+    background-color: #218838;
+}
+
+.post-voiceover {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.post-voiceover audio {
+    width: 300px;
+}
+
+/* Edit and Delete Button Styling */
+.editComment, .deleteComment {
+    background-color: #007BFF;
+    color: #fff;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.6em;
+    margin-right: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.editComment:hover, .deleteComment:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.deleteComment {
+    background-color: #dc3545;
+}
+
+.deleteComment:hover {
+    background-color: #c82333;
+}
+
+.center-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /*min-height: 100vh;  Ensures vertical centering */
+    text-align: center; /* Centers inline-block children horizontally */
+}
+
+.image-container {
+    background-color: #f0f0f0; /* Light grey background */
+    padding: 20px;
+    padding-bottom: 10px;
+    border-radius: 8px; /* Rounded corners */
+    display: inline-block; /* Adjust width as needed */
+    /*margin: 20px auto; /* Center the container */
+    text-align: center;
+}
+
+.caption {
+    font-size: 14px;
+    color: #555;
+    margin-top: 5px;
+}
+
+.imgFloat {
+    max-height: 600px !important; /* Ensures the height is prioritized */
+    max-width: 100% !important;   /* Ensures the image width doesn't exceed container */
+    padding-bottom: 10px !important;
+    width: auto !important;       /* Maintains aspect ratio */
+    height: auto !important;      /* Maintains aspect ratio */
+    display: block;
+}
+
+.imgFloat2 {
+    max-height: 300px !important; /* Ensures the height is prioritized */
+    max-width: 100% !important;   /* Ensures the image width doesn't exceed container */
+    padding-bottom: 10px !important;
+    width: auto !important;       /* Maintains aspect ratio */
+    height: auto !important;      /* Maintains aspect ratio */
+    display: block;
+}
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .post-container img {
+        padding: 10px 0;
+    }
+
+    .post-container {
+        max-width: 85%;
+        margin: 0 auto;
+    }
+
+    .post-title, .post-author {
+        text-align: center;
+    }
+
+    .post-content {
+        padding: 0;
+    }
+
+    .pagination {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .pagination a, .pagination span {
+        font-size: 1em;
+    }
+
+    .comments-section {
+        margin: 10px;
+        padding: 10px;
+    }
+
+    .comment {
+        padding: 10px;
+    }
+
+    .comment strong {
+        font-size: 1em;
+    }
+
+    .comment.reply {
+        margin-left: 10px;
+        padding: 8px;
+    }
+
+    .reply-form textarea {
+        padding: 6px;
+    }
+
+    .reply-form button {
+        padding: 6px 10px;
+    }
+
+    .comment-form textarea {
+        padding: 8px;
+    }
+
+    .comment-form button {
+        padding: 8px 10px;
+    }
+
+    .post-voiceover audio {
+        width: 150px;
+    }
+}
+
+/* --- End of styles\post.css --- */
+
+/* --- Start of styles\register.css --- */
+/* Container for the form */
+.register-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    width: 90%; /* Ensure it adapts to smaller screens */
+    box-sizing: border-box; /* Ensure padding doesn't affect overall width */
+}
+
+/* Heading style */
+.register-container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: 'Georgia', serif;
+    color: #444;
+    font-size: 24px; /* Slightly larger font size */
+}
+
+/* Form styling */
+.register-container form {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Full width on small screens */
+    box-sizing: border-box; /* Ensure padding doesn't affect overall width */
+    margin: 0 auto; /* Center the form on the page */
+}
+
+/* Label styling */
+.register-container label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Input styling */
+.register-container input[type="text"],
+.register-container input[type="password"],
+.register-container input[type="email"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: 'Georgia', serif;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+/* Input focus state */
+.register-container input[type="text"]:focus,
+.register-container input[type="password"]:focus,
+.register-container input[type="email"]:focus {
+    border-color: #3498db;
+}
+
+/* Error and success message styling */
+.register-container p[style="color: red;"],
+.register-container p[style="color: green;"] {
+    padding: 12px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    font-size: 14px; /* Slightly smaller for better readability on mobile */
+    text-align: center; /* Center align the messages */
+}
+
+/* Button styling */
+.register-container button {
+    width: 100%;
+    padding: 12px;
+    background-color: #3498db;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-family: 'Georgia', serif;
+}
+
+/* Button hover state */
+.register-container button:hover {
+    background-color: #2980b9;
+}
+
+/* Spacing between form fields */
+.register-container form > *:not(:last-child) {
+    margin-bottom: 15px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .register-container {
+        padding: 15px;
+    }
+
+    .register-container h1 {
+        font-size: 20px; /* Slightly smaller for small screens */
+    }
+
+    .register-container input[type="text"],
+    .register-container input[type="password"],
+    .register-container input[type="email"] {
+        font-size: 14px; /* Adjust input font size for small screens */
+        padding: 10px;
+    }
+
+    .register-container button {
+        font-size: 16px; /* Adjust button font size for small screens */
+        padding: 10px;
+    }
+}
+
+/* --- End of styles\register.css --- */
+
+/* --- Start of styles\roster.css --- */
+.roster-container {
+    text-align: center;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.roster-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.roster-table th,
+.roster-table td {
+    padding: 10px;
+    border: 2px solid #ddd;
+    text-align: center;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.roster-table th {
+    background-color: #f2f2f2;
+}
+
+.roster-table td {
+    background-color: #ffffff;
+    border-radius: 0px;/* previously 5px */
+    /*box-shadow: inset 0 0 1px rgba(2, 0, 103, 0.3);*/
+    cursor: pointer;
+}
+
+.roster-table td:hover {
+    /*background-color: #f0f0f0;*/
+    /*transform: translateY(-2px);*/
+    box-shadow: inset 0 0 5px rgba(7, 0, 81, 0.5);
+}
+
+.notice {
+    border: 2px solid DodgerBlue;
+    color: #FF0000;
+    font-size: 1.8em;
+    text-align: center;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+/* --- End of styles\roster.css --- */
+
+/* --- Start of styles\sidebar.css --- */
+.sidebar {
+    background-color: #f4f4f4;
+    padding: 15px;
+    border: 1px solid #ddd;
+    margin: 5px 0;
+}
+
+.sidebar h3 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.sidebar h4 {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar li {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.sidebar .thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.sidebar a {
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #333;
+}
+
+.sidebar small {
+    font-size: 14px;
+    color: #777;
+}
+
+.view-all {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    padding: 10px;
+    background-color: red;
+    color: white;
+    text-decoration: none;
+}
+
+.view-all:hover {
+    background-color: darkred;
+}
+
+/* --- End of styles\sidebar.css --- */
+
+/* --- Start of styles\style.css --- */
+body {
+    font-family: 'Georgia', serif;
+    margin: 0;
+    padding: 0;
+    background: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+header, footer {
+    background-color: #006699;
+    color: #ffffff;
+    text-align: center;
+    max-width: 90%; 
+    padding: 20px 0;
+    margin: 0 auto; /* Center the header and footer */
+}
+
+a {
+    color: #0044cc;
+    text-decoration: none;
+    font-size: 1.2em;
+}
+
+.main-container {
+    display: flex;
+    justify-content: center; /* Center the content horizontally */
+    max-width: 90%; /* Limit the maximum width for larger screens */
+    margin: 0 auto; /* Center the entire container */
+}
+
+main {
+    flex: 3;  /* Allocate 3 parts of space to main */
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Optional: Adds shadow for depth */
+}
+
+aside {
+    flex: 1;  /* Allocate 1 part of space to sidebar */
+    background-color: #f0f0f0;
+    padding: 20px;
+    margin-left: 20px; /* Add some space between the main content and sidebar */
+    box-sizing: border-box; /* Includes padding and border in the width calculation */
+}
+
+section {
+    margin-bottom: 20px;
+}
+
+header a, footer a {
+    color: white;
+}
+
+/* Button Styling */
+button.auth-button {
+    background-color: #0044cc; /* Blue background */
+    color: #ffffff; /* White text */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 10px 20px; /* Padding around the text */
+    cursor: pointer; /* Hand cursor on hover */
+    font-size: 1em; /* Standard text size */
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Smooth transform and color transition */
+    outline: none; /* Remove outline to keep the design clean */
+}
+
+button.auth-button:hover {
+    background-color: #003399; /* Darker blue on hover */
+    transform: scale(1.05); /* Slightly increase the scale */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Add shadow for depth */
+}
+
+hr {
+    border: none;
+    height: 2px;
+    background-color: #ccc;
+    margin: 20px 0;
+    position: relative;
+}
+
+hr::after {
+    content: '❖';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 0 10px;
+    color: #999;
+    font-size: 1.5em;
+}
+
+/* Responsive design adjustments for screen only devices */
+@media only screen and (max-width: 768px) {
+    .main-container, nav, header, footer {
+        width: 100%;
+        padding: 0;
+    }
+
+    header {
+        padding: 10px 0;
+    }
+
+    h1, h2, h3 {
+        font-size: 1.5em;
+    }
+
+    .hamburger {
+        display: block;
+        cursor: pointer;
+        font-size: 30px; /* Adjust size as needed */
+    }
+
+    button.auth-button {
+        width: 100%; /* Full width for easier access on mobile */
+        padding: 15px 20px; /* Larger padding for better tapability */
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    body {
+        font-size: 14px;
+    }
+
+    h1, h2, h3 {
+        font-size: 1.2em;
+    }
+}
+
+.hamburger {
+    display: none; /* Hides by default for desktop */
+}
+
+@media (max-width: 768px) {
+    .main-container {
+        flex-direction: column;
+        max-width: 100%;
+    }
+
+    main, aside {
+        flex: none; /* Disable flex sizing in mobile view */
+        width: 100%; /* Full width for each */
+        margin: 10px 0; /* Vertical spacing for clarity */
+    }
+
+    aside {
+        margin-left: 0; /* Remove left margin in mobile view */
+    }
+    
+    .hamburger {
+        display: block;
+    }
+}
+
+/* --- End of styles\style.css --- */
+
+/* --- Start of styles\surplus.css --- */
+/* Login Form Styling */
+.login-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    max-width: 90%;
+    background-color: #f9f9f9;
+    margin: 0 auto;
+}
+
+.login-form form {
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    background: white;
+    border-radius: 8px;
+    width: 300px;
+}
+
+.login-form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.login-form button {
+    background-color: #0044cc;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%; /* Makes the button full width */
+}
+
+.login-form button:hover {
+    background-color: #003399;
+}
+
+/* Responsive design adjustments */
+@media only screen and (max-width: 768px) {
+
+    .login-form form {
+        width: 90%; /* Makes the form take up almost full width */
+    }
+    
+}
+/* --- End of styles\surplus.css --- */
+
+/* --- Start of styles\tests.css --- */
+/* tests.css */
+
+/* Body and Form Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+
+    -webkit-user-select: none;
+    /* Safari */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
+    user-select: none;
+    /* Standard syntax */
+}
+
+header,
+footer {
+    background-color: #003366;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+}
+
+header {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+footer {
+    font-size: 14px;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 85%;
+    margin: 0 auto;
+}
+
+form div {
+    margin-bottom: 15px;
+}
+
+form p {
+    font-size: 18px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #003366;
+}
+
+form label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-left: 20px;
+    position: relative;
+    cursor: pointer;
+}
+
+form input[type="radio"] {
+    margin-right: 10px;
+    position: relative;
+}
+
+form input[type="submit"] {
+    background-color: #006699;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+form input[type="submit"]:hover {
+    background-color: #004466;
+}
+
+/* Timer Styles */
+#timer {
+    font-size: 20px;
+    color: #cc0000;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Prevent Navigation Warning */
+body::before {
+    content: "Please do not refresh or navigate away from this page. Your progress will be lost.";
+    display: block;
+    background-color: #ffcc00;
+    color: #333;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 16px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+}
+
+header,
+footer {
+    padding-top: 40px;
+    /* Adjust for warning banner */
+}
+
+/* Question and Answer Styles */
+.question {
+    background-color: #e6f2ff;
+    border-left: 5px solid #00509e;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.answer {
+    background-color: #f0f8ff;
+    border-left: 5px solid #66b3ff;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.answer:hover {
+    background-color: #d9ecff;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    form {
+        padding: 15px;
+    }
+
+    form p {
+        font-size: 16px;
+    }
+
+    form input[type="submit"] {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
+/* --- End of styles\tests.css --- */
+
+/* --- Start of styles\test_history.css --- */
+.test-container {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.test-container h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.test-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.test-table th, .test-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.test-table th {
+    background-color: #007bff;
+    color: white;
+}
+
+.test-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.test-table tr:hover {
+    background-color: #ddd;
+}
+
+.test-table td {
+    color: #333;
+}
+
+.test-table h1, h2, p {
+    margin: 0 0 20px 0;
+}
+
+.test-table a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.test-table a:hover {
+    text-decoration: underline;
+}
+
+/* --- End of styles\test_history.css --- */
+
+/* --- Start of styles\user_settings.css --- */
+.settings-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.settings-container .form-group {
+    margin-bottom: 15px;
+}
+
+.settings-container .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.settings-container .form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.settings-container button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.settings-container button:hover {
+    background-color: #0056b3;
+}
+
+/* --- End of styles\user_settings.css --- */
+

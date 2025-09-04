@@ -9,28 +9,36 @@
 
                 <?php
                 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                    $first_name = htmlspecialchars($_POST['first_name']);
-                    $last_name = htmlspecialchars($_POST['last_name']);
-                    $email = htmlspecialchars($_POST['email']);
-                    $message = htmlspecialchars($_POST['message']);
+                    $first_name = trim($_POST['first_name'] ?? '');
+                    $last_name  = trim($_POST['last_name'] ?? '');
+                    $email      = trim($_POST['email'] ?? '');
+                    $message    = trim($_POST['message'] ?? '');
 
-                    $to = 'admin@divineword.co.uk'; // Your email address
-                    $subject = 'New Contact Form Submission';
-
-                    $body = "You have received a new message from your website contact form.\n\n" .
-                        "Here are the details:\n" .
-                        "First Name: $first_name\n" .
-                        "Last Name: $last_name\n" .
-                        "Email: $email\n\n" .
-                        "Message:\n$message";
-
-                    $headers = "From: $email\r\n";
-                    $headers .= "Reply-To: $email\r\n";
-
-                    if (mail($to, $subject, $body, $headers)) {
-                        echo "<p class='message success'>Thank you for contacting us, $first_name. We will get back to you shortly.</p>";
+                    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        echo "<p class='message error'>Invalid email address.</p>";
                     } else {
-                        echo "<p class='message error'>Sorry, something went wrong. Please try again later.</p>";
+                        // Basic header injection guard
+                        if (preg_match("/[\r\n]/", $email)) {
+                            echo "<p class='message error'>Invalid email header.</p>";
+                        } else {
+                            $to = 'admin@divineword.co.uk';
+                            $subject = 'New Contact Form Submission';
+                            $body = "You have received a new message from your website contact form.\n\n" .
+                                "Here are the details:\n" .
+                                "First Name: $first_name\n" .
+                                "Last Name: $last_name\n" .
+                                "Email: $email\n\n" .
+                                "Message:\n$message";
+
+                            $headers = "From: no-reply@divineword.co.uk\r\n";
+                            $headers .= "Reply-To: $email\r\n";
+
+                            if (mail($to, $subject, $body, $headers)) {
+                                echo "<p class='message success'>Thank you for contacting us, " . htmlspecialchars($first_name) . ". We will get back to you shortly.</p>";
+                            } else {
+                                echo "<p class='message error'>Sorry, something went wrong. Please try again later.</p>";
+                            }
+                        }
                     }
                 }
                 ?>

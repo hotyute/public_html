@@ -1,42 +1,40 @@
 <?php
-// Start the session and check if the user is authenticated and is an admin.
+// Start the session and check if the user is authenticated
 session_start();
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], ['admin', 'editor', 'member'])) {
-    header('Location: /login.php'); // Redirect to login if not authenticated as admin.
+    header('Location: /login.php');
     exit();
 }
 
-// Include database connection
 require '../base_config.php';
-require 'includes/database.php';
+require '../includes/database.php';
 
-// Fetch test history
 $userId = $_SESSION['user_id'];
+
 $testHistoryQuery = "
-    SELECT th.id, th.score, th.percent, th.taken_at, t.test_name AS test_name 
-    FROM scores th 
-    JOIN tests t ON th.test_id = t.id 
-    WHERE th.user_id = :userId";
+    SELECT sc.id, sc.score, sc.percent, sc.taken_at, t.test_name
+    FROM scores sc
+    JOIN tests t ON sc.test_id = t.id
+    WHERE sc.user_id = :userId
+    ORDER BY sc.taken_at DESC
+";
 $stmt = $pdo->prepare($testHistoryQuery);
 $stmt->execute(['userId' => $userId]);
 $testHistoryResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Fetch currently assigned tests
 $assignedTestsQuery = "
-    SELECT at.id, at.assigned_at, t.test_name AS test_name 
-    FROM user_tests at 
-    JOIN tests t ON at.test_id = t.id 
-    WHERE at.user_id = :userId";
+    SELECT ut.test_id, ut.assigned_at, t.test_name
+    FROM user_tests ut
+    JOIN tests t ON ut.test_id = t.id
+    WHERE ut.user_id = :userId
+    ORDER BY ut.assigned_at DESC
+";
 $stmt = $pdo->prepare($assignedTestsQuery);
 $stmt->execute(['userId' => $userId]);
 $assignedTestsResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
-?>
 
-<?php
-// Include header file
 include 'header.php';
 ?>
-
 <div class="test-container">
     <h1>Test History</h1>
     <table class="test-table">
@@ -52,11 +50,21 @@ include 'header.php';
         <tbody>
             <?php foreach ($testHistoryResult as $row): ?>
                 <tr>
-                    <td><?php echo htmlspecialchars($row['test_name']); ?></td>
-                    <td><?php echo htmlspecialchars($row['score']); ?></td>
-                    <td><?php echo '<strong><span style="color:' . ($row['percent'] >= 80 ? 'green;">PASS' : 'red;">FAIL') . '</span></strong>'; ?></td>
-                    <td><?php echo '<span style="color:' . ($row['percent'] >= 80 ? 'green;">' : 'red;">') . $row['percent'] . '</span>'; ?></td>
-                    <td><?php echo htmlspecialchars($row['taken_at']); ?></td>
+                    <td><?= htmlspecialchars($row['test_name']) ?></td>
+                    <td><?= htmlspecialchars($row['score']) ?></td>
+                    <td>
+                        <strong>
+                            <span style="color:<?= ($row['percent'] >= 80 ? 'green' : 'red') ?>;">
+                                <?= ($row['percent'] >= 80 ? 'PASS' : 'FAIL') ?>
+                            </span>
+                        </strong>
+                    </td>
+                    <td>
+                        <span style="color:<?= ($row['percent'] >= 80 ? 'green' : 'red') ?>;">
+                            <?= htmlspecialchars($row['percent']) ?>
+                        </span>
+                    </td>
+                    <td><?= htmlspecialchars($row['taken_at']) ?></td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
@@ -72,16 +80,12 @@ include 'header.php';
         </thead>
         <tbody>
             <?php foreach ($assignedTestsResult as $row): ?>
-                <tr onclick="window.location.href='/test.php?test_id=<?php echo $row['id']; ?>';" style="cursor:pointer;">
-                    <td><?php echo htmlspecialchars($row['test_name']); ?></td>
-                    <td><?php echo htmlspecialchars($row['assigned_at']); ?></td>
+                <tr onclick="window.location.href='/test.php?test_id=<?= (int)$row['test_id'] ?>';" style="cursor:pointer;">
+                    <td><?= htmlspecialchars($row['test_name']) ?></td>
+                    <td><?= htmlspecialchars($row['assigned_at']) ?></td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
 </div>
-
-<?php
-// Include footer file
-include 'footer.php';
-?>
+<?php include 'footer.php'; ?>

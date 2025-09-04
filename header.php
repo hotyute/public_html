@@ -17,6 +17,7 @@ if (isset($_GET['logout'])) {
 <html lang="en">
 
 <head>
+    <meta name="csrf-token" content="<?= htmlspecialchars($csrf_token) ?>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -25,43 +26,33 @@ if (isset($_GET['logout'])) {
     <script src="/js/script.js"></script>
     <title>Divine Word</title>
     <script>
-        // Function to toggle notifications dropdown
-        function toggleNotifications(event) {
-            event.stopPropagation();  // Stop the click event from propagating to the document
+        function toggleNotifications(e) {
+            if (e && e.stopPropagation) e.stopPropagation();
             const dropdown = document.querySelector('.notifications-dropdown');
+            if (!dropdown) return;
             const isVisible = dropdown.style.display === 'block';
-
-            // Close any open dropdown first
             closeAllDropdowns();
-
-            // Toggle the current dropdown
             dropdown.style.display = isVisible ? 'none' : 'block';
         }
 
-        // Function to close all dropdowns
         function closeAllDropdowns() {
-            const dropdowns = document.querySelectorAll('.notifications-dropdown');
-            dropdowns.forEach(dropdown => {
-                dropdown.style.display = 'none';
-            });
+            document.querySelectorAll('.notifications-dropdown').forEach(d => d.style.display = 'none');
         }
 
-        // Event listener to close the dropdown if clicking outside
         document.addEventListener('click', function(event) {
             const dropdown = document.querySelector('.notifications-dropdown');
             const button = document.querySelector('.notifications-button');
-
-            if (dropdown && !dropdown.contains(event.target) && !button.contains(event.target)) {
+            if (!dropdown || !button) return;
+            if (!dropdown.contains(event.target) && !button.contains(event.target)) {
                 dropdown.style.display = 'none';
             }
         });
 
-        // Attach the toggle function to the notifications button
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelector('.notifications-button').addEventListener('click', toggleNotifications);
+            const btn = document.querySelector('.notifications-button');
+            if (btn) btn.addEventListener('click', toggleNotifications);
         });
 
-        // Function to handle logout redirection
         function logout() {
             window.location.href = '?logout=true';
         }
@@ -88,7 +79,7 @@ if (isset($_GET['logout'])) {
                     $notification_count = count($notifications);
                 ?>
                     <span>Hello, <?php echo htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8'); ?>
-                        <a class="notifications-button" href="javascript:void(0);" onclick="toggleNotifications()">
+                        <a class="notifications-button" href="javascript:void(0);" onclick="toggleNotifications(event)">
                             <span class="notification-count">(<?php echo htmlspecialchars($notification_count, ENT_QUOTES, 'UTF-8'); ?>)</span>
                         </a>
                     </span>
@@ -122,7 +113,7 @@ if (isset($_GET['logout'])) {
                 ?>
             </div>
         </div>
-        <div class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('active')">☰</div> <!-- Hamburger Icon -->
+        <div class="hamburger">☰</div> <!-- Hamburger Icon -->
         <nav>
             <ul class="nav-links">
                 <li><a href="/index.php">Home</a></li>

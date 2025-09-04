@@ -1,4 +1,3 @@
-
 <?php
 require_once 'config.php';
 
@@ -10,15 +9,11 @@ $options = [
 
 try {
     $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
-    // Optionally check for a specific table or database availability
     $stmt = $pdo->query("SHOW TABLES LIKE 'users'");
     if ($stmt->rowCount() == 0) {
-        // Include setup.php if tables are not set up
-        require 'setup.php';
+        require_once dirname(__DIR__) . '/setup.php';
     }
 } catch (PDOException $e) {
-    // Redirect to setup if database connection fails, implying it might not exist
-    header("Location: setup.php");
+    header("Location: /setup.php");
     exit;
 }
-?>

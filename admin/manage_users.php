@@ -1,11 +1,11 @@
 <?php
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
-include '../header.php'; // Admin panel header
-include_once '../includes/config.php'; // Database connection and other configuration
-include_once '../includes/notifications/notification_data.php';
 
-// Check if admin is logged in
+require_once '../includes/session.php';
+require_once '../includes/config.php';
+require_once '../includes/notifications/notification_data.php';
+
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     header('Location: /login.php');
     exit();
@@ -15,25 +15,29 @@ try {
     $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Handle form submissions for assigning/removing tests
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $token = $_POST['csrf_token'] ?? '';
+        if (!hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
+            http_response_code(400);
+            die('Invalid CSRF token');
+        }
+
         if (isset($_POST['assign_test'])) {
-            $user_id = $_POST['user_id'];
-            $test_id = $_POST['test_id'];
-            $test_name = $_POST['test_name'];
+            $user_id = (int)$_POST['user_id'];
+            $test_id = (int)$_POST['test_id'];
+            $test_name = trim($_POST['test_name'] ?? '');
 
             $stmt = $pdo->prepare("INSERT INTO user_tests (user_id, test_id) VALUES (?, ?)");
             $stmt->execute([$user_id, $test_id]);
 
-            $message = "Test '{$test_name}' assigned successfully! Take the test at <a href='/test.php?test_id={$test_id}'";
-            $message .= " style='color: blue; font-size: 1.0em; font-weight: bold;'>this link</a>";
+            $message = "Test '{$test_name}' assigned successfully! Take the test at <a href='/test.php?test_id={$test_id}' style='color: blue; font-size: 1.0em; font-weight: bold;'>this link</a>";
             add_notification($user_id, "Test Assigned", $message);
 
             echo "Test {$test_name} assigned successfully!";
-        } else if (isset($_POST['remove_test'])) {
-            $user_id = $_POST['user_id'];
-            $test_id = $_POST['test_id'];
-            $test_name = $_POST['test_name'];
+        } elseif (isset($_POST['remove_test'])) {
+            $user_id = (int)$_POST['user_id'];
+            $test_id = (int)$_POST['test_id'];
+            $test_name = trim($_POST['test_name'] ?? '');
 
             $stmt = $pdo->prepare("DELETE FROM user_tests WHERE user_id = ? AND test_id = ?");
             $stmt->execute([$user_id, $test_id]);
@@ -45,20 +49,20 @@ try {
         }
     }
 
-    // Fetch existing tests
     $tests = $pdo->query("SELECT id, test_name FROM tests")->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
 }
-?>
 
+include '../header.php';
+?>
 <div class="musers-container">
     <h2>User Management</h2>
     <form id="searchForm">
         <input type="text" id="searchQuery" placeholder="Search by username or display name">
         <button type="submit">Search</button>
     </form>
-    
+
     <div id="searchResults"></div>
     <div id="userDetails" style="display: none;">
         <form id="editUserForm">
@@ -71,6 +75,7 @@ try {
                 <option value="editor">Editor</option>
                 <option value="member">Member</option>
             </select>
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
             <button type="submit">Update User</button>
         </form>
 
@@ -80,6 +85,7 @@ try {
             <label for="test_id">Test:</label>
             <select name="test_id" id="assignTestId" required></select>
             <input type="hidden" name="test_name" id="assignTestName">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
             <button type="submit" name="assign_test">Assign Test</button>
         </form>
 
@@ -89,6 +95,7 @@ try {
             <label for="test_id">Test:</label>
             <select name="test_id" id="removeTestId" required></select>
             <input type="hidden" name="test_name" id="removeTestName">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
             <button type="submit" name="remove_test">Remove Test</button>
         </form>
 
@@ -96,11 +103,4 @@ try {
         <div id="assignedTests"></div>
     </div>
 </div>
-
-<script>
-
-</script>
-
-<?php
-include '../footer.php'; // Admin panel footer
-?>
+<?php include '../footer.php'; ?>
