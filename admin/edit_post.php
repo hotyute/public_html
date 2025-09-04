@@ -44,9 +44,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $post_id = (int)$_POST['post_id'];
         $title   = sanitize_html($_POST['title'] ?? '');
 
-        // TinyMCE pagebreak plugin will output <!-- pagebreak --> when configured (see init below).
-        // We sanitize but keep allowed formatting/styles.
+        // Convert CKEditor pagebreaks (<hr class="pagebreak">) to <!-- pagebreak -->
         $rawContent = $_POST['content'] ?? '';
+        $rawContent = preg_replace('/<hr\b[^>]*class="[^"]*\bpagebreak\b[^"]*"[^>]*>/i', '<!-- pagebreak -->', $rawContent);
+
+        // Sanitize but keep formatting
         $content    = sanitize_html2($rawContent);
 
         // Handle thumbnail (optional)
@@ -58,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
             // Validate image
-            $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            $allowed = ['image/jpeg','image/png','image/gif','image/webp'];
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $mime  = finfo_file($finfo, $_FILES['thumbnail']['tmp_name']);
             finfo_close($finfo);
@@ -95,84 +97,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 include '../header.php';
 ?>
 <style>
-    /* Make the editor area and panel more spacious */
-    .admin-content {
-        max-width: 1200px;
-        margin: 40px auto;
-    }
-
-    .admin-content .form-group label {
-        font-weight: bold;
-    }
-
-    #current_thumbnail img {
-        max-width: 240px;
-        border-radius: 4px;
-        border: 1px solid #ddd;
-    }
+  .admin-content { max-width: 1200px; margin: 40px auto; }
+  .admin-content .form-group label { font-weight: bold; }
+  #current_thumbnail img { max-width: 240px; border-radius: 4px; border: 1px solid #ddd; }
+  /* Ensure editor is clickable above other UI */
+  .cke { position: relative; z-index: 10; }
 </style>
 
-<!-- TinyMCE from CDN: replace "no-api-key" with your key for production -->
-<!-- TinyMCE from CDN -->
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Hard guard: ensure the source textarea is not disabled/readonly
-        const ta = document.getElementById('content');
-        if (ta) {
-            ta.removeAttribute('disabled');
-            ta.removeAttribute('readonly');
-        }
-
-        tinymce.init({
-            selector: '#content',
-            height: 650,
-            menubar: 'file edit view insert format tools table help',
-            plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount pagebreak',
-            toolbar: [
-                'undo redo | blocks fontfamily fontsize | bold italic underline forecolor backcolor | ' +
-                'alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | ' +
-                'removeformat pagebreak | link image media table | code fullscreen'
-            ].join(''),
-            toolbar_sticky: true,
-            branding: false,
-            convert_urls: false,
-            remove_script_host: false,
-            pagebreak_split_block: true,
-            pagebreak_separator: '<!-- pagebreak -->',
-            image_caption: true,
-            content_style: 'body { font-family: Georgia, serif; font-size: 16px; line-height: 1.6; }',
-            readonly: false, // force editable
-            setup: function(editor) {
-                editor.on('init', () => {
-                    // Force design mode and re-enable contentEditable just in case
-                    try {
-                        if (editor.mode && typeof editor.mode.set === 'function') {
-                            editor.mode.set('design');
-                        } else if (typeof editor.setMode === 'function') {
-                            editor.setMode('design');
-                        }
-                        editor.getBody().setAttribute('contenteditable', 'true');
-                        // Bring focus in so the toolbar activates
-                        setTimeout(() => editor.focus(), 50);
-                        // Debug log if needed
-                        // console.log('TinyMCE mode:', editor.mode?.get ? editor.mode.get() : 'n/a');
-                    } catch (e) {
-                        console.warn('Editor init guard warning:', e);
-                    }
-                });
-
-                // Ensure textarea is updated on form submit
-                const form = document.querySelector('form.admin-form');
-                if (form) {
-                    form.addEventListener('submit', function() {
-                        tinymce.triggerSave();
-                    });
-                }
-            }
-        });
-    });
-</script>
+<!-- CKEditor 4 (free, open-source) -->
+<script src="https://cdn.ckeditor.com/4.22.1/full-all/ckeditor.js"></script>
 
 <div class="admin-content">
     <h2>Edit Post</h2>
@@ -182,7 +115,7 @@ include '../header.php';
         </p>
     <?php endif; ?>
 
-    <form method="POST" action="edit_post.php" enctype="multipart/form-data" class="admin-form">
+    <form method="POST" action="edit_post.php" enctype="multipart/form-data" class="admin-form" id="edit-post-form">
         <div class="form-group">
             <label for="post_id">Choose a post to edit:</label>
             <select id="post_id" name="post_id" onchange="loadPostData(this.value)" class="form-control">
@@ -199,7 +132,7 @@ include '../header.php';
         </div>
 
         <div class="form-group">
-            <label for="content">Content (supports Bold, Italic, Underline, Colors, Highlight, Lists, Alignment, Tables, Links, Images, Page Breaks):</label>
+            <label for="content">Content (Bold/Italic/Underline, Colors/Highlight, Fonts, Alignment, Lists, Tables, Links, Page Breaks, Fullscreen):</label>
             <textarea id="content" name="content" rows="18"></textarea>
         </div>
 
@@ -221,44 +154,72 @@ include '../header.php';
 </div>
 
 <script>
-    function loadPostData(postId) {
-        if (!postId) {
-            document.getElementById('title').value = '';
-            if (tinymce.get('content')) tinymce.get('content').setContent('');
-            document.getElementById('current_thumbnail').innerHTML = 'No thumbnail.';
-            return;
-        }
-        fetch('/includes/posts/get_post_data.php?post_id=' + encodeURIComponent(postId))
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('title').value = decodeHtmlEntities(data.title || '');
+// Transform between server format and editor format for page breaks
+function serverToEditor(html) {
+  // Convert <!-- pagebreak --> to a visible rule for CKEditor
+  return html.replace(/<!--\s*pagebreak\s*-->/gi, '<hr class="pagebreak" />');
+}
+function editorToServer(html) {
+  // Convert CKEditor pagebreaks back to <!-- pagebreak -->
+  return html.replace(/<hr\b[^>]*class="[^"]*\bpagebreak\b[^"]*"[^>]*>/gi, '<!-- pagebreak -->');
+}
 
-                // Ensure TinyMCE has loaded before setting content
-                const setEditorContent = () => {
-                    const editor = tinymce.get('content');
-                    if (editor) {
-                        // TinyMCE pagebreak plugin will convert <!-- pagebreak --> to a visual marker automatically
-                        editor.setContent(decodeHtmlEntities(data.content || ''));
-                    } else {
-                        setTimeout(setEditorContent, 50);
-                    }
-                };
-                setEditorContent();
+// Initialize CKEditor with a Word-like toolbar
+CKEDITOR.replace('content', {
+  height: 650,
+  extraPlugins: 'pagebreak,colorbutton,font,justify',
+  removePlugins: 'elementspath',
+  resize_enabled: true,
+  allowedContent: true, // keep formatting; server still sanitizes
+  toolbar: [
+    { name: 'document', items: ['Source','Preview','Maximize','ShowBlocks'] },
+    { name: 'clipboard', items: ['Undo','Redo'] },
+    { name: 'styles', items: ['Styles','Format','Font','FontSize'] },
+    { name: 'basicstyles', items: ['Bold','Italic','Underline','Strike','Subscript','Superscript','RemoveFormat'] },
+    { name: 'colors', items: ['TextColor','BGColor'] },
+    { name: 'paragraph', items: ['NumberedList','BulletedList','Outdent','Indent','Blockquote','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'] },
+    { name: 'insert', items: ['Table','HorizontalRule','PageBreak','Link','Unlink'] }
+  ],
+});
 
-                var currentThumbnailDiv = document.getElementById('current_thumbnail');
-                if (data.thumbnail) {
-                    var thumbnailPath = data.thumbnail.replace('../', '/');
-                    currentThumbnailDiv.innerHTML = '<img src="' + thumbnailPath + '" alt="Current Thumbnail">';
-                } else {
-                    currentThumbnailDiv.innerHTML = 'No thumbnail.';
-                }
-            });
+// Load post data into editor (converting pagebreak comments to visible rules)
+function loadPostData(postId) {
+    if (!postId) {
+        document.getElementById('title').value = '';
+        if (CKEDITOR.instances.content) CKEDITOR.instances.content.setData('');
+        document.getElementById('current_thumbnail').innerHTML = 'No thumbnail.';
+        return;
     }
+    fetch('/includes/posts/get_post_data.php?post_id=' + encodeURIComponent(postId))
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('title').value = decodeHtmlEntities(data.title || '');
+            const html = serverToEditor(decodeHtmlEntities(data.content || ''));
+            if (CKEDITOR.instances.content) CKEDITOR.instances.content.setData(html);
 
-    function decodeHtmlEntities(str) {
-        var textarea = document.createElement('textarea');
-        textarea.innerHTML = str || '';
-        return textarea.value;
+            var currentThumbnailDiv = document.getElementById('current_thumbnail');
+            if (data.thumbnail) {
+                var thumbnailPath = data.thumbnail.replace('../', '/');
+                currentThumbnailDiv.innerHTML = '<img src="' + thumbnailPath + '" alt="Current Thumbnail">';
+            } else {
+                currentThumbnailDiv.innerHTML = 'No thumbnail.';
+            }
+        });
+}
+
+function decodeHtmlEntities(str) {
+    var textarea = document.createElement('textarea');
+    textarea.innerHTML = str || '';
+    return textarea.value;
+}
+
+// On submit: convert pagebreak rules to <!-- pagebreak --> and move content into the textarea
+document.getElementById('edit-post-form').addEventListener('submit', function() {
+    if (CKEDITOR.instances.content) {
+        var html = CKEDITOR.instances.content.getData();
+        html = editorToServer(html);
+        document.getElementById('content').value = html; // set textarea value
     }
+});
 </script>
 <?php include '../footer.php'; ?>
