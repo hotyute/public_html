@@ -23,18 +23,49 @@ if (empty($_SESSION['csrf_token'])) {
 }
 $csrf_token = $_SESSION['csrf_token'];
 
-function sanitize_html($content) {
+function purifier_config_base() {
     $config = HTMLPurifier_Config::createDefault();
-    $config->set('HTML.Allowed', 'p[style],b,a[href],i,em,strong,ul,ol,li,br,h1,h2,h3,span[style],div[style],img[src|alt|width|height]');
+
+    // Keep commonly used formatting and attributes for a Word-like editor
+    $config->set('HTML.Allowed',
+        'p[style|class],b,strong,i,em,u,mark,sub,sup,blockquote,code,pre,' .
+        'a[href|target|rel],br,hr[class],' .
+        'ul[style|class],ol[style|class],li[style|class],' .
+        'h1[style|class],h2[style|class],h3[style|class],h4[style|class],h5[style|class],h6[style|class],' .
+        'span[style|class],div[style|class],' .
+        'img[src|alt|width|height|style|class],' .
+        'table[style|class],thead,tbody,tr,td[style|colspan|rowspan|class],th[style|colspan|rowspan|class],' .
+        'audio[controls],source[src]'
+    );
+
+    // Allow safe CSS properties used by the editor
+    $config->set('CSS.AllowedProperties', [
+        'color','background-color','text-decoration','font-weight','font-style','font-size','font-family',
+        'text-align','line-height','margin','margin-left','margin-right','margin-top','margin-bottom',
+        'padding','padding-left','padding-right','padding-top','padding-bottom',
+        'border','border-top','border-right','border-bottom','border-left','border-radius',
+        'display','float','width','height','max-width'
+    ]);
+
+    // Allow opening links in new tab safely
+    $config->set('Attr.AllowedFrameTargets', ['_blank']);
+    $config->set('Attr.AllowedRel', ['noopener','noreferrer','nofollow']);
+
+    // Keep the custom pagebreak filter
     $config->set('Filter.Custom', array(new HTMLPurifier_Filter_PageBreak()));
+
+    return $config;
+}
+
+function sanitize_html($content) {
+    $config = purifier_config_base();
+    // For titles / short text, simpler output typically
     $purifier = new HTMLPurifier($config);
     return $purifier->purify($content);
 }
 
 function sanitize_html2($content) {
-    $config = HTMLPurifier_Config::createDefault();
-    $config->set('HTML.Allowed', 'p[style],b,a[href],i,em,strong,ul,ol,li,br,h1,h2,h3,span[style],div[style|class],img[src|alt|width|height|style|class],audio[controls],source[src]');
-    $config->set('Filter.Custom', array(new HTMLPurifier_Filter_PageBreak()));
+    $config = purifier_config_base();
     $purifier = new HTMLPurifier($config);
     return $purifier->purify($content);
 }

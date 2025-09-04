@@ -1,151 +1,234 @@
 <?php
 session_start();
-// Check if admin is logged in
+
+// Auth: admins only
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     header('Location: /login.php');
     exit();
 }
+
 require_once '../base_config.php';
-require 'includes/database.php';
-require 'includes/sanitize.php'; // Include the sanitization function
+require_once '../includes/database.php';
+require_once '../includes/sanitize.php';
 
 // Fetch all posts for dropdown
 $stmt = $pdo->prepare("SELECT id, title, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') as formatted_date FROM posts ORDER BY created_at DESC");
 $stmt->execute();
 $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+// Handle POST (update/delete)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
+        die('Invalid CSRF token');
+    }
+
     if (isset($_POST['delete']) && isset($_POST['post_id'])) {
-        // Delete post
-        $post_id = $_POST['post_id'];
-        // Fetch existing thumbnail to delete the file
+        $post_id = (int)$_POST['post_id'];
+
+        // Delete thumbnail file if any
         $existing_thumbnail_stmt = $pdo->prepare("SELECT thumbnail FROM posts WHERE id = ?");
         $existing_thumbnail_stmt->execute([$post_id]);
         $existing_thumbnail = $existing_thumbnail_stmt->fetchColumn();
 
-        // Delete the post
         $delete_stmt = $pdo->prepare("DELETE FROM posts WHERE id = ?");
         if ($delete_stmt->execute([$post_id])) {
-            // Delete the thumbnail file
             if ($existing_thumbnail && file_exists($existing_thumbnail)) {
-                unlink($existing_thumbnail);
+                @unlink($existing_thumbnail);
             }
-            echo "<p>Post deleted successfully!</p>";
+            $status_message = "Post deleted successfully!";
         } else {
-            echo "<p>Failed to delete post.</p>";
+            $status_message = "Failed to delete post.";
         }
-    } else if (isset($_POST['post_id'])) {
-        // Update post
-        $post_id = $_POST['post_id'];
-        $title = sanitize_html($_POST['title']);
-        $content = sanitize_html2($_POST['content']);
+    } elseif (isset($_POST['post_id'])) {
+        $post_id = (int)$_POST['post_id'];
+        $title   = sanitize_html($_POST['title'] ?? '');
 
-        // Fetch existing thumbnail
+        // TinyMCE pagebreak plugin will output <!-- pagebreak --> when configured (see init below).
+        // We sanitize but keep allowed formatting/styles.
+        $rawContent = $_POST['content'] ?? '';
+        $content    = sanitize_html2($rawContent);
+
+        // Handle thumbnail (optional)
         $existing_thumbnail_stmt = $pdo->prepare("SELECT thumbnail FROM posts WHERE id = ?");
         $existing_thumbnail_stmt->execute([$post_id]);
         $existing_thumbnail = $existing_thumbnail_stmt->fetchColumn();
 
-        // Initialize $thumbnail to the existing thumbnail
         $thumbnail = $existing_thumbnail;
 
-        if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] == 0) {
-            // Delete old thumbnail file if it exists
-            if ($existing_thumbnail && file_exists($existing_thumbnail)) {
-                unlink($existing_thumbnail);
-            }
+        if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
+            // Validate image
+            $allowed = ['image/jpeg','image/png','image/gif','image/webp'];
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime  = finfo_file($finfo, $_FILES['thumbnail']['tmp_name']);
+            finfo_close($finfo);
 
-            // Move the new uploaded file
-            $target_directory = "../images/uploads/";
+            if (in_array($mime, $allowed, true)) {
+                if ($existing_thumbnail && file_exists($existing_thumbnail)) {
+                    @unlink($existing_thumbnail);
+                }
+                $target_directory = "../images/uploads/";
+                @mkdir($target_directory, 0755, true);
+                $ext = pathinfo($_FILES['thumbnail']['name'], PATHINFO_EXTENSION);
+                $new_filename = uniqid('thumb_', true) . '.' . $ext;
+                $target_file = $target_directory . $new_filename;
 
-            // Ensure unique file name to avoid overwriting
-            $file_extension = pathinfo($_FILES["thumbnail"]["name"], PATHINFO_EXTENSION);
-            $new_filename = uniqid('thumb_', true) . '.' . $file_extension;
-
-            $target_file = $target_directory . $new_filename;
-
-            if (move_uploaded_file($_FILES["thumbnail"]["tmp_name"], $target_file)) {
-                $thumbnail = $target_file;
+                if (move_uploaded_file($_FILES['thumbnail']['tmp_name'], $target_file)) {
+                    $thumbnail = $target_file;
+                } else {
+                    $status_message = "Failed to move uploaded thumbnail.";
+                }
+            } else {
+                $status_message = "Invalid image type.";
             }
         }
 
-        // Update the post in the database
         $update_stmt = $pdo->prepare("UPDATE posts SET title = ?, content = ?, thumbnail = ? WHERE id = ?");
         if ($update_stmt->execute([$title, $content, $thumbnail, $post_id])) {
-            echo "<p>Post updated successfully!</p>";
+            $status_message = "Post updated successfully!";
         } else {
-            echo "<p>Failed to update post.</p>";
+            $status_message = "Failed to update post.";
         }
     }
 }
 
 include '../header.php';
 ?>
+<style>
+  /* Make the editor area and panel more spacious */
+  .admin-content {
+      max-width: 1200px;
+      margin: 40px auto;
+  }
+  .admin-content .form-group label {
+      font-weight: bold;
+  }
+  #current_thumbnail img {
+      max-width: 240px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+  }
+</style>
+
+<!-- TinyMCE from CDN: replace "no-api-key" with your key for production -->
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  tinymce.init({
+    selector: '#content',
+    height: 650,
+    menubar: 'file edit view insert format tools table help',
+    plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount pagebreak',
+    toolbar: [
+      'undo redo | blocks fontfamily fontsize | bold italic underline forecolor backcolor | ' +
+      'alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | ' +
+      'removeformat pagebreak | link image media table | code fullscreen'
+    ].join(''),
+    toolbar_sticky: true,
+    branding: false,
+    convert_urls: false,
+    remove_script_host: false,
+    pagebreak_split_block: true,
+    pagebreak_separator: '<!-- pagebreak -->',
+    image_caption: true,
+    content_style: 'body { font-family: Georgia, serif; font-size: 16px; line-height: 1.6; }',
+    setup: function (editor) {
+      // Ensure textarea is updated on form submit
+      const form = document.querySelector('form.admin-form');
+      if (form) {
+        form.addEventListener('submit', function() {
+          tinymce.triggerSave();
+        });
+      }
+    }
+  });
+});
+</script>
+
 <div class="admin-content">
     <h2>Edit Post</h2>
+    <?php if (!empty($status_message)): ?>
+        <p style="color: <?= strpos($status_message, 'successfully') !== false ? 'green' : 'red' ?>;">
+            <?= htmlspecialchars($status_message) ?>
+        </p>
+    <?php endif; ?>
+
     <form method="POST" action="edit_post.php" enctype="multipart/form-data" class="admin-form">
         <div class="form-group">
             <label for="post_id">Choose a post to edit:</label>
             <select id="post_id" name="post_id" onchange="loadPostData(this.value)" class="form-control">
                 <option value="">Select a post</option>
                 <?php foreach ($posts as $post): ?>
-                    <option value="<?= $post['id'] ?>"><?= htmlspecialchars($post['title']) ?> - <?= $post['formatted_date'] ?></option>
+                    <option value="<?= (int)$post['id'] ?>"><?= htmlspecialchars($post['title']) ?> - <?= $post['formatted_date'] ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
-        
+
         <div class="form-group">
             <label for="title">Title:</label>
             <input type="text" id="title" name="title" required class="form-control">
         </div>
-        
+
         <div class="form-group">
-            <label for="content">Content:</label>
-            <textarea id="content" name="content" rows="10" required class="form-control"></textarea>
+            <label for="content">Content (supports Bold, Italic, Underline, Colors, Highlight, Lists, Alignment, Tables, Links, Images, Page Breaks):</label>
+            <textarea id="content" name="content" rows="18"></textarea>
         </div>
-        
+
         <div class="form-group">
             <label for="current_thumbnail">Current Thumbnail:</label>
-            <div id="current_thumbnail"></div>
+            <div id="current_thumbnail">No thumbnail.</div>
         </div>
 
         <div class="form-group">
             <label for="thumbnail">Thumbnail (optional):</label>
-            <input type="file" id="thumbnail" name="thumbnail" class="form-control">
+            <input type="file" id="thumbnail" name="thumbnail" class="form-control" accept="image/*">
         </div>
-        
+
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+
         <button type="submit" class="btn btn-primary">Update Post</button>
         <button type="submit" name="delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</button>
     </form>
 </div>
+
 <script>
 function loadPostData(postId) {
-    if (postId) {
-        fetch('/includes/posts/get_post_data.php?post_id=' + postId)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('title').value = decodeHtmlEntities(data.title);
-                document.getElementById('content').value = decodeHtmlEntities(data.content);
-
-                // Handle thumbnail
-                var currentThumbnailDiv = document.getElementById('current_thumbnail');
-                if (data.thumbnail) {
-                    // Adjust the path if necessary
-                    var thumbnailPath = data.thumbnail.replace('../', '/');
-                    currentThumbnailDiv.innerHTML = '<img src="' + thumbnailPath + '" alt="Current Thumbnail" style="max-width: 200px;">';
-                } else {
-                    currentThumbnailDiv.innerHTML = 'No thumbnail.';
-                }
-            });
-    } else {
+    if (!postId) {
         document.getElementById('title').value = '';
-        document.getElementById('content').value = '';
-        document.getElementById('current_thumbnail').innerHTML = '';
+        if (tinymce.get('content')) tinymce.get('content').setContent('');
+        document.getElementById('current_thumbnail').innerHTML = 'No thumbnail.';
+        return;
     }
+    fetch('/includes/posts/get_post_data.php?post_id=' + encodeURIComponent(postId))
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('title').value = decodeHtmlEntities(data.title || '');
+
+            // Ensure TinyMCE has loaded before setting content
+            const setEditorContent = () => {
+                const editor = tinymce.get('content');
+                if (editor) {
+                    // TinyMCE pagebreak plugin will convert <!-- pagebreak --> to a visual marker automatically
+                    editor.setContent(decodeHtmlEntities(data.content || ''));
+                } else {
+                    setTimeout(setEditorContent, 50);
+                }
+            };
+            setEditorContent();
+
+            var currentThumbnailDiv = document.getElementById('current_thumbnail');
+            if (data.thumbnail) {
+                var thumbnailPath = data.thumbnail.replace('../', '/');
+                currentThumbnailDiv.innerHTML = '<img src="' + thumbnailPath + '" alt="Current Thumbnail">';
+            } else {
+                currentThumbnailDiv.innerHTML = 'No thumbnail.';
+            }
+        });
 }
 
 function decodeHtmlEntities(str) {
     var textarea = document.createElement('textarea');
-    textarea.innerHTML = str;
+    textarea.innerHTML = str || '';
     return textarea.value;
 }
 </script>
