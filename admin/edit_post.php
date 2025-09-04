@@ -94,13 +94,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 include '../header.php';
 ?>
-<style>
-  .admin-content { max-width: 1200px; margin: 40px auto; }
-  .admin-content .form-group label { font-weight: bold; display: block; margin: 8px 0; }
-  #current_thumbnail img { max-width: 240px; border-radius: 4px; border: 1px solid #ddd; }
-  /* Keep editor interactive above surrounding UI */
-  .note-editor.note-frame { z-index: 10; position: relative; }
-</style>
 
 <!-- Summernote Lite (self-hosted) + jQuery (self-hosted with CDN fallback) -->
 <link href="/vendor/summernote/summernote-lite.min.css" rel="stylesheet">
@@ -154,16 +147,32 @@ include '../header.php';
     </form>
 </div>
 
+<!-- Raw viewer modal -->
+<div id="rawModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal-box">
+    <h3 id="rawModalTitle">Raw Content</h3>
+    <textarea id="rawModalTextarea" readonly></textarea>
+    <div class="modal-actions">
+      <button type="button" id="copyRawBtn">Copy</button>
+      <button type="button" id="closeRawBtn">Close</button>
+    </div>
+  </div>
+</div>
+
 <script>
+// Safer patterns (avoid literal <!-- in JS regex)
+const RE_SERVER_PAGEBREAK = new RegExp('<\\!--\\s*pagebreak\\s*-->', 'gi');
+const RE_EDITOR_PAGEBREAK = new RegExp('<hr\\b[^>]*class="[^"]*\\bpagebreak\\b[^"]*"[^>]*>', 'gi');
+
 // Convert between server comments and editor HR markers for page breaks
 function serverToEditor(html) {
-  return (html || '').replace(/<!--\s*pagebreak\s*-->/gi, '<hr class="pagebreak">');
+  return (html || '').replace(RE_SERVER_PAGEBREAK, '<hr class="pagebreak">');
 }
 function editorToServer(html) {
-  return (html || '').replace(/<hr\b[^>]*class="[^"]*\bpagebreak\b[^"]*"[^>]*>/gi, '<!-- pagebreak -->');
+  return (html || '').replace(RE_EDITOR_PAGEBREAK, '<!-- pagebreak -->');
 }
 
-// Custom Page Break button (PB)
+// Custom buttons
 function pageBreakButton(context) {
   const ui = $.summernote.ui;
   return ui.button({
@@ -177,7 +186,6 @@ function pageBreakButton(context) {
   }).render();
 }
 
-// Raw HTML viewer button (opens modal)
 function rawHtmlButton(context) {
   const ui = $.summernote.ui;
   return ui.button({
@@ -190,7 +198,6 @@ function rawHtmlButton(context) {
   }).render();
 }
 
-// Plain text viewer button (opens modal)
 function plainTextButton(context) {
   const ui = $.summernote.ui;
   return ui.button({
@@ -224,7 +231,8 @@ function closeRawModal() {
   $('#rawModal').css('display', 'none').attr('aria-hidden', 'true');
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+$(function() {
+  // Init Summernote
   $('#content').summernote({
     height: 650,
     placeholder: 'Write your post...',
@@ -238,11 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
       ['raw', ['rawhtml', 'plaintext']],
       ['custom', ['pagebreak']]
     ],
-    buttons: {
-      pagebreak: pageBreakButton,
-      rawhtml: rawHtmlButton,
-      plaintext: plainTextButton
-    },
+    buttons: { pagebreak: pageBreakButton, rawhtml: rawHtmlButton, plaintext: plainTextButton },
     fontNames: ['Georgia', 'Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Verdana'],
     fontSizes: ['10', '12', '14', '16', '18', '20', '24', '28', '32'],
     callbacks: {
@@ -263,26 +267,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Modal wiring
   $('#closeRawBtn').on('click', closeRawModal);
-  $('#rawModal').on('click', function(e){
-    if (e.target === this) closeRawModal();
-  });
+  $('#rawModal').on('click', function(e){ if (e.target === this) closeRawModal(); });
   $('#copyRawBtn').on('click', function() {
     const ta = document.getElementById('rawModalTextarea');
-    ta.select(); ta.setSelectionRange(0, 999999);
-    document.execCommand('copy');
+    ta.focus(); ta.select(); document.execCommand('copy');
   });
 });
-</script>
 
-<!-- Raw viewer modal -->
-<div id="rawModal" class="modal-backdrop" aria-hidden="true">
-  <div class="modal-box">
-    <h3 id="rawModalTitle">Raw Content</h3>
-    <textarea id="rawModalTextarea" readonly></textarea>
-    <div class="modal-actions">
-      <button type="button" id="copyRawBtn">Copy</button>
-      <button type="button" id="closeRawBtn">Close</button>
-    </div>
-  </div>
-</div>
+// Load post data (convert <!-- pagebreak --> to HR for editor)
+function loadPostData(postId) {
+  if (!postId) {
+    $('#title').val('');
+    $('#content').summernote('code', '');
+    $('#current_thumbnail').html('No thumbnail.');
+    return;
+  }
+  fetch('/includes/posts/get_post_data.php?post_id=' + encodeURIComponent(postId))
+    .then(r => r.json())
+    .then(data => {
+      $('#title').val(decodeHtmlEntities(data.title || ''));
+      const html = serverToEditor(decodeHtmlEntities(data.content || ''));
+      $('#content').summernote('code', html);
+
+      const div = document.getElementById('current_thumbnail');
+      if (data.thumbnail) {
+        const path = data.thumbnail.replace('../', '/');
+        div.innerHTML = '<img src="' + path + '" alt="Current Thumbnail">';
+      } else {
+        div.innerHTML = 'No thumbnail.';
+      }
+    });
+}
+
+function decodeHtmlEntities(str) {
+  var ta = document.createElement('textarea');
+  ta.innerHTML = str || '';
+  return ta.value;
+}
+</script>
 <?php include '../footer.php'; ?>
