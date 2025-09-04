@@ -1,3 +1,5 @@
+  .admin-content { max-width: 1200px; margin: 40px auto; }
+  .admin-content .form-group label { font-weight: bold; display: block; margin: 8px 0; }
   #current_thumbnail img { max-width: 240px; border-radius: 4px; border: 1px solid #ddd; }
 
   /* Keep editor interactive above surrounding UI */
