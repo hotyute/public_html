@@ -105,7 +105,7 @@ include '../header.php';
 </style>
 
 <!-- CKEditor 4 (free, open-source) -->
-<script src="https://cdn.ckeditor.com/4.22.1/full-all/ckeditor.js"></script>
+<script src="https://cdn.ckeditor.com/4.25.1-lts/full-all/ckeditor.js"></script>
 
 <div class="admin-content">
     <h2>Edit Post</h2>
