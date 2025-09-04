@@ -77,7 +77,7 @@ function truncateContent($content, $limit = 100)
                     </button>
                 </div>
                 <div class="carousel">
-                    echo '<div class="carousel-slide grid-container"">';
+                    <div class="carousel-slides">
                         <?php
                         require 'includes/database.php';
                         // Removed LIMIT clause to fetch all posts
@@ -93,7 +93,7 @@ function truncateContent($content, $limit = 100)
                                 if ($count > 0) {
                                     echo '</div>'; // Close previous slide
                                 }
-                                echo '<div class="carousel-slide grid-container"">'; // Start new slide
+                                echo '<div class="carousel-slide">'; // Start new slide
                             }
                             $userClass = getUserClass($post['user_role']);
                             echo '<div class="post-preview">';
