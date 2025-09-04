@@ -12,6 +12,9 @@
 <?php endif; ?>
 <?php if (($current_page == 'admin_panel') || ($current_page ==  'edit_post') || ($current_page == 'create_post') || ($current_page == 'test_manage') || $current_page == 'user_portal') : ?>
     <link rel="stylesheet" type="text/css" href="/styles/admin.css">
+    <?php if ($current_page == 'edit_post') : ?>
+        <link rel="stylesheet" type="text/css" href="/styles/edit_post.css">
+    <?php endif; ?>
 <?php endif; ?>
 <?php if ($current_page == 'post') : ?>
     <link rel="stylesheet" type="text/css" href="/styles/post.css">
