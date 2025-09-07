@@ -15,6 +15,12 @@ $combinedPhpFile = "combined_php.txt"
 # The maximum file size in kilobytes (KB) before creating a new split file.
 $maxFileSizeKB = 100
 
+# NEW: Array of directory names to exclude from the search (case-insensitive).
+# The script will skip any file whose path contains these folder names.
+# Example: $excludedDirs = @("node_modules", "vendor", "dist", "build")
+$excludedDirs = @("node_modules", "vendor")
+
+
 # --- Script Logic ---
 
 # Convert KB to Bytes for comparison
@@ -22,6 +28,10 @@ $maxFileSizeBytes = $maxFileSizeKB * 1024
 
 # Get the full path for the project
 $fullProjectPath = (Get-Item -Path $projectPath).FullName
+
+# Create a regex pattern from the excluded directories array for efficient filtering.
+# This will create a string like "node_modules|vendor"
+$excludePattern = $excludedDirs -join '|'
 
 # --- Process CSS Files ---
 
@@ -36,8 +46,14 @@ $outputCssPath = Join-Path -Path $fullProjectPath -ChildPath "$($cssBaseName)_$(
 # Ensure the very first output file is empty before starting
 Clear-Content -Path $outputCssPath -ErrorAction SilentlyContinue
 
-# Get all CSS files recursively, excluding any previously generated output files
-$cssFiles = Get-ChildItem -Path $fullProjectPath -Recurse -Filter "*.css" | Where-Object { $_.Name -notlike "$($cssBaseName)_*$($cssExtension)" }
+# Get all CSS files recursively, excluding the output files and the specified directories.
+$cssFilesQuery = Get-ChildItem -Path $fullProjectPath -Recurse -Filter "*.css" | Where-Object { $_.Name -notlike "$($cssBaseName)_*$($cssExtension)" }
+if ($excludePattern) {
+    $cssFiles = $cssFilesQuery | Where-Object { $_.FullName -notmatch $excludePattern }
+} else {
+    $cssFiles = $cssFilesQuery
+}
+
 
 foreach ($file in $cssFiles) {
     Write-Host "Processing CSS file: $($file.FullName)"
@@ -82,8 +98,13 @@ $outputJsPath = Join-Path -Path $fullProjectPath -ChildPath "$($jsBaseName)_$($j
 # Ensure the very first output file is empty before starting
 Clear-Content -Path $outputJsPath -ErrorAction SilentlyContinue
 
-# Get all JS files recursively, excluding any previously generated output files
-$jsFiles = Get-ChildItem -Path $fullProjectPath -Recurse -Filter "*.js" | Where-Object { $_.Name -notlike "$($jsBaseName)_*$($jsExtension)" }
+# Get all JS files recursively, excluding the output files and the specified directories.
+$jsFilesQuery = Get-ChildItem -Path $fullProjectPath -Recurse -Filter "*.js" | Where-Object { $_.Name -notlike "$($jsBaseName)_*$($jsExtension)" }
+if ($excludePattern) {
+    $jsFiles = $jsFilesQuery | Where-Object { $_.FullName -notmatch $excludePattern }
+} else {
+    $jsFiles = $jsFilesQuery
+}
 
 foreach ($file in $jsFiles) {
     Write-Host "Processing JS file: $($file.FullName)"
@@ -128,8 +149,13 @@ $outputPhpPath = Join-Path -Path $fullProjectPath -ChildPath "$($phpBaseName)_$(
 # Ensure the very first output file is empty before starting
 Clear-Content -Path $outputPhpPath -ErrorAction SilentlyContinue
 
-# Get all PHP files recursively, excluding any previously generated output files
-$phpFiles = Get-ChildItem -Path $fullProjectPath -Recurse -Filter "*.php" | Where-Object { $_.Name -notlike "$($phpBaseName)_*$($phpExtension)" }
+# Get all PHP files recursively, excluding the output files and the specified directories.
+$phpFilesQuery = Get-ChildItem -Path $fullProjectPath -Recurse -Filter "*.php" | Where-Object { $_.Name -notlike "$($phpBaseName)_*$($phpExtension)" }
+if ($excludePattern) {
+    $phpFiles = $phpFilesQuery | Where-Object { $_.FullName -notmatch $excludePattern }
+} else {
+    $phpFiles = $phpFilesQuery
+}
 
 foreach ($file in $phpFiles) {
     Write-Host "Processing PHP file: $($file.FullName)"
