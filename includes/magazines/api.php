@@ -4,9 +4,16 @@ require_once '../session.php';
 require_once '../database.php';
 header('Content-Type: application/json');
 
+// Return JSON on unexpected exceptions (admin-only endpoint)
+set_exception_handler(function(Throwable $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Server error', 'error' => $e->getMessage()]);
+    exit;
+});
+
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     http_response_code(403);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized (admin only)']);
     exit;
 }
 
@@ -32,6 +39,7 @@ function ok_url($url): bool {
 
 $method = $_SERVER['REQUEST_METHOD'];
 
+// GET
 if ($method === 'GET') {
     $action = $_GET['action'] ?? 'list';
 
@@ -42,7 +50,7 @@ if ($method === 'GET') {
         exit;
     }
 
-    // List with filters
+    // Default: list
     $page    = max(1, (int)($_GET['page'] ?? 1));
     $perPage = min(50, max(1, (int)($_GET['perPage'] ?? 12)));
     $search  = trim($_GET['search'] ?? '');
@@ -83,8 +91,8 @@ if ($method === 'GET') {
     exit;
 }
 
+// POST
 if ($method === 'POST') {
-    // Accept JSON body
     $raw = file_get_contents('php://input');
     $data = json_decode($raw, true);
     if (!is_array($data)) $data = $_POST;

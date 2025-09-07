@@ -121,14 +121,13 @@ include '../header.php';
     pager: document.getElementById('pager')
   };
 
-  // Pagination state
   let page = 1, perPage = 12, total = 0;
 
   function showMsg(text, ok=true) {
     els.msg.style.display = 'block';
     els.msg.style.color = ok ? 'green' : 'red';
     els.msg.textContent = text;
-    setTimeout(() => { els.msg.style.display = 'none'; }, 3500);
+    setTimeout(() => { els.msg.style.display = 'none'; }, 4500);
   }
 
   function computeIssueLabel(d) {
@@ -143,7 +142,6 @@ include '../header.php';
   }
 
   function populateIssueDatalist() {
-    // Suggest current cycle plus neighbors for current & previous year
     els.issueOptions.innerHTML = '';
     const base = new Date();
     const years = [base.getFullYear() - 1, base.getFullYear()];
@@ -151,13 +149,11 @@ include '../header.php';
       'January-February', 'March-April', 'May-June',
       'July-August', 'September-October', 'November-December'
     ];
-    years.forEach(y => {
-      cycles.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = `${c} ${y}`;
-        els.issueOptions.appendChild(opt);
-      });
-    });
+    years.forEach(y => cycles.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = `${c} ${y}`;
+      els.issueOptions.appendChild(opt);
+    }));
   }
 
   function resetForm(setDefaults=true) {
@@ -182,11 +178,19 @@ include '../header.php';
     els.form.style.display = 'none';
   }
 
-  function fetchJSON(url, opts={}) {
-    return fetch(url, opts).then(r => {
-      if (!r.ok) throw new Error('Network error');
-      return r.json();
-    });
+  // Improved fetch helper: shows HTTP status and server message
+  async function fetchJSON(url, opts={}) {
+    const res = await fetch(url, opts);
+    const text = await res.text();
+    let data;
+    try { data = text ? JSON.parse(text) : {}; } catch(e) { data = { raw: text }; }
+    if (!res.ok) {
+      const msg = (data && (data.message || data.error)) ? data.message || data.error
+                : `HTTP ${res.status} ${res.statusText}`;
+      console.error('API error', { url, status: res.status, body: data });
+      throw new Error(msg);
+    }
+    return data;
   }
 
   function renderList(items) {
@@ -259,11 +263,7 @@ include '../header.php';
           headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': token },
           body: JSON.stringify({ action: 'delete', id: a.id })
         })
-        .then(res => {
-          if (!res.success) throw new Error(res.message || 'Delete failed');
-          showMsg('Deleted.');
-          loadList();
-        })
+        .then(res => { if (!res.success) throw new Error(res.message || 'Delete failed'); showMsg('Deleted.'); loadList(); })
         .catch(e => showMsg(e.message, false));
       });
 
@@ -302,7 +302,6 @@ include '../header.php';
     fetchJSON(`${API}?action=issues`)
       .then(res => {
         const sel = els.filterIssue;
-        // keep current selection
         const current = sel.value;
         sel.innerHTML = '<option value="">All Issues</option>';
         (res.issues || []).forEach(iss => {
@@ -312,7 +311,7 @@ include '../header.php';
         });
         sel.value = current || '';
       })
-      .catch(()=>{});
+      .catch(e => showMsg(e.message || 'Failed to load issues', false));
   }
 
   function loadList() {
@@ -372,10 +371,20 @@ include '../header.php';
   });
 
   // Init
-  populateIssueDatalist();
-  resetForm(true);
-  loadIssues();
-  loadList();
+  (function init(){
+    // Optional: quickly detect 404 on the API to give a clearer hint
+    fetch(API + '?ping=1', { method: 'GET' }).then(r => {
+      if (!r.ok && r.status === 404) {
+        showMsg('API not found at /includes/magazines/api.php (check file path).', false);
+      }
+    }).catch(()=>{});
+    const now = new Date();
+    document.getElementById('published_date').value = now.toISOString().slice(0,10);
+    document.getElementById('issue').value = computeIssueLabel(now);
+    populateIssueDatalist();
+    loadIssues();
+    loadList();
+  })();
 })();
 </script>
 
