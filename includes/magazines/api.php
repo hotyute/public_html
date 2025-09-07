@@ -11,7 +11,7 @@ set_exception_handler(function(Throwable $e) {
     exit;
 });
 
-if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+if (!isset($_SESSION['user_role']) || !in_array($_SESSION['user_role'], ['admin', 'editor'])) {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Unauthorized (admin only)']);
     exit;
