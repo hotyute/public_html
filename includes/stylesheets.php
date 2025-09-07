@@ -15,14 +15,14 @@ function css($path) {
     <?php css('/styles/surplus.css'); ?>
     <?php css('/styles/featuredvid.css'); ?>
     <?php css('/styles/sidebar.css'); ?>
-    <?php css('/styles/index.css'); ?>  <!-- cache-busted -->
+    <?php css('/styles/index.css'); ?>
 <?php endif; ?>
 
 <?php if ($current_page == 'login') : ?>
     <?php css('/styles/surplus.css'); ?>
 <?php endif; ?>
 
-<?php if (in_array($current_page, ['admin_panel','edit_post','create_post','test_manage','user_portal'])) : ?>
+<?php if (in_array($current_page, ['admin_panel','edit_post','create_post','test_manage','user_portal','manage_users','manage_magazines'])) : ?>
     <?php css('/styles/admin.css'); ?>
     <?php if ($current_page == 'edit_post') : ?>
         <?php css('/styles/edit_post.css'); ?>
