@@ -47,8 +47,14 @@
 }
 .carousel-button.prev { left: 1rem; }
 .carousel-button.next { right: 1rem; }
-.carousel-button svg { width: 60%; height: 60%; }
-.carousel-button path { fill: var(--carousel-btn-icon-color); transition: fill var(--carousel-btn-transition), transform var(--carousel-btn-transition); }
+
+.carousel-button svg { width: 60%; height: 60%; display: block; pointer-events: none; }
+.carousel-button svg path {
+  /* Force icon visibility in all browsers */
+  fill: var(--carousel-btn-icon-color) !important;
+  stroke: var(--carousel-btn-icon-color) !important;
+  stroke-width: 0 !important;
+}
 .carousel-button:hover, .carousel-button:focus {
   background: #fff;
   box-shadow: 0 18px 36px rgba(0,0,0,.25);
@@ -56,7 +62,6 @@
 }
 .carousel-button:hover path, .carousel-button:focus path {
   transform: scale(var(--carousel-btn-hover-scale));
-  fill: #111;
 }
 
 /* Hide the row buttons by default; show on phones only */

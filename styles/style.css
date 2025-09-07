@@ -5,7 +5,9 @@
 
 /* Theme variables */
 :root {
-  --page-max: 90%; /* shared width for header, footer, and content */
+  /* Shared page width: equals header/footer/content. Not fixed — clamps to 90vw up to 1400px */
+  --page-w: min(1400px, 90vw);
+
   --bg-0: #f7f4ef;
   --bg-1: #eef3f8;
   --text-900: #1e2430;
@@ -64,39 +66,41 @@ a:hover {
   text-shadow: 0 2px 16px rgba(231,184,76,.35);
 }
 
-/* Shell widths — unified */
+/* Shells — unified widths */
 header, footer {
   color: #fff;
   text-align: center;
-  max-width: var(--page-max);
+  width: var(--page-w);
   padding: 20px 0;
   margin: 0 auto;
 }
 
-/* Content shell now matches header/footer width */
+/* Content shell matches header/footer width but remains flexible inside */
 .main-container {
   display: flex;
   justify-content: center;
-  max-width: var(--page-max);
+  width: var(--page-w);
   margin: 24px auto;
   gap: 24px;
-  padding-inline: 16px;
+  padding-inline: 16px; /* small inner gutter so cards don't touch edges */
 }
 
 main {
-  flex: 3;
+  flex: 3 1 0;
   padding: 24px;
   background: var(--card-bg);
   border-radius: var(--radius-lg);
   box-shadow: var(--card-shadow);
+  min-width: 0; /* allow flex children to shrink and avoid overflow */
 }
 
 aside {
-  flex: 1;
+  flex: 1 1 260px;
   background: var(--card-bg);
   padding: 20px;
   border-radius: var(--radius-lg);
   box-shadow: var(--card-shadow);
+  min-width: 0;
 }
 
 /* Buttons */
@@ -155,6 +159,9 @@ hr::after {
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+  .main-container { gap: 16px; }
+}
 @media (max-width: 768px) {
   .main-container, nav, header, footer {
     width: 100%;
