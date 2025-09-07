@@ -11,11 +11,11 @@ set_exception_handler(function(Throwable $e) {
     exit;
 });
 
-//if (!isset($_SESSION['user_role']) || !in_array($_SESSION['user_role'], ['admin', 'editor'])) {
-    //http_response_code(403);
-    //echo json_encode(['success' => false, 'message' => 'Unauthorized (admin only)']);
-    //exit;
-//}
+if (!isset($_SESSION['user_role']) || !in_array($_SESSION['user_role'], ['admin', 'editor'])) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized (admin only)']);
+    exit;
+}
 
 function current_issue_label(): string {
     $month = (int)date('n');
