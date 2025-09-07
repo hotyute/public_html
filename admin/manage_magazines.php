@@ -1,5 +1,6 @@
 <?php
 // admin/manage_magazines.php
+session_start();
 require_once '../includes/session.php';
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
     header('Location: /login.php');
