@@ -93,9 +93,9 @@
 .post-preview {
   background: #fff;
   border: 1px solid #ccc;
-  padding: 10px; /* Increased padding for better visual spacing */
-  border-radius: 10px; /* Rounded corners for a softer look */
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -116,51 +116,32 @@
   border-radius: 8px;
 }
 
-.post-preview .admin-owner {
-  color: rgb(180, 2, 2) !important;
-}
+.post-preview .admin-owner { color: rgb(180, 2, 2) !important; }
+.post-preview .editor-user { color: #cd8d01 !important; }
+.post-preview .regular-user { color: #007BFF !important; }
 
-.post-preview .editor-user {
-  color: #cd8d01 !important;
-}
-
-.post-preview .regular-user {
-  color: #007BFF !important;
-}
-
-/* Tablet & small‑desktop (≤768px): 2 columns */
-@media only screen and (max-width: 768px) {
+/* Tablet & small‑desktop (≤ 900px): 2 columns */
+@media (max-width: 900px) {
   .carousel-slide {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  /* Enlarge and reposition floating arrows for touch */
-  .carousel-button {
-    width: 50px;
-    height: 50px;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-  }
-  .carousel-button svg {
-    width: 65%;
-    height: 65%;
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }
 
-/* Phone & super‑small (≤480px): single column + row arrows */
-@media only screen and (max-width: 480px) {
-  /* 1‑column grid for each slide */
+/* Phone (≤ 640px): single column + row arrows, hide floating arrows */
+@media (max-width: 640px) {
+  /* Force single column on phones */
   .carousel-slide {
-    grid-template-columns: 1fr; /* Single column on mobile */
+    grid-template-columns: 1fr !important;
   }
 
-  /* Hide the old absolute arrows on phones (if present as direct children) */
-  .carousel-container > button.carousel-button {
+  /* Hide absolute-position arrows on phones */
+  .carousel-container > .carousel-button {
     display: none !important;
   }
 
   /* Show the new top/bottom arrow rows */
   .carousel-button-row.mobile-only {
-    display: flex;
+    display: flex !important;
     justify-content: space-between;
     width: 100%;
     margin: 8px 0;
