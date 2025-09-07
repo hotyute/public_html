@@ -1,39 +1,28 @@
 /* styles/index.css */
 :root {
-  --carousel-btn-bg: rgba(255,255,255,0.9);
+  --carousel-btn-bg: rgba(255,255,255,0.92);
   --carousel-btn-size: 48px;
-  --carousel-btn-icon-color: #333;
+  --carousel-btn-icon-color: #1f2937;
   --carousel-btn-hover-scale: 1.2;
   --carousel-btn-transition: 0.3s ease;
 }
 
-/* Carousel Container Styling */
-.carousel-container {
-  position: relative;
-  overflow: hidden;
-  margin: 20px;
-}
+/* Container/track */
+.carousel-container { position: relative; overflow: hidden; margin: 20px; }
+.carousel { overflow: hidden; width: 100%; }
+.carousel-slides { display: flex; transition: transform 0.5s ease; }
 
-.carousel {
-  overflow: hidden;
-  width: 100%;
-}
-
-.carousel-slides {
-  display: flex;
-  transition: transform 0.5s ease;
-}
-
+/* Slide grid */
 .carousel-slide {
   min-width: 100%;
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Desktop: 3 columns */
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
   padding: 20px;
   box-sizing: border-box;
 }
 
-/* Base button */
+/* Floating arrows */
 .carousel-button {
   position: absolute;
   top: 50%;
@@ -44,133 +33,78 @@
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  transition:
-    transform var(--carousel-btn-transition),
-    background var(--carousel-btn-transition),
-    box-shadow var(--carousel-btn-transition);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.18);
+  transition: transform var(--carousel-btn-transition), background var(--carousel-btn-transition), box-shadow var(--carousel-btn-transition);
   z-index: 1000;
 }
-
-/* Positioning */
 .carousel-button.prev { left: 1rem; }
 .carousel-button.next { right: 1rem; }
-
-/* Icon styling */
-.carousel-button svg {
-  width: 60%;
-  height: 60%;
-}
-.carousel-button path {
-  fill: var(--carousel-btn-icon-color);
-  transition:
-    fill var(--carousel-btn-transition),
-    transform var(--carousel-btn-transition);
-}
-
-/* Hover & focus */
-.carousel-button:hover,
-.carousel-button:focus {
-  background: rgba(255,255,255,1);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+.carousel-button svg { width: 60%; height: 60%; }
+.carousel-button path { fill: var(--carousel-btn-icon-color); transition: fill var(--carousel-btn-transition), transform var(--carousel-btn-transition); }
+.carousel-button:hover, .carousel-button:focus {
+  background: #fff;
+  box-shadow: 0 18px 36px rgba(0,0,0,.25);
   outline: none;
 }
-.carousel-button:hover path,
-.carousel-button:focus path {
-  transform: scale(var(--carousel-btn-hover-scale));
-  fill: #000;
-}
+.carousel-button:hover path, .carousel-button:focus path { transform: scale(var(--carousel-btn-hover-scale)); fill: #111; }
 
-/* Hide the mobile arrow row by default; only show on phones */
-.carousel-button-row.mobile-only {
-  display: none;
-}
+/* Hide row buttons by default; show on phones only */
+.carousel-button-row.mobile-only { display: none; }
 
-/* Individual Post Preview Styling */
+/* Post cards */
 .post-preview {
-  background: #fff;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(8, 29, 54, 0.08);
+  box-shadow: 0 16px 30px rgba(17,24,39,0.12);
+  padding: 14px;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
 }
-
 .post-preview:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  transform: translateY(-6px);
+  box-shadow: 0 24px 46px rgba(17,24,39,0.22);
+  border-color: rgba(231,184,76,.6);
 }
-
-.post-preview p {
-  font-weight: bold;
-  font-size: 14px;
-}
-
-/* Image Styling within Post Previews */
 .post-preview img {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
+  width: 100%; height: auto; border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0,0,0,.12);
 }
-
+.post-preview p { font-weight: 700; font-size: 15px; }
 .post-preview .admin-owner { color: rgb(180, 2, 2) !important; }
 .post-preview .editor-user { color: #cd8d01 !important; }
-.post-preview .regular-user { color: #007BFF !important; }
+.post-preview .regular-user { color: #0e3a5d !important; }
 
-/* Tablet & small‑desktop (≤ 900px): 2 columns */
+/* Tablet */
 @media (max-width: 900px) {
-  .carousel-slide {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
+  .carousel-slide { grid-template-columns: repeat(2, 1fr) !important; }
+  .carousel-button { width: 50px; height: 50px; }
+  .carousel-button svg { width: 65%; height: 65%; }
 }
 
-/* Phone (≤ 640px): single column + row arrows, hide floating arrows */
+/* Phone */
 @media (max-width: 640px) {
-  /* Force single column on phones */
-  .carousel-slide {
-    grid-template-columns: 1fr !important;
-  }
+  .carousel-slide { grid-template-columns: 1fr !important; }
+  .carousel-container > .carousel-button { display: none !important; }
 
-  /* Hide absolute-position arrows on phones */
-  .carousel-container > .carousel-button {
-    display: none !important;
-  }
-
-  /* Show the new top/bottom arrow rows */
   .carousel-button-row.mobile-only {
     display: flex !important;
     justify-content: space-between;
     width: 100%;
     margin: 8px 0;
   }
-
   .carousel-button-row.mobile-only .carousel-button {
-    display: flex;
-    position: relative; /* no absolute positioning inside the row */
-    width: 40px;
-    height: 40px;
+    position: relative;
+    width: 42px; height: 42px;
     background: var(--carousel-btn-bg);
     border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    align-items: center;
-    justify-content: center;
-    transition:
-      transform var(--carousel-btn-transition),
-      background var(--carousel-btn-transition),
-      box-shadow var(--carousel-btn-transition);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.18);
+    align-items: center; justify-content: center;
   }
-
-  .carousel-button-row.mobile-only .carousel-button svg {
-    width: 60%;
-    height: 60%;
-  }
-
+  .carousel-button-row.mobile-only .carousel-button svg { width: 60%; height: 60%; }
   .carousel-button-row.mobile-only .carousel-button:active,
   .carousel-button-row.mobile-only .carousel-button:hover {
-    background: rgba(255,255,255,1);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    background: #fff;
+    box-shadow: 0 16px 30px rgba(0,0,0,0.24);
   }
 }

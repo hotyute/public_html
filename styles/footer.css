@@ -1,72 +1,65 @@
+/* styles/footer.css */
 footer {
-    background-repeat: no-repeat; 
-    background-size: cover; 
-    text-align: center; 
-    background-position: center center;
+  background: linear-gradient(180deg, rgba(14,58,93,.85), rgba(11,47,74,.85)),
+              url('/images/footer.jpg') center/cover no-repeat;
+  text-align: center;
+  color: #fff;
+  border-radius: 16px 16px 0 0;
 }
 
+footer p { color: #e6edf3; }
+
 .footer-links {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 18px;
 }
 
 .footer-links ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
 }
 
-.footer-links li {
-    margin: 10px;
-}
-
-.footer-link-item {
-    text-align: center;
-    margin: 10px;
-}
+.footer-link-item { text-align: center; }
 
 .footer-thumbnail {
-    width: 50px;
-    height: 50px;
-    display: block;
-    margin: 0 auto 5px;
+  width: 56px;
+  height: 56px;
+  display: block;
+  margin: 0 auto 6px;
+  border-radius: 12px;
+  box-shadow: 0 10px 18px rgba(0,0,0,.25);
 }
 
 .footer-links a {
-    text-decoration: none;
-    color: #000;
-    font-weight: bold;
+  text-decoration: none;
+  color: #f7f9fc;
+  font-weight: 700;
+  transition: color .2s ease, text-shadow .2s ease, transform .2s ease;
 }
-
 .footer-links a:hover {
-    color: #007BFF;
-}
-
-footer p {
-    color: #000;
+  color: #ffd24a;
+  text-shadow: 0 2px 12px rgba(255,210,74,.35);
+  transform: translateY(-1px);
 }
 
 .registerl {
-    text-decoration: underline;
-    color: darkgoldenrod;
-    transition: text-shadow 0.3s ease-in-out;
+  text-decoration: underline;
+  color: #ffd24a;
+  transition: text-shadow 0.3s ease-in-out, transform .2s ease;
 }
-
 .registerl:hover {
-    text-shadow: 0 0 8px darkgoldenrod, 0 0 12px darkgoldenrod;
+  text-shadow: 0 0 8px #ffd24a, 0 0 12px #ffd24a;
+  transform: translateY(-1px);
 }
 
-
-@media screen and (max-width: 768px) {
-
-    footer {
-        background-position: center center; /* Center the image on smaller screens */
-        height: auto; /* Let the height adjust based on content */
-    }
-
+@media (max-width: 768px) {
+  footer { background-position: center center; height: auto; }
 }
