@@ -1,15 +1,12 @@
 <?php
-// Start the session and check if the user is authenticated and is an admin.
+// admin/admin_panel.php
 session_start();
 if (!isset($_SESSION['user_role']) || !in_array($_SESSION['user_role'], ['admin', 'editor'])) {
-    header('Location: /login.php'); // Redirect to login if not authenticated as admin.
+    header('Location: /login.php');
     exit();
 }
-
-// Include header file
 include '../header.php';
 ?>
-
 <div class="admin-container">
     <h1>Admin Dashboard</h1>
     <p>Welcome to the admin dashboard. Use the links below to manage the site:</p>
@@ -20,12 +17,8 @@ include '../header.php';
         <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') : ?>
             <li><a href="manage_users.php">Manage Users</a></li>
             <li><a href="test_manage.php">Manage Tests</a></li>
+            <li><a href="manage_magazines.php">Manage External Magazines</a></li>
         <?php endif; ?>
-        <!-- Additional links for other admin tasks can be added here -->
     </ul>
 </div>
-
-<?php
-// Include footer file
-include '../footer.php';
-?>
+<?php include '../footer.php'; ?>
