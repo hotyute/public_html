@@ -181,29 +181,184 @@ function truncateContent($content, $limit = 100)
 </div>
 
 <script>
-    let currentSlide = 0;
-    const slides = document.querySelectorAll('.carousel-slide');
+/* Enhanced, looping, accessible carousel with autoplay, dots, swipe, and keyboard */
+(function () {
+  const container = document.querySelector('.carousel-container');
+  if (!container) return;
 
-    function showSlide(index) {
-        const totalSlides = slides.length;
-        if (index < 0) {
-            currentSlide = totalSlides - 1;
-        } else if (index >= totalSlides) {
-            currentSlide = 0;
-        } else {
-            currentSlide = index;
-        }
-        const carouselSlides = document.querySelector('.carousel-slides');
-        carouselSlides.style.transform = 'translateX(' + (-currentSlide * 100) + '%)';
-    }
+  // Markup elements
+  const track = container.querySelector('.carousel-slides');
+  let slides = Array.from(track.querySelectorAll('.carousel-slide'));
+  const prevBtns = container.querySelectorAll('.carousel-button.prev');
+  const nextBtns = container.querySelectorAll('.carousel-button.next');
 
-    function nextSlide() {
-        showSlide(currentSlide + 1);
-    }
+  if (!slides.length) return;
 
-    function prevSlide() {
-        showSlide(currentSlide - 1);
+  // Accessibility
+  container.setAttribute('role', 'region');
+  container.setAttribute('aria-label', 'Post previews carousel');
+  container.tabIndex = 0;
+
+  // Clone edges for infinite loop
+  const firstClone = slides[0].cloneNode(true);
+  const lastClone = slides[slides.length - 1].cloneNode(true);
+  track.insertBefore(lastClone, slides[0]);
+  track.appendChild(firstClone);
+
+  // Recompute slides with clones
+  slides = Array.from(track.querySelectorAll('.carousel-slide'));
+
+  // State
+  let index = 1; // start at first real slide (after the prepended clone)
+  let allowNav = true;
+  let autoTimer = null;
+  const TRANSITION_MS = 450;
+  const AUTO_MS = 6000;
+  const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Dots
+  const dotsWrap = document.createElement('div');
+  dotsWrap.className = 'carousel-dots';
+  const realSlideCount = slides.length - 2;
+  const dots = [];
+  for (let i = 0; i < realSlideCount; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'carousel-dot';
+    dot.type = 'button';
+    dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+    dot.addEventListener('click', () => goTo(i + 1));
+    dotsWrap.appendChild(dot);
+    dots.push(dot);
+  }
+  container.appendChild(dotsWrap);
+
+  // Helpers
+  function setTransition(on) {
+    track.style.transition = on ? `transform ${TRANSITION_MS}ms ease` : 'none';
+  }
+  function updateTransform() {
+    track.style.transform = `translateX(-${index * 100}%)`;
+  }
+  function updateDots() {
+    const dotIndex = ((index - 1 + realSlideCount) % realSlideCount);
+    dots.forEach((d, i) => {
+      d.classList.toggle('active', i === dotIndex);
+      if (i === dotIndex) d.setAttribute('aria-current', 'true');
+      else d.removeAttribute('aria-current');
+    });
+  }
+
+  function goTo(nextIndex, animate = true) {
+    if (!allowNav) return;
+    allowNav = false;
+    setTransition(animate);
+    index = nextIndex;
+    updateTransform();
+    setTimeout(() => {
+      // Wrap around after animation completes
+      if (index === slides.length - 1) {
+        // after last clone -> jump to first real
+        setTransition(false);
+        index = 1;
+        updateTransform();
+      } else if (index === 0) {
+        // before first clone -> jump to last real
+        setTransition(false);
+        index = slides.length - 2;
+        updateTransform();
+      }
+      setTimeout(() => { setTransition(true); allowNav = true; updateDots(); }, 20);
+    }, animate ? TRANSITION_MS : 0);
+  }
+
+  function next() { goTo(index + 1); }
+  function prev() { goTo(index - 1); }
+
+  // Attach to existing buttons (desktop and mobile row)
+  prevBtns.forEach(btn => btn.addEventListener('click', prev));
+  nextBtns.forEach(btn => btn.addEventListener('click', next));
+
+  // Expose for inline onclick (keeps your current HTML working)
+  window.nextSlide = next;
+  window.prevSlide = prev;
+
+  // Autoplay
+  function startAuto() {
+    if (prefersReduce) return;
+    stopAuto();
+    autoTimer = setInterval(next, AUTO_MS);
+  }
+  function stopAuto() {
+    if (autoTimer) clearInterval(autoTimer);
+    autoTimer = null;
+  }
+
+  container.addEventListener('mouseenter', stopAuto);
+  container.addEventListener('mouseleave', startAuto);
+  container.addEventListener('focusin', stopAuto);
+  container.addEventListener('focusout', startAuto);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopAuto(); else startAuto();
+  });
+
+  // Keyboard support
+  container.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
+  });
+
+  // Swipe/drag (pointer events)
+  let startX = 0, dx = 0, dragging = false;
+
+  function onPointerDown(e) {
+    dragging = true;
+    dx = 0;
+    startX = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
+    stopAuto();
+    setTransition(false);
+  }
+  function onPointerMove(e) {
+    if (!dragging) return;
+    const x = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
+    dx = x - startX;
+    // Translate proportionally to drag distance (convert px to percent of container width)
+    const percent = (dx / container.clientWidth) * 100;
+    track.style.transform = `translateX(calc(-${index * 100}% + ${percent}%))`;
+  }
+  function onPointerUp() {
+    if (!dragging) return;
+    setTransition(true);
+    const threshold = container.clientWidth * 0.12; // 12% swipe to change
+    if (Math.abs(dx) > threshold) {
+      if (dx < 0) next(); else prev();
+    } else {
+      updateTransform(); // snap back
     }
+    dragging = false;
+    startAuto();
+  }
+
+  track.addEventListener('mousedown', onPointerDown);
+  track.addEventListener('touchstart', onPointerDown, { passive: true });
+  window.addEventListener('mousemove', onPointerMove);
+  window.addEventListener('touchmove', onPointerMove, { passive: true });
+  window.addEventListener('mouseup', onPointerUp);
+  window.addEventListener('touchend', onPointerUp);
+
+  // Init position/dots/autoplay
+  setTransition(false);
+  updateTransform();
+  setTimeout(() => setTransition(true), 30);
+  updateDots();
+  startAuto();
+
+  // Keep transforms valid on resize
+  window.addEventListener('resize', () => {
+    setTransition(false);
+    updateTransform();
+    setTimeout(() => setTransition(true), 20);
+  });
+})();
 </script>
 
 <?php include 'footer.php'; ?>

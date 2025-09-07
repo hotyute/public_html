@@ -5,12 +5,19 @@
   --carousel-btn-icon-color: #1f2937;
   --carousel-btn-hover-scale: 1.2;
   --carousel-btn-transition: 0.3s ease;
+  --carousel-accent: var(--gold-500, #e7b84c);
 }
 
 /* Container/track */
 .carousel-container { position: relative; overflow: hidden; margin: 20px; }
 .carousel { overflow: hidden; width: 100%; }
-.carousel-slides { display: flex; transition: transform 0.5s ease; }
+.carousel-slides {
+  display: flex;
+  transition: transform 0.5s ease;
+  will-change: transform;
+  touch-action: pan-y;
+  user-select: none;
+}
 
 /* Slide grid */
 .carousel-slide {
@@ -22,7 +29,7 @@
   box-sizing: border-box;
 }
 
-/* Floating arrows */
+/* Floating arrows (desktop/tablet) */
 .carousel-button {
   position: absolute;
   top: 50%;
@@ -47,9 +54,12 @@
   box-shadow: 0 18px 36px rgba(0,0,0,.25);
   outline: none;
 }
-.carousel-button:hover path, .carousel-button:focus path { transform: scale(var(--carousel-btn-hover-scale)); fill: #111; }
+.carousel-button:hover path, .carousel-button:focus path {
+  transform: scale(var(--carousel-btn-hover-scale));
+  fill: #111;
+}
 
-/* Hide row buttons by default; show on phones only */
+/* Hide the row buttons by default; show on phones only */
 .carousel-button-row.mobile-only { display: none; }
 
 /* Post cards */
@@ -74,6 +84,27 @@
 .post-preview .admin-owner { color: rgb(180, 2, 2) !important; }
 .post-preview .editor-user { color: #cd8d01 !important; }
 .post-preview .regular-user { color: #0e3a5d !important; }
+
+/* Dots */
+.carousel-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 6px 0 2px;
+}
+.carousel-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: rgba(31,41,55,.25);
+  border: 2px solid rgba(31,41,55,.35);
+  transition: transform .2s ease, background-color .2s ease, border-color .2s ease;
+}
+.carousel-dot:hover { transform: scale(1.15); }
+.carousel-dot.active {
+  transform: scale(1.2);
+  background: var(--carousel-accent);
+  border-color: var(--carousel-accent);
+}
 
 /* Tablet */
 @media (max-width: 900px) {
