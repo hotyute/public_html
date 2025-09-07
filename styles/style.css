@@ -95,7 +95,7 @@ main {
 }
 
 aside {
-  flex: 1 1 10%;
+  flex: 1 1 70px;
   background: var(--card-bg);
   padding: 20px;
   border-radius: var(--radius-lg);
