@@ -56,14 +56,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $existing_thumbnail_stmt->execute([$post_id]);
         $existing_thumbnail = $existing_thumbnail_stmt->fetchColumn();
         $thumbnail = $existing_thumbnail;
+        $thumbnail_warning = '';
+        $thumbnail_error = '';
 
         if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
             $allowed = ['image/jpeg','image/png','image/gif','image/webp'];
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $mime  = finfo_file($finfo, $_FILES['thumbnail']['tmp_name']);
-            finfo_close($finfo);
+            $mime = null;
+            $mime_warning = '';
 
-            if (in_array($mime, $allowed, true)) {
+            if (function_exists('finfo_open')) {
+                $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                if ($finfo) {
+                    $mime = finfo_file($finfo, $_FILES['thumbnail']['tmp_name']);
+                    finfo_close($finfo);
+                }
+            } elseif (function_exists('mime_content_type')) {
+                $mime = mime_content_type($_FILES['thumbnail']['tmp_name']);
+                $mime_warning = 'Warning: PHP fileinfo extension is not available. Falling back to mime_content_type().';
+            } else {
+                $mime = $_FILES['thumbnail']['type'] ?? null;
+                $mime_warning = 'Warning: PHP fileinfo extension is not available. Unable to reliably verify the uploaded file type.';
+            }
+
+            if ($mime === null) {
+                $thumbnail_error = "Error: unable to determine image type.";
+            } elseif (in_array($mime, $allowed, true)) {
                 if ($existing_thumbnail && file_exists($existing_thumbnail)) {
                     @unlink($existing_thumbnail);
                 }
@@ -75,17 +92,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if (move_uploaded_file($_FILES['thumbnail']['tmp_name'], $target_file)) {
                     $thumbnail = $target_file;
+                    if ($mime_warning !== '') {
+                        $thumbnail_warning = $mime_warning;
+                    }
                 } else {
-                    $status_message = "Failed to move uploaded thumbnail.";
+                    $thumbnail_error = "Failed to move uploaded thumbnail.";
                 }
             } else {
-                $status_message = "Invalid image type.";
+                $thumbnail_error = "Invalid image type.";
             }
         }
 
         $update_stmt = $pdo->prepare("UPDATE posts SET title = ?, content = ?, thumbnail = ? WHERE id = ?");
         if ($update_stmt->execute([$title, $content, $thumbnail, $post_id])) {
-            $status_message = "Post updated successfully!";
+            if ($thumbnail_error !== '') {
+                $status_message = $thumbnail_error;
+            } else {
+                $status_message = "Post updated successfully!";
+                if ($thumbnail_warning !== '') {
+                    $status_message .= ' ' . $thumbnail_warning;
+                }
+            }
         } else {
             $status_message = "Failed to update post.";
         }
