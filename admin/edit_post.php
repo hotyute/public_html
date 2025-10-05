@@ -103,18 +103,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        $update_stmt = $pdo->prepare("UPDATE posts SET title = ?, content = ?, thumbnail = ? WHERE id = ?");
-        if ($update_stmt->execute([$title, $content, $thumbnail, $post_id])) {
-            if ($thumbnail_error !== '') {
-                $status_message = $thumbnail_error;
-            } else {
-                $status_message = "Post updated successfully!";
-                if ($thumbnail_warning !== '') {
-                    $status_message .= ' ' . $thumbnail_warning;
+        try {
+            $update_stmt = $pdo->prepare("UPDATE posts SET title = ?, content = ?, thumbnail = ? WHERE id = ?");
+            if ($update_stmt->execute([$title, $content, $thumbnail, $post_id])) {
+                if ($thumbnail_error !== '') {
+                    $status_message = $thumbnail_error;
+                } else {
+                    $status_message = "Post updated successfully!";
+                    if ($thumbnail_warning !== '') {
+                        $status_message .= ' ' . $thumbnail_warning;
+                    }
                 }
+            } else {
+                $status_message = "Failed to update post.";
             }
-        } else {
-            $status_message = "Failed to update post.";
+        } catch (PDOException $e) {
+            if ($e->getCode() === '22001') {
+                $status_message = "Error: Post content is larger than the current database column size. Update posts.content to MEDIUMTEXT and retry.";
+            } else {
+                throw $e;
+            }
         }
     }
 }

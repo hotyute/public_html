@@ -66,18 +66,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    $stmt = $pdo->prepare("INSERT INTO posts (title, content, user_id, thumbnail) VALUES (?, ?, ?, ?)");
-    if ($stmt->execute([$title, $content, $user_id, $thumbnail])) {
-        if ($thumbnail_error !== '') {
-            $status_message = $thumbnail_error;
-        } else {
-            $status_message = "Post added successfully!";
-            if ($thumbnail_warning !== '') {
-                $status_message .= ' ' . $thumbnail_warning;
+    try {
+        $stmt = $pdo->prepare("INSERT INTO posts (title, content, user_id, thumbnail) VALUES (?, ?, ?, ?)");
+        if ($stmt->execute([$title, $content, $user_id, $thumbnail])) {
+            if ($thumbnail_error !== '') {
+                $status_message = $thumbnail_error;
+            } else {
+                $status_message = "Post added successfully!";
+                if ($thumbnail_warning !== '') {
+                    $status_message .= ' ' . $thumbnail_warning;
+                }
             }
+        } else {
+            $status_message = "Failed to add post.";
         }
-    } else {
-        $status_message = "Failed to add post.";
+    } catch (PDOException $e) {
+        if ($e->getCode() === '22001') {
+            $status_message = "Error: Post content is larger than the current database column size. Update posts.content to MEDIUMTEXT and retry.";
+        } else {
+            throw $e;
+        }
     }
 }
 
