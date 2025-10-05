@@ -13,6 +13,7 @@ include '../header.php';
     <ul class="admin-links">
         <li><a href="create_post.php">Create New Post</a></li>
         <li><a href="edit_post.php">Edit Post</a></li>
+        <li><a href="delete_post.php">Delete Post</a></li>
         <li><a href="edit_video.php">Edit Video of the Week</a></li>
         <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') : ?>
             <li><a href="manage_users.php">Manage Users</a></li>
