@@ -11,7 +11,7 @@ if (file_exists($purifierVendor)) {
         require_once $fallback;
     } else {
         // Adjust for your environment if needed (Windows path example)
-        require_once 'C:/htmlpurifier/library/HTMLPurifier.auto.php';
+        require_once '/usr/share/php/HTMLPurifier/HTMLPurifier.auto.php';
     }
 }
 
