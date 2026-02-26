@@ -2,6 +2,7 @@
 // includes/magazines/api.php
 require_once '../session.php';
 require_once '../database.php';
+
 header('Content-Type: application/json');
 
 // Return JSON on unexpected exceptions (admin-only endpoint)
@@ -12,7 +13,7 @@ set_exception_handler(function(Throwable $e) {
 });
 
 if (!isset($_SESSION['user_role']) || !in_array($_SESSION['user_role'], ['admin', 'editor'])) {
-    //http_response_code(403);
+    http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Unauthorized (admin only)']);
     exit;
 }
