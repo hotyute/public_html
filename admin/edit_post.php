@@ -282,7 +282,7 @@ $(function() {
       ['custom', ['pagebreak']]
     ],
     buttons: { pagebreak: pageBreakButton, rawhtml: rawHtmlButton, plaintext: plainTextButton },
-    fontNames: ['Georgia', 'Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Verdana'],
+    fontNames: ['Georgia', 'Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Verdana', 'Sans-serif'],
     fontSizes: ['10', '12', '14', '16', '18', '20', '24', '28', '32'],
     callbacks: {
       onInit: function() {
