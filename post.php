@@ -134,14 +134,13 @@ if ($post_id > 0) {
         $content_page = isset($pages[$page - 1]) ? $pages[$page - 1] : '';
         $userClass = getUserClass($post['user_role']);
 
+        echo '<div class="post-container" data-inline-post data-post-id="' . (int)$post_id . '">';
         if ($canEditPosts) {
             echo '<div class="admin-inline-toolbar">';
             echo '<button type="button" class="js-edit-post" data-post-id="' . (int)$post_id . '">Edit This Article</button>';
             echo '<a class="button secondary-button" href="/admin/edit_post.php?post_id=' . (int)$post_id . '">Advanced Editor</a>';
             echo '</div>';
         }
-
-        echo '<div class="post-container" data-inline-post data-post-id="' . (int)$post_id . '">';
         echo '<h1 class="post-title" data-edit-field="title">' . htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') . '</h1>';
         echo '<h4 class="post-author">By <span class="' . $userClass . '">' . htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8') . '</span> | Views: ' . htmlspecialchars($post['views'], ENT_QUOTES, 'UTF-8') . '</h4>';
         if ($post['thumbnail']) {

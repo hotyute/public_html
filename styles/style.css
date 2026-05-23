@@ -148,33 +148,47 @@ button:focus-visible { outline: none; box-shadow: var(--ring); }
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin: 0 auto 14px;
+  flex-wrap: wrap;
+  margin: 0 0 24px;
   max-width: min(980px, 92vw);
 }
 
+.post-container .admin-inline-toolbar {
+  max-width: none;
+}
+
 .is-inline-editing {
-  outline: 2px solid rgba(231, 184, 76, 0.5);
-  outline-offset: 4px;
+  position: relative;
+  outline: 2px dashed rgba(231, 184, 76, 0.72);
+  outline-offset: 5px;
 }
 
 .inline-create-surface {
   margin: 18px 0 28px;
 }
 
-.inline-editor-panel {
+.inline-create-shell {
   display: grid;
-  gap: 14px;
-  margin-top: 16px;
-  padding: 16px;
-  border: 1px solid rgba(14, 58, 93, 0.16);
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid rgba(14, 58, 93, 0.12);
   border-radius: 8px;
   background: #fff;
-  color: var(--text-900);
-  box-shadow: 0 14px 34px rgba(17, 24, 39, 0.14);
 }
 
-.inline-editor-panel__top,
-.inline-editor-panel__actions {
+.inline-edit-toolbar {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 14px;
+  border: 1px dashed rgba(14, 58, 93, 0.24);
+  border-radius: 8px;
+  background: rgba(248, 250, 252, 0.94);
+  color: var(--text-900);
+}
+
+.inline-edit-toolbar__row,
+.inline-edit-toolbar__actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -182,30 +196,45 @@ button:focus-visible { outline: none; box-shadow: var(--ring); }
   flex-wrap: wrap;
 }
 
-.inline-editor-field {
-  display: grid;
-  gap: 7px;
+.inline-thumbnail-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   color: var(--text-700);
   font-size: 0.86rem;
   font-weight: 800;
 }
 
-.inline-editor-field input,
-.inline-editor-field textarea {
-  width: 100%;
+.inline-thumbnail-field input {
+  flex: 1 1 220px;
+  min-width: 0;
   border: 1px solid rgba(14, 58, 93, 0.2);
   border-radius: 8px;
-  padding: 11px 12px;
+  padding: 9px 10px;
   background: #f8fafc;
   color: var(--text-900);
   font: inherit;
 }
 
-.inline-editor-field textarea {
-  min-height: 240px;
-  resize: vertical;
-  font-family: Consolas, Monaco, 'Courier New', monospace;
-  line-height: 1.5;
+.inline-editable-text {
+  min-height: 1.4em;
+  border: 2px dashed rgba(231, 184, 76, 0.9);
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: text;
+  caret-color: var(--gold-600);
+  background:
+    linear-gradient(90deg, rgba(231, 184, 76, 0.16), rgba(255, 255, 255, 0));
+  box-shadow: 0 0 0 4px rgba(231, 184, 76, 0.12);
+}
+
+.inline-editable-text:focus {
+  outline: 3px solid rgba(14, 58, 93, 0.22);
+  outline-offset: 3px;
+}
+
+.inline-editable-text a {
+  pointer-events: none;
 }
 
 .inline-editor-message {
@@ -216,6 +245,31 @@ button:focus-visible { outline: none; box-shadow: var(--ring); }
 
 .inline-editor-message.is-error {
   color: #b91c1c;
+}
+
+@media (max-width: 560px) {
+  .admin-inline-toolbar,
+  .inline-edit-toolbar__actions {
+    justify-content: flex-start;
+  }
+
+  .admin-inline-toolbar .button,
+  .admin-inline-toolbar button,
+  .inline-edit-toolbar__actions .button,
+  .inline-edit-toolbar__actions button {
+    padding-inline: 14px;
+    white-space: nowrap;
+  }
+
+  .inline-thumbnail-field {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .inline-thumbnail-field input {
+    width: 100%;
+    flex-basis: auto;
+  }
 }
 
 /* Decorative HR */
@@ -254,6 +308,7 @@ hr::after {
     gap: 12px;
   }
   main, aside {
+    flex: none;
     width: 100%;
     margin: 10px 0;
     box-shadow: var(--card-shadow);

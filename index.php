@@ -56,7 +56,7 @@ function render_article_tile(array $post, bool $canEditPosts): void
                 By <span class="<?= htmlspecialchars($roleClass, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8') ?></span>
                 <span><?= (int)$post['comment_count'] ?> Comments</span>
             </p>
-            <p class="article-tile__excerpt" data-edit-field="excerpt"><?= htmlspecialchars(app_plain_excerpt($post['content'] ?? '', 130), ENT_QUOTES, 'UTF-8') ?></p>
+            <div class="article-tile__excerpt" data-edit-field="content"><?= htmlspecialchars(app_plain_excerpt($post['content'] ?? '', 130), ENT_QUOTES, 'UTF-8') ?></div>
             <div class="article-tile__actions">
                 <a href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>">Read</a>
                 <?php if ($canEditPosts): ?>
@@ -103,7 +103,7 @@ include __DIR__ . '/header.php';
                         By <span class="<?= htmlspecialchars(app_user_role_class($heroPost['user_role'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($heroPost['author'], ENT_QUOTES, 'UTF-8') ?></span>
                         <span><?= (int)$heroPost['comment_count'] ?> Comments</span>
                     </p>
-                    <p class="home-hero__excerpt" data-edit-field="excerpt"><?= htmlspecialchars(app_plain_excerpt($heroPost['content'] ?? '', 240), ENT_QUOTES, 'UTF-8') ?></p>
+                    <div class="home-hero__excerpt" data-edit-field="content"><?= htmlspecialchars(app_plain_excerpt($heroPost['content'] ?? '', 240), ENT_QUOTES, 'UTF-8') ?></div>
                     <div class="home-hero__actions">
                         <a class="button" href="<?= htmlspecialchars($heroUrl, ENT_QUOTES, 'UTF-8') ?>">Read Article</a>
                         <?php if ($canEditPosts): ?>
