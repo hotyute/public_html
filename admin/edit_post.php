@@ -13,6 +13,7 @@ $selectedPostId = filter_input(INPUT_GET, 'post_id', FILTER_VALIDATE_INT)
 require_once __DIR__ . '/../base_config.php';
 require_once __DIR__ . '/../includes/database.php';
 require_once __DIR__ . '/../includes/sanitize.php';
+require_once __DIR__ . '/../includes/article_audio.php';
 
 // Fetch posts for dropdown
 $stmt = $pdo->prepare("SELECT id, title, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') as formatted_date FROM posts ORDER BY created_at DESC");
@@ -42,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($existing_thumbnail && file_exists($existing_thumbnail)) {
                     @unlink($existing_thumbnail);
                 }
+                article_audio_delete_for_post($post_id);
                 $status_message = "Post deleted successfully!";
             } else {
                 $status_message = "Failed to delete post.";
@@ -121,7 +123,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($thumbnail_error !== '') {
                     $status_message = $thumbnail_error;
                 } else {
+                    $audioResult = article_audio_generate_for_post($pdo, $post_id, $content);
                     $status_message = "Post updated successfully!";
+                    $status_message .= $audioResult['audio_generated']
+                        ? " Audio regenerated."
+                        : " Reader transcript regenerated; install espeak-ng on the Ubuntu server for saved audio files.";
                     if ($thumbnail_warning !== '') {
                         $status_message .= ' ' . $thumbnail_warning;
                     }

@@ -7,6 +7,7 @@ if (($_SESSION['user_role'] ?? '') !== 'admin') {
 }
 
 require_once __DIR__ . '/../includes/database.php';
+require_once __DIR__ . '/../includes/article_audio.php';
 
 $status_message = '';
 $status_color = 'red';
@@ -49,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (!empty($post['thumbnail']) && file_exists($post['thumbnail'])) {
                         @unlink($post['thumbnail']);
                     }
+                    article_audio_delete_for_post($post_id);
                 } else {
                     $status_message = 'Failed to delete the selected post.';
                 }

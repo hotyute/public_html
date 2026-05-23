@@ -3,6 +3,7 @@ include 'header.php';
 require 'includes/database.php';
 require 'includes/sanitize.php'; // Include the sanitization function
 require_once __DIR__ . '/includes/content_helpers.php';
+require_once __DIR__ . '/includes/article_audio.php';
 
 $post_id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : 0;
 $page = max(1, (int)(filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1));
@@ -140,48 +141,36 @@ if ($post_id > 0) {
             echo '</div>';
         }
 
-        echo '<div class="post-container">';
-        echo '<h1 class="post-title">' . htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') . '</h1>';
+        echo '<div class="post-container" data-inline-post data-post-id="' . (int)$post_id . '">';
+        echo '<h1 class="post-title" data-edit-field="title">' . htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') . '</h1>';
         echo '<h4 class="post-author">By <span class="' . $userClass . '">' . htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8') . '</span> | Views: ' . htmlspecialchars($post['views'], ENT_QUOTES, 'UTF-8') . '</h4>';
         if ($post['thumbnail']) {
-            echo '<img src="' . htmlspecialchars($post['thumbnail'], ENT_QUOTES, 'UTF-8') . '" alt="Post Image" class="post-thumbnail">';
+            echo '<img src="' . htmlspecialchars($post['thumbnail'], ENT_QUOTES, 'UTF-8') . '" alt="Post Image" class="post-thumbnail" data-edit-image>';
         }
 
+        $manifestUrl = article_audio_manifest_url((int)$post_id);
+        $manifestPath = article_audio_manifest_path((int)$post_id);
+        if (!file_exists($manifestPath) && !empty($post['voiceover_url'])) {
+            article_audio_generate_for_post($pdo, (int)$post_id, $content);
+        }
+        if (file_exists($manifestPath) || !empty($post['voiceover_url'])) {
+            $nextReaderUrl = $page < $total_pages ? '/post.php?id=' . (int)$post_id . '&page=' . ($page + 1) . '&autoplay=1' : '';
+            $autoplayReader = (filter_input(INPUT_GET, 'autoplay', FILTER_VALIDATE_INT) ?: 0) === 1 ? '1' : '0';
 
-        // Check if there is a base voiceover URL
-        if (!empty($post['voiceover_url'])) {
-            // 1. Deconstruct the original URL to get the base name and extension
-            $path_info = pathinfo($post['voiceover_url']);
-            $base_filename = $path_info['dirname'] . '/' . $path_info['filename'];
-            $extension = $path_info['extension'];
-
-            // 2. Construct the page-specific filename
-            // For page 1, we can use the original or the _p1 version for consistency
-            $page_specific_filename = $base_filename . '_p' . $page . '.' . $extension;
-
-            // 3. IMPORTANT: Check if the page-specific audio file actually exists on the server
-            // Note: This requires the URL path to be a relative server path. 
-            // Adjust $_SERVER['DOCUMENT_ROOT'] if your files are stored elsewhere.
-            $server_path_to_audio = $_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($page_specific_filename, '/');
-
-            if (file_exists($server_path_to_audio)) {
-                // Construct the VTT file path
-                $vtt_filename = $base_filename . '_p' . $page . '.vtt';
-                $server_path_to_vtt = $_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($vtt_filename, '/');
-
-                echo '<div class="post-voiceover">';
-                echo '<audio id="post-audio-player" controls>';
-                echo '<source src="' . htmlspecialchars($page_specific_filename, ENT_QUOTES, 'UTF-8') . '" type="audio/mpeg">';
-
-                // Add the track element if the VTT file exists
-                if (file_exists($server_path_to_vtt)) {
-                    echo '<track label="English" kind="subtitles" srclang="en" src="' . htmlspecialchars($vtt_filename, ENT_QUOTES, 'UTF-8') . '" default>';
-                }
-
-                echo 'Your browser does not support the audio element.';
-                echo '</audio>';
-                echo '</div>';
-            }
+            echo '<section class="article-reader" data-reader data-manifest="' . htmlspecialchars($manifestUrl, ENT_QUOTES, 'UTF-8') . '" data-page="' . (int)$page . '" data-total-pages="' . (int)$total_pages . '" data-next-url="' . htmlspecialchars($nextReaderUrl, ENT_QUOTES, 'UTF-8') . '" data-autoplay="' . $autoplayReader . '">';
+            echo '<div class="article-reader__top">';
+            echo '<strong>Article Reader</strong>';
+            echo '<span>Page ' . (int)$page . ' of ' . (int)$total_pages . '</span>';
+            echo '</div>';
+            echo '<div class="article-reader__controls">';
+            echo '<button type="button" data-reader-play>Play</button>';
+            echo '<button type="button" class="secondary-button" data-reader-pause>Pause</button>';
+            echo '<label>Speed <select data-reader-rate><option value="0.85">0.85x</option><option value="1" selected>1x</option><option value="1.15">1.15x</option><option value="1.3">1.3x</option></select></label>';
+            echo '</div>';
+            echo '<div class="article-reader__progress"><span data-reader-progress></span></div>';
+            echo '<p class="article-reader__status" data-reader-status>Ready.</p>';
+            echo '<audio id="post-audio-player" preload="metadata"></audio>';
+            echo '</section>';
         }
 
         // Pagination controls
@@ -302,210 +291,3 @@ if ($post_id > 0) {
 }
 include 'footer.php';
 ?>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const audio = document.getElementById('post-audio-player');
-        const contentWrapper = document.getElementById('post-content-wrapper');
-        if (!audio || !contentWrapper) return;
-
-        const HIGHLIGHT_CLASS = 'highlight'; // uses your existing .highlight CSS
-        const CUE_SPAN_CLASS = 'cue-frag'; // wrapper for each cue’s text
-        let track = null;
-        let cueSpans = new Map(); // Map<number index, HTMLElement span>
-        let wrapped = false;
-
-        // Throttle helper for timeupdate
-        function throttle(fn, wait) {
-            let last = 0,
-                t = null;
-            return function(...args) {
-                const now = Date.now();
-                if (now - last >= wait) {
-                    last = now;
-                    fn.apply(this, args);
-                } else {
-                    clearTimeout(t);
-                    t = setTimeout(() => {
-                        last = Date.now();
-                        fn.apply(this, args);
-                    }, wait - (now - last));
-                }
-            };
-        }
-
-        // Find the first occurrence of `needle` across text nodes starting from startNode/startOffset
-        function findNextOccurrence(root, needle, startNode = null, startOffset = 0) {
-            if (!needle) return null;
-            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-            if (startNode) {
-                walker.currentNode = startNode;
-                // Workaround: resume after startNode by advancing once if we already consumed part of it
-                if (startOffset > 0) walker.nextNode();
-            }
-
-            let node;
-            while ((node = walker.nextNode())) {
-                const text = node.nodeValue || '';
-                const idx = text.indexOf(needle);
-                if (idx !== -1) {
-                    const range = document.createRange();
-                    range.setStart(node, idx);
-                    range.setEnd(node, idx + needle.length);
-                    return range;
-                }
-            }
-            return null;
-        }
-
-        // Pre-wrap all cues’ text (in order) with spans so we can just toggle classes later.
-        async function wrapAllCues() {
-            if (!track || !track.cues || track.cues.length === 0 || wrapped) return;
-
-            // Safety: remove any previous wrappers if re-initializing
-            contentWrapper.querySelectorAll('.' + CUE_SPAN_CLASS).forEach(el => {
-                const parent = el.parentNode;
-                if (!parent) return;
-                parent.replaceChild(document.createTextNode(el.textContent), el);
-                parent.normalize();
-            });
-            cueSpans.clear();
-
-            let searchStartNode = null;
-            let searchStartOffset = 0;
-
-            for (let i = 0; i < track.cues.length; i++) {
-                const cue = track.cues[i];
-                const cueText = (cue.text || '').trim();
-                if (!cueText) continue;
-
-                const range = findNextOccurrence(contentWrapper, cueText, searchStartNode, searchStartOffset);
-                if (!range) {
-                    // If a text occurrence can’t be found, skip gracefully (still keeps others synced)
-                    console.warn('Cue text not found in content:', cueText);
-                    continue;
-                }
-
-                const span = document.createElement('span');
-                span.className = CUE_SPAN_CLASS;
-                span.dataset.cueIndex = String(i);
-
-                try {
-                    range.surroundContents(span);
-                    cueSpans.set(i, span);
-
-                    // Move the search start to immediately after this span to keep mapping sequential
-                    searchStartNode = span;
-                    searchStartOffset = 1; // force the walker to progress beyond this wrapper
-                } catch (e) {
-                    // If surroundContents fails (e.g., partially overlapping non-text nodes), fallback:
-                    console.warn('surroundContents failed, skipping cue:', cueText, e);
-                }
-            }
-
-            wrapped = true;
-        }
-
-        function clearActiveHighlights() {
-            contentWrapper.querySelectorAll('.' + CUE_SPAN_CLASS + '.' + HIGHLIGHT_CLASS)
-                .forEach(el => el.classList.remove(HIGHLIGHT_CLASS));
-        }
-
-        function updateHighlightsByTime() {
-            if (!track) return;
-            const t = audio.currentTime;
-
-            clearActiveHighlights();
-
-            // Some browsers’ activeCues can lag on scrubs. We compute by currentTime.
-            // Highlight all cues active at time t (usually 1 cue).
-            for (let i = 0; i < track.cues.length; i++) {
-                const cue = track.cues[i];
-                if (t >= cue.startTime && t < cue.endTime) {
-                    const span = cueSpans.get(i);
-                    if (span) span.classList.add(HIGHLIGHT_CLASS);
-                }
-            }
-        }
-
-        function onCueChange() {
-            // Keep in sync with native cuechange as well
-            updateHighlightsByTime();
-        }
-
-        function getFirstTextTrack() {
-            if (!audio.textTracks) return null;
-            // Prefer the first "subtitles" or "captions" track; else use the first
-            for (let i = 0; i < audio.textTracks.length; i++) {
-                const tt = audio.textTracks[i];
-                if (tt.kind === 'subtitles' || tt.kind === 'captions') return tt;
-            }
-            return audio.textTracks[0] || null;
-        }
-
-        function waitForTrackAndCues() {
-            return new Promise(resolve => {
-                // Try now
-                let tt = getFirstTextTrack();
-                if (tt && tt.cues && tt.cues.length) return resolve(tt);
-
-                // Hook up load/polling in case cues aren’t ready yet
-                const trackEl = audio.querySelector('track');
-                let attempts = 0;
-                const maxAttempts = 50; // ~5s
-
-                function tryResolve() {
-                    tt = getFirstTextTrack();
-                    if (tt && tt.cues && tt.cues.length) {
-                        resolve(tt);
-                        return true;
-                    }
-                    return false;
-                }
-
-                if (!tryResolve()) {
-                    const poll = setInterval(() => {
-                        attempts++;
-                        if (tryResolve() || attempts >= maxAttempts) {
-                            clearInterval(poll);
-                            resolve(getFirstTextTrack()); // may be null; code guards later
-                        }
-                    }, 100);
-                }
-
-                if (trackEl) {
-                    trackEl.addEventListener('load', () => {
-                        setTimeout(() => tryResolve(), 0);
-                    }, {
-                        once: true
-                    });
-                }
-            });
-        }
-
-        (async function init() {
-            track = await waitForTrackAndCues();
-            if (!track) return;
-            track.mode = 'hidden'; // ensure activeCues/cues are maintained
-
-            await wrapAllCues();
-            updateHighlightsByTime();
-
-            // Keep in sync on all relevant events
-            if (typeof track.addEventListener === 'function') {
-                track.addEventListener('cuechange', onCueChange);
-            } else {
-                // Fallback for browsers that only support oncuechange
-                track.oncuechange = onCueChange;
-            }
-
-            audio.addEventListener('seeked', updateHighlightsByTime);
-            audio.addEventListener('timeupdate', throttle(updateHighlightsByTime, 100));
-            audio.addEventListener('play', updateHighlightsByTime);
-            audio.addEventListener('pause', updateHighlightsByTime);
-            audio.addEventListener('ratechange', updateHighlightsByTime);
-            audio.addEventListener('loadedmetadata', updateHighlightsByTime);
-            audio.addEventListener('ended', clearActiveHighlights);
-        })();
-    });
-</script>

@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../session.php';
 require_once __DIR__ . '/../database.php';
 require_once __DIR__ . '/../sanitize.php';
+require_once __DIR__ . '/../article_audio.php';
 
 header('Content-Type: application/json');
 
@@ -114,7 +115,9 @@ try {
     if ($action === 'create') {
         $stmt = $pdo->prepare("INSERT INTO posts (title, content, thumbnail, user_id) VALUES (?, ?, ?, ?)");
         $stmt->execute([$title, $content, $thumbnail !== '' ? $thumbnail : null, (int)$_SESSION['user_id']]);
-        echo json_encode(['success' => true, 'id' => (int)$pdo->lastInsertId()]);
+        $postId = (int)$pdo->lastInsertId();
+        $audio = article_audio_generate_for_post($pdo, $postId, $content);
+        echo json_encode(['success' => true, 'id' => $postId, 'audio' => $audio]);
         exit;
     }
 
@@ -128,7 +131,8 @@ try {
 
         $stmt = $pdo->prepare("UPDATE posts SET title = ?, content = ?, thumbnail = ? WHERE id = ?");
         $stmt->execute([$title, $content, $thumbnail !== '' ? $thumbnail : null, $postId]);
-        echo json_encode(['success' => true, 'id' => $postId]);
+        $audio = article_audio_generate_for_post($pdo, $postId, $content);
+        echo json_encode(['success' => true, 'id' => $postId, 'audio' => $audio]);
         exit;
     }
 

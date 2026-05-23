@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../includes/session.php';
 require __DIR__ . '/../includes/database.php';
 require __DIR__ . '/../includes/sanitize.php';
+require_once __DIR__ . '/../includes/article_audio.php';
 
 if (!in_array($_SESSION['user_role'] ?? '', ['admin', 'editor'], true)) {
     header('Location: /login.php');
@@ -77,7 +78,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         try {
             $stmt = $pdo->prepare("INSERT INTO posts (title, content, user_id, thumbnail) VALUES (?, ?, ?, ?)");
             if ($stmt->execute([$title, $content, $user_id, $thumbnail])) {
+                $audioResult = article_audio_generate_for_post($pdo, (int)$pdo->lastInsertId(), $content);
                 $status_message = "Post added successfully!";
+                $status_message .= $audioResult['audio_generated']
+                    ? " Audio generated."
+                    : " Reader transcript generated; install espeak-ng on the Ubuntu server for saved audio files.";
                 if ($thumbnail_warning !== '') {
                     $status_message .= ' ' . $thumbnail_warning;
                 }

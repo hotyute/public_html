@@ -16,12 +16,11 @@ $postsStmt = $pdo->query("
     LEFT JOIN comments ON posts.id = comments.post_id
     GROUP BY posts.id, posts.title, posts.thumbnail, posts.content, posts.created_at, users.displayname, users.role
     ORDER BY posts.id DESC
-    LIMIT 12
+    LIMIT 13
 ");
 $posts = $postsStmt->fetchAll(PDO::FETCH_ASSOC);
 $heroPost = $posts[0] ?? null;
-$spotlightPosts = array_slice($posts, 1, 2);
-$morePosts = array_slice($posts, 3);
+$continuePosts = array_slice($posts, 1);
 
 $video_link = '';
 $video_file = __DIR__ . '/includes/featured_video.txt';
@@ -39,30 +38,31 @@ $magazinesStmt = $pdo->prepare("
 $magazinesStmt->execute(['issue' => $issue]);
 $magazineArticles = $magazinesStmt->fetchAll(PDO::FETCH_ASSOC);
 
-function render_home_article_card(array $post, bool $canEditPosts, string $className = 'article-card'): void
+function render_article_tile(array $post, bool $canEditPosts): void
 {
     $postId = (int)$post['id'];
     $postUrl = '/post.php?id=' . $postId;
     $roleClass = app_user_role_class($post['user_role'] ?? '');
     ?>
-    <article class="<?= htmlspecialchars($className, ENT_QUOTES, 'UTF-8') ?>">
-        <a class="article-card__image" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>">
+    <article class="article-tile" data-inline-post data-post-id="<?= $postId ?>">
+        <a class="article-tile__image" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-image>
             <img src="<?= htmlspecialchars(app_post_image_src($post['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?>">
         </a>
-        <div class="article-card__body">
-            <a class="article-card__title" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>">
+        <div class="article-tile__body">
+            <a class="article-tile__title" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-field="title">
                 <?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?>
             </a>
             <p class="article-meta">
                 By <span class="<?= htmlspecialchars($roleClass, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8') ?></span>
                 <span><?= (int)$post['comment_count'] ?> Comments</span>
             </p>
-            <p class="article-card__excerpt"><?= htmlspecialchars(app_plain_excerpt($post['content'] ?? '', 120), ENT_QUOTES, 'UTF-8') ?></p>
-            <?php if ($canEditPosts): ?>
-                <div class="inline-edit-actions">
+            <p class="article-tile__excerpt" data-edit-field="excerpt"><?= htmlspecialchars(app_plain_excerpt($post['content'] ?? '', 130), ENT_QUOTES, 'UTF-8') ?></p>
+            <div class="article-tile__actions">
+                <a href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>">Read</a>
+                <?php if ($canEditPosts): ?>
                     <button type="button" class="inline-edit-button js-edit-post" data-post-id="<?= $postId ?>">Edit</button>
-                </div>
-            <?php endif; ?>
+                <?php endif; ?>
+            </div>
         </div>
     </article>
     <?php
@@ -73,11 +73,11 @@ include __DIR__ . '/header.php';
 
 <div class="main-container home-layout">
     <main class="home-main">
-        <section class="home-intro">
+        <section class="home-intro" data-inline-create-anchor>
             <div>
                 <p class="section-kicker">Divine Word Community</p>
                 <h1>Teachings, studies, and reflections for the flock.</h1>
-                <p class="home-intro__copy">Read the latest posts, revisit recent studies, and continue into the archive when you want the full library.</p>
+                <p>Read the newest article, then keep moving through recent studies without losing your place.</p>
             </div>
             <div class="home-actions">
                 <a class="button secondary-button" href="/archive.php">All Articles</a>
@@ -88,35 +88,29 @@ include __DIR__ . '/header.php';
         </section>
 
         <?php if ($heroPost): ?>
-            <section class="story-stage" aria-label="Featured articles">
-                <article class="featured-story">
-                    <a class="featured-story__image" href="/post.php?id=<?= (int)$heroPost['id'] ?>">
-                        <img src="<?= htmlspecialchars(app_post_image_src($heroPost['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($heroPost['title'], ENT_QUOTES, 'UTF-8') ?>">
-                    </a>
-                    <div class="featured-story__body">
-                        <p class="section-kicker">Latest Article</p>
-                        <h2><a href="/post.php?id=<?= (int)$heroPost['id'] ?>"><?= htmlspecialchars($heroPost['title'], ENT_QUOTES, 'UTF-8') ?></a></h2>
-                        <p class="article-meta">
-                            By <span class="<?= htmlspecialchars(app_user_role_class($heroPost['user_role'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($heroPost['author'], ENT_QUOTES, 'UTF-8') ?></span>
-                            <span><?= (int)$heroPost['comment_count'] ?> Comments</span>
-                        </p>
-                        <p><?= htmlspecialchars(app_plain_excerpt($heroPost['content'] ?? '', 260), ENT_QUOTES, 'UTF-8') ?></p>
-                        <div class="featured-story__actions">
-                            <a class="button" href="/post.php?id=<?= (int)$heroPost['id'] ?>">Read Article</a>
-                            <?php if ($canEditPosts): ?>
-                                <button type="button" class="button secondary-button js-edit-post" data-post-id="<?= (int)$heroPost['id'] ?>">Edit</button>
-                            <?php endif; ?>
-                        </div>
+            <?php
+            $heroId = (int)$heroPost['id'];
+            $heroUrl = '/post.php?id=' . $heroId;
+            ?>
+            <section class="home-hero" data-inline-post data-post-id="<?= $heroId ?>">
+                <a class="home-hero__media" href="<?= htmlspecialchars($heroUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-image>
+                    <img src="<?= htmlspecialchars(app_post_image_src($heroPost['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($heroPost['title'], ENT_QUOTES, 'UTF-8') ?>">
+                </a>
+                <div class="home-hero__content">
+                    <p class="section-kicker">Latest Article</p>
+                    <h2><a href="<?= htmlspecialchars($heroUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-field="title"><?= htmlspecialchars($heroPost['title'], ENT_QUOTES, 'UTF-8') ?></a></h2>
+                    <p class="article-meta">
+                        By <span class="<?= htmlspecialchars(app_user_role_class($heroPost['user_role'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($heroPost['author'], ENT_QUOTES, 'UTF-8') ?></span>
+                        <span><?= (int)$heroPost['comment_count'] ?> Comments</span>
+                    </p>
+                    <p class="home-hero__excerpt" data-edit-field="excerpt"><?= htmlspecialchars(app_plain_excerpt($heroPost['content'] ?? '', 240), ENT_QUOTES, 'UTF-8') ?></p>
+                    <div class="home-hero__actions">
+                        <a class="button" href="<?= htmlspecialchars($heroUrl, ENT_QUOTES, 'UTF-8') ?>">Read Article</a>
+                        <?php if ($canEditPosts): ?>
+                            <button type="button" class="button secondary-button js-edit-post" data-post-id="<?= $heroId ?>">Edit This Article</button>
+                        <?php endif; ?>
                     </div>
-                </article>
-
-                <?php if ($spotlightPosts): ?>
-                    <div class="story-queue" aria-label="Recent articles">
-                        <?php foreach ($spotlightPosts as $spotlightPost): ?>
-                            <?php render_home_article_card($spotlightPost, $canEditPosts, 'article-card article-card--compact'); ?>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
+                </div>
             </section>
         <?php else: ?>
             <section class="empty-state">
@@ -128,19 +122,24 @@ include __DIR__ . '/header.php';
             </section>
         <?php endif; ?>
 
-        <?php if ($morePosts): ?>
-            <section class="article-library" aria-label="Latest articles">
+        <?php if ($continuePosts): ?>
+            <section class="continue-reading" aria-label="Continue reading">
                 <div class="section-heading">
                     <div>
-                        <p class="section-kicker">Latest</p>
-                        <h2>Continue Reading</h2>
+                        <p class="section-kicker">Continue Reading</p>
+                        <h2>Recent Articles</h2>
                     </div>
-                    <a href="/archive.php">Open archive</a>
+                    <div class="article-carousel__controls" aria-label="Article carousel controls">
+                        <button type="button" class="article-carousel__button" data-carousel-prev aria-label="Previous articles">&larr;</button>
+                        <button type="button" class="article-carousel__button" data-carousel-next aria-label="Next articles">&rarr;</button>
+                    </div>
                 </div>
-                <div class="article-grid">
-                    <?php foreach ($morePosts as $post): ?>
-                        <?php render_home_article_card($post, $canEditPosts); ?>
-                    <?php endforeach; ?>
+                <div class="article-carousel" data-article-carousel>
+                    <div class="article-carousel__track">
+                        <?php foreach ($continuePosts as $post): ?>
+                            <?php render_article_tile($post, $canEditPosts); ?>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             </section>
         <?php endif; ?>

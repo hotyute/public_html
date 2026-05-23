@@ -35,6 +35,10 @@ $footerLinks = [
 <?php endif; ?>
 <?php if ($current_page == 'post') : ?>
     <script src="/js/tools.js"></script>
+    <script src="/js/article-reader.js"></script>
+<?php endif; ?>
+<?php if ($current_page == 'index') : ?>
+    <script src="/js/article-carousel.js"></script>
 <?php endif; ?>
 <?php if (in_array($current_page, ['index', 'post'], true) && isset($_SESSION['user_id']) && in_array($_SESSION['user_role'] ?? '', ['admin', 'editor'], true)) : ?>
     <script src="/js/inline-post-editor.js"></script>

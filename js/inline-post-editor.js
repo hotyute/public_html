@@ -1,95 +1,93 @@
 (function () {
     const apiUrl = '/includes/posts/api.php';
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
-    let modal;
-    let form;
-    let message;
-    let currentMode = 'update';
+    let activeEditor = null;
 
-    function ensureModal() {
-        if (modal) return;
+    function field(name, label, value, tagName) {
+        const wrapper = document.createElement('label');
+        wrapper.className = 'inline-editor-field';
+        wrapper.textContent = label;
 
-        modal = document.createElement('div');
-        modal.className = 'inline-editor-modal';
-        modal.innerHTML = `
-            <div class="inline-editor-dialog" role="dialog" aria-modal="true" aria-labelledby="inlineEditorTitle">
-                <div class="inline-editor-header">
-                    <h2 id="inlineEditorTitle">Edit Article</h2>
-                    <button type="button" class="secondary-button" data-editor-close>Close</button>
-                </div>
-                <form class="inline-editor-form">
-                    <input type="hidden" name="id">
-                    <label>
-                        Title
-                        <input type="text" name="title" maxlength="255" required>
-                    </label>
-                    <label>
-                        Thumbnail URL or path
-                        <input type="text" name="thumbnail" placeholder="/images/uploads/example.jpg">
-                    </label>
-                    <label>
-                        Article HTML
-                        <textarea name="content" required></textarea>
-                    </label>
-                    <p class="inline-editor-message" aria-live="polite"></p>
-                    <div class="inline-editor-footer">
-                        <button type="button" class="secondary-button" data-editor-close>Cancel</button>
-                        <button type="submit">Save</button>
-                    </div>
-                </form>
-            </div>
-        `;
-        document.body.appendChild(modal);
-
-        form = modal.querySelector('form');
-        message = modal.querySelector('.inline-editor-message');
-        modal.querySelectorAll('[data-editor-close]').forEach(button => {
-            button.addEventListener('click', closeEditor);
-        });
-        modal.addEventListener('click', event => {
-            if (event.target === modal) closeEditor();
-        });
-        form.addEventListener('submit', savePost);
-        document.addEventListener('keydown', event => {
-            if (event.key === 'Escape' && modal.classList.contains('is-open')) {
-                closeEditor();
-            }
-        });
+        const input = document.createElement(tagName || 'input');
+        input.name = name;
+        input.value = value || '';
+        if (name === 'title') {
+            input.maxLength = 255;
+            input.required = true;
+        }
+        if (tagName === 'textarea') {
+            input.rows = 10;
+            input.required = true;
+        }
+        wrapper.appendChild(input);
+        return wrapper;
     }
 
-    function setMessage(text, isError) {
+    function setMessage(panel, text, isError) {
+        const message = panel.querySelector('.inline-editor-message');
         message.textContent = text || '';
         message.classList.toggle('is-error', Boolean(isError));
     }
 
-    function openEditor() {
-        ensureModal();
-        setMessage('');
-        modal.classList.add('is-open');
-        form.elements.title.focus();
-    }
-
     function closeEditor() {
-        if (modal) modal.classList.remove('is-open');
+        if (!activeEditor) return;
+        activeEditor.hiddenNodes.forEach(node => {
+            node.hidden = false;
+        });
+        activeEditor.panel.remove();
+        activeEditor.surface.classList.remove('is-inline-editing');
+        if (activeEditor.surface.classList.contains('inline-create-surface')) {
+            activeEditor.surface.remove();
+        }
+        activeEditor = null;
     }
 
-    function openNewPost() {
-        currentMode = 'create';
-        ensureModal();
-        modal.querySelector('#inlineEditorTitle').textContent = 'New Article';
-        form.reset();
-        form.elements.id.value = '';
-        openEditor();
+    function renderEditor(options) {
+        closeEditor();
+
+        const surface = options.surface;
+        const post = options.post || { id: '', title: '', thumbnail: '', content: '' };
+        const panel = document.createElement('form');
+        panel.className = 'inline-editor-panel';
+        panel.innerHTML = `
+            <div class="inline-editor-panel__top">
+                <strong>${options.mode === 'create' ? 'New Article' : 'Editing Article'}</strong>
+                <button type="button" class="secondary-button" data-editor-cancel>Cancel</button>
+            </div>
+            <p class="inline-editor-message" aria-live="polite"></p>
+            <div class="inline-editor-panel__actions">
+                <button type="submit">Save Article</button>
+                ${options.mode === 'update' ? '<a class="button secondary-button" href="/admin/edit_post.php?post_id=' + encodeURIComponent(post.id) + '">Advanced Editor</a>' : ''}
+            </div>
+        `;
+
+        panel.insertBefore(field('title', 'Title', post.title), panel.querySelector('.inline-editor-message'));
+        panel.insertBefore(field('thumbnail', 'Thumbnail URL or path', post.thumbnail), panel.querySelector('.inline-editor-message'));
+        panel.insertBefore(field('content', 'Article HTML', post.content, 'textarea'), panel.querySelector('.inline-editor-message'));
+
+        const hiddenNodes = [];
+        surface.querySelectorAll('[data-edit-field], #post-content-wrapper').forEach(node => {
+            node.hidden = true;
+            hiddenNodes.push(node);
+        });
+
+        const mount = surface.querySelector('.article-tile__body, .home-hero__content') || surface;
+        mount.appendChild(panel);
+        surface.classList.add('is-inline-editing');
+
+        activeEditor = { panel, surface, hiddenNodes };
+        panel.querySelector('[name="title"]').focus();
+
+        panel.querySelector('[data-editor-cancel]').addEventListener('click', closeEditor);
+        panel.addEventListener('submit', event => savePost(event, options.mode, post.id, panel));
     }
 
-    function openExistingPost(postId) {
-        currentMode = 'update';
-        ensureModal();
-        modal.querySelector('#inlineEditorTitle').textContent = 'Edit Article';
-        form.reset();
-        setMessage('Loading...');
-        modal.classList.add('is-open');
+    function loadPost(postId, button) {
+        if (!postId) return;
+        const surface = button.closest('[data-inline-post]') || document.querySelector('.post-container');
+        if (!surface) return;
 
+        surface.classList.add('is-loading-editor');
         fetch(`${apiUrl}?action=get&id=${encodeURIComponent(postId)}`)
             .then(async response => {
                 const data = await response.json().catch(() => ({}));
@@ -99,27 +97,34 @@
                 return data.post;
             })
             .then(post => {
-                form.elements.id.value = post.id || '';
-                form.elements.title.value = post.title || '';
-                form.elements.thumbnail.value = post.thumbnail || '';
-                form.elements.content.value = post.content || '';
-                setMessage('');
-                form.elements.title.focus();
+                renderEditor({ mode: 'update', post, surface });
             })
-            .catch(error => setMessage(error.message, true));
+            .catch(error => {
+                alert(error.message);
+            })
+            .finally(() => surface.classList.remove('is-loading-editor'));
     }
 
-    function savePost(event) {
+    function openNewPost() {
+        const anchor = document.querySelector('[data-inline-create-anchor]') || document.querySelector('main');
+        const surface = document.createElement('section');
+        surface.className = 'inline-create-surface';
+        surface.setAttribute('data-inline-post', '');
+        anchor.insertAdjacentElement('afterend', surface);
+        renderEditor({ mode: 'create', surface });
+    }
+
+    function savePost(event, mode, postId, panel) {
         event.preventDefault();
         const payload = {
-            action: currentMode,
-            id: form.elements.id.value ? Number(form.elements.id.value) : undefined,
-            title: form.elements.title.value.trim(),
-            thumbnail: form.elements.thumbnail.value.trim(),
-            content: form.elements.content.value
+            action: mode,
+            id: postId ? Number(postId) : undefined,
+            title: panel.elements.title.value.trim(),
+            thumbnail: panel.elements.thumbnail.value.trim(),
+            content: panel.elements.content.value
         };
 
-        setMessage('Saving...');
+        setMessage(panel, 'Saving article and preparing reader audio...');
         fetch(apiUrl, {
             method: 'POST',
             headers: {
@@ -136,21 +141,29 @@
                 return data;
             })
             .then(data => {
-                setMessage('Saved.');
-                if (currentMode === 'create' && data.id) {
-                    window.location.href = `/post.php?id=${encodeURIComponent(data.id)}`;
-                } else {
-                    window.location.reload();
-                }
+                const audioNote = data.audio?.audio_generated
+                    ? ' Audio generated.'
+                    : ' Reader transcript generated.';
+                setMessage(panel, `Saved.${audioNote}`);
+                window.setTimeout(() => {
+                    if (mode === 'create' && data.id) {
+                        window.location.href = `/post.php?id=${encodeURIComponent(data.id)}`;
+                    } else {
+                        window.location.reload();
+                    }
+                }, 450);
             })
-            .catch(error => setMessage(error.message, true));
+            .catch(error => setMessage(panel, error.message, true));
     }
 
     document.addEventListener('click', event => {
+        const cancelButton = event.target.closest('[data-editor-cancel]');
+        if (cancelButton) return;
+
         const editButton = event.target.closest('.js-edit-post');
         if (editButton) {
             event.preventDefault();
-            openExistingPost(editButton.dataset.postId);
+            loadPost(editButton.dataset.postId, editButton);
             return;
         }
 
@@ -158,6 +171,12 @@
         if (newButton) {
             event.preventDefault();
             openNewPost();
+        }
+    });
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            closeEditor();
         }
     });
 })();

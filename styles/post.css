@@ -382,6 +382,71 @@
     padding: 0;
 }
 
+.article-reader {
+    max-width: 820px;
+    margin: 26px auto;
+    padding: 16px;
+    border: 1px solid rgba(14, 58, 93, 0.12);
+    border-radius: 8px;
+    background: #f8fafc;
+}
+
+.article-reader__top,
+.article-reader__controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.article-reader__controls {
+    margin-top: 12px;
+}
+
+.article-reader__controls label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-700);
+    font-weight: 700;
+}
+
+.article-reader__controls select {
+    border: 1px solid rgba(14, 58, 93, 0.18);
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+.article-reader__progress {
+    height: 7px;
+    margin-top: 14px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(14, 58, 93, 0.12);
+}
+
+.article-reader__progress span {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--gold-500);
+    transition: width 0.18s ease;
+}
+
+.article-reader__status {
+    min-height: 1.4em;
+    margin: 10px 0 0;
+    color: var(--text-700);
+}
+
+.reader-word.is-current {
+    background: rgba(231, 184, 76, 0.42);
+    border-radius: 4px;
+    box-shadow: 0 0 0 2px rgba(231, 184, 76, 0.22);
+}
+
 .pagination {
     max-width: 820px;
     margin: 28px auto;
