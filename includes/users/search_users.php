@@ -1,6 +1,6 @@
 <?php
-require '../session.php';
-require '../database.php';
+require_once __DIR__ . '/../session.php';
+require_once __DIR__ . '/../database.php';
 
 header('Content-Type: application/json');
 
@@ -11,7 +11,8 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] ?? '') !== 'admin') 
 }
 
 $q = trim($_GET['query'] ?? '');
-if ($q === '' || mb_strlen($q) < 2) {
+$qLength = function_exists('mb_strlen') ? mb_strlen($q) : strlen($q);
+if ($q === '' || $qLength < 2) {
     echo json_encode(['users' => []]);
     exit;
 }

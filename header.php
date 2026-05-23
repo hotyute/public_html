@@ -1,27 +1,34 @@
 <?php
-require_once 'includes/session.php';
-require_once 'base_config.php';
-include_once 'includes/notifications/notification_data.php';
+require_once __DIR__ . '/includes/session.php';
+require_once __DIR__ . '/base_config.php';
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+if (getenv('APP_DEBUG')) {
+    ini_set('display_errors', '1');
+    error_reporting(E_ALL);
+}
 
-// Handle logout action
 if (isset($_GET['logout'])) {
-    session_destroy();  // Destroy all session data
-    header("Location: /login.php"); // Redirect to the login page after logout
+    $_SESSION = [];
+    if (ini_get('session.use_cookies')) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+    }
+    session_destroy();
+    header("Location: /login.php");
     exit();
 }
+
+include_once __DIR__ . '/includes/notifications/notification_data.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta name="csrf-token" content="<?= htmlspecialchars($csrf_token) ?>">
+    <meta name="csrf-token" content="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <?php include 'includes/stylesheets.php'; ?>
+    <?php include __DIR__ . '/includes/stylesheets.php'; ?>
 
     <script src="/js/script.js"></script>
     <title>Divine Word</title>
@@ -74,7 +81,7 @@ if (isset($_GET['logout'])) {
                 </div>
                 <?php
                 if (isset($_SESSION['username'])) {
-                    $user_id = $_SESSION['user_id']; // Assuming user_id is stored in session
+                    $user_id = (int)$_SESSION['user_id'];
                     $notifications = get_notifications($user_id);
                     $notification_count = count($notifications);
                 ?>
@@ -90,7 +97,7 @@ if (isset($_GET['logout'])) {
                                 echo "<div class='notification'>";
                                 echo "<a href='/notifications.php'>";
                                 echo "<strong>" . htmlspecialchars($notification['title'], ENT_QUOTES, 'UTF-8') . "</strong><br>";
-                                echo htmlspecialchars_decode($notification['message']);
+                                echo strip_tags(htmlspecialchars_decode($notification['message']), '<a><strong><em><span><br>');
                                 echo "</a>";
                                 echo "</div>";
                             }
@@ -117,10 +124,11 @@ if (isset($_GET['logout'])) {
         <nav>
             <ul class="nav-links">
                 <li><a href="/index.php">Home</a></li>
-                <?php if (isset($_SESSION['user_role']) && in_array($_SESSION['user_role'], ['admin', 'editor'])) : ?>
+                <?php $currentUserRole = $_SESSION['user_role'] ?? ''; ?>
+                <?php if (in_array($currentUserRole, ['admin', 'editor'], true)) : ?>
                     <li><a href='/admin/admin_panel.php'>Admin</a></li>
                 <?php endif; ?>
-                <?php if (isset($_SESSION['user_id']) && in_array($_SESSION['user_role'], ['admin', 'editor', 'member'])) : ?>
+                <?php if (isset($_SESSION['user_id']) && in_array($currentUserRole, ['admin', 'editor', 'member'], true)) : ?>
                     <li><a href='/userportal/user_portal.php'>User Portal</a></li>
                 <?php endif; ?>
                 <li><a href='/members.php'>Members</a></li>

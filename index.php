@@ -81,10 +81,14 @@ function truncateContent($content, $limit = 100)
                         <?php
                         require 'includes/database.php';
                         // Removed LIMIT clause to fetch all posts
-                        $query = "SELECT posts.id, posts.title, posts.thumbnail, posts.content, users.displayname AS author, users.role AS user_role, COUNT(comments.id) AS comment_count FROM posts
-                                  JOIN users ON posts.user_id = users.id
+                        $query = "SELECT posts.id, posts.title, posts.thumbnail, posts.content,
+                                         COALESCE(users.displayname, 'Unknown') AS author,
+                                         COALESCE(users.role, 'member') AS user_role,
+                                         COUNT(comments.id) AS comment_count
+                                  FROM posts
+                                  LEFT JOIN users ON posts.user_id = users.id
                                   LEFT JOIN comments ON posts.id = comments.post_id
-                                  GROUP BY posts.id
+                                  GROUP BY posts.id, posts.title, posts.thumbnail, posts.content, users.displayname, users.role
                                   ORDER BY posts.id DESC";
                         $posts = $pdo->query($query);
                         $count = 0;
@@ -97,15 +101,15 @@ function truncateContent($content, $limit = 100)
                             }
                             $userClass = getUserClass($post['user_role']);
                             echo '<div class="post-preview">';
-                            echo '<a href="post.php?id=' . $post['id'] . '" style="text-decoration: none; color: black;">';
+                            echo '<a href="post.php?id=' . (int)$post['id'] . '" style="text-decoration: none; color: black;">';
                             if ($post['thumbnail']) {
-                                echo '<img src="' . $post['thumbnail'] . '" alt="Post thumbnail" class="post-thumbnail">';
+                                echo '<img src="' . htmlspecialchars($post['thumbnail'], ENT_QUOTES, 'UTF-8') . '" alt="Post thumbnail" class="post-thumbnail">';
                             }
-                            echo '<h3>' . htmlspecialchars_decode($post['title']) . '</h3>';
-                            echo '<p>By <span class="' . $userClass . '">' . htmlspecialchars_decode($post['author']) . '</span></p>';
-                            $truncatedContent = truncateContent(htmlspecialchars_decode($post['content']), 100);
-                            echo '<div class="content-preview" data-content="' . $truncatedContent . '"></div>';
-                            echo '<p class="comment-count">' . $post['comment_count'] . ' Comments</p>';
+                            echo '<h3>' . htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') . '</h3>';
+                            echo '<p>By <span class="' . $userClass . '">' . htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8') . '</span></p>';
+                            $truncatedContent = truncateContent($post['content'], 100);
+                            echo '<div class="content-preview" data-content="' . htmlspecialchars($truncatedContent, ENT_QUOTES, 'UTF-8') . '"></div>';
+                            echo '<p class="comment-count">' . (int)$post['comment_count'] . ' Comments</p>';
                             echo '</a>';
                             echo '</div>';
                             $count++;

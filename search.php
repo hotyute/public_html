@@ -1,12 +1,12 @@
 <?php
-require_once 'includes/database.php';
-require_once 'base_config.php';
+require_once __DIR__ . '/includes/session.php';
+require_once __DIR__ . '/includes/database.php';
+require_once __DIR__ . '/base_config.php';
 
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
+if (getenv('APP_DEBUG')) {
+    ini_set('display_errors', '1');
+    error_reporting(E_ALL);
 }
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
 
 $searchQuery = '';
 $results = [];
@@ -36,7 +36,8 @@ include 'header.php';
                         <li>
                             <h2><a href="/post.php?id=<?= (int)$result['id'] ?>"><?= htmlspecialchars($result['title']) ?></a></h2>
                             <p><em>Posted on: <?= htmlspecialchars($result['created_at']) ?></em></p>
-                            <p><?= htmlspecialchars(mb_substr(strip_tags($result['content']), 0, 200)) ?>...</p>
+                            <?php $excerpt = strip_tags($result['content']); ?>
+                            <p><?= htmlspecialchars(function_exists('mb_substr') ? mb_substr($excerpt, 0, 200) : substr($excerpt, 0, 200), ENT_QUOTES, 'UTF-8') ?>...</p>
                         </li>
                     <?php endforeach; ?>
                 </ul>

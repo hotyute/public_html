@@ -146,7 +146,8 @@ nav ul li button.auth-button:hover {
 .notification:hover { background-color: #f5f7fb; }
 
 /* Hamburger */
-.hamburger { display: none; cursor: pointer; font-size: 30px; color: #fff; }
+.hamburger { display: none; cursor: pointer; font-size: 0; color: #fff; }
+.hamburger::before { content: "\2630"; font-size: 30px; }
 
 /* Mobile */
 @media (max-width: 768px) {

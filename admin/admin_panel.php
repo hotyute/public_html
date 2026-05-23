@@ -1,7 +1,7 @@
 <?php
 // admin/admin_panel.php
-session_start();
-if (!isset($_SESSION['user_role']) || !in_array($_SESSION['user_role'], ['admin', 'editor'])) {
+require_once __DIR__ . '/../includes/session.php';
+if (!in_array($_SESSION['user_role'] ?? '', ['admin', 'editor'], true)) {
     header('Location: /login.php');
     exit();
 }
@@ -15,7 +15,7 @@ include '../header.php';
         <li><a href="edit_post.php">Edit Post</a></li>
         <li><a href="delete_post.php">Delete Post</a></li>
         <li><a href="edit_video.php">Edit Video of the Week</a></li>
-        <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') : ?>
+        <?php if (($_SESSION['user_role'] ?? '') === 'admin') : ?>
             <li><a href="manage_users.php">Manage Users</a></li>
             <li><a href="test_manage.php">Manage Tests</a></li>
             <li><a href="manage_magazines.php">Manage External Magazines</a></li>

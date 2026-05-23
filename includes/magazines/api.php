@@ -1,18 +1,22 @@
 <?php
 // includes/magazines/api.php
-require_once '../session.php';
-require_once '../database.php';
+require_once __DIR__ . '/../session.php';
+require_once __DIR__ . '/../database.php';
 
 header('Content-Type: application/json');
 
 // Return JSON on unexpected exceptions (admin-only endpoint)
 set_exception_handler(function(Throwable $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Server error', 'error' => $e->getMessage()]);
+    $payload = ['success' => false, 'message' => 'Server error'];
+    if (getenv('APP_DEBUG')) {
+        $payload['error'] = $e->getMessage();
+    }
+    echo json_encode($payload);
     exit;
 });
 
-if (!isset($_SESSION['user_role']) || !in_array($_SESSION['user_role'], ['admin', 'editor'])) {
+if (($_SESSION['user_role'] ?? '') !== 'admin') {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Unauthorized (admin only)']);
     exit;
@@ -45,7 +49,7 @@ if ($method === 'GET') {
     $action = $_GET['action'] ?? 'list';
 
     if ($action === 'issues') {
-        $stmt = $pdo->query("SELECT DISTINCT issue FROM magazine_articles ORDER BY id DESC");
+        $stmt = $pdo->query("SELECT issue FROM magazine_articles GROUP BY issue ORDER BY MAX(published_date) DESC, MAX(id) DESC");
         $issues = array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'issue');
         echo json_encode(['success' => true, 'issues' => $issues]);
         exit;

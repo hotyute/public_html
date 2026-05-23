@@ -2,10 +2,10 @@
 
 <?php
 // Include the database connection
-require '../includes/database.php';
+require_once __DIR__ . '/../includes/database.php';
 
 // Get the selected issue from the URL
-$selected_issue = isset($_GET['issue']) ? urldecode($_GET['issue']) : '';
+$selected_issue = trim($_GET['issue'] ?? '');
 
 if ($selected_issue) {
     // Fetch all articles related to the selected issue

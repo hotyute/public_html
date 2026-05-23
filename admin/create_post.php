@@ -1,16 +1,16 @@
 <?php
-session_start();
-require '../includes/database.php';
-require '../includes/sanitize.php';
+require_once __DIR__ . '/../includes/session.php';
+require __DIR__ . '/../includes/database.php';
+require __DIR__ . '/../includes/sanitize.php';
 
-if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+if (($_SESSION['user_role'] ?? '') !== 'admin') {
     header('Location: /login.php');
     exit();
 }
 
 $status_message = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
+    if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
         die('Invalid CSRF token');
     }
 
@@ -27,7 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $thumbnail_error = '';
 
     if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
-        $allowed = ['image/jpeg','image/png','image/gif','image/webp'];
+        $allowed = [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/gif' => 'gif',
+            'image/webp' => 'webp'
+        ];
         $mime = null;
         $mime_warning = '';
 
@@ -47,10 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if ($mime === null) {
             $thumbnail_error = "Error: unable to determine image type.";
-        } elseif (in_array($mime, $allowed, true)) {
+        } elseif (isset($allowed[$mime])) {
             $dir = "../images/uploads/";
             @mkdir($dir, 0755, true);
-            $ext = pathinfo($_FILES['thumbnail']['name'], PATHINFO_EXTENSION);
+            $ext = $allowed[$mime];
             $name = uniqid('thumb_', true) . '.' . $ext;
             $path = $dir . $name;
             if (move_uploaded_file($_FILES['thumbnail']['tmp_name'], $path)) {
@@ -66,25 +71,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    try {
-        $stmt = $pdo->prepare("INSERT INTO posts (title, content, user_id, thumbnail) VALUES (?, ?, ?, ?)");
-        if ($stmt->execute([$title, $content, $user_id, $thumbnail])) {
-            if ($thumbnail_error !== '') {
-                $status_message = $thumbnail_error;
-            } else {
+    if ($thumbnail_error !== '') {
+        $status_message = $thumbnail_error;
+    } else {
+        try {
+            $stmt = $pdo->prepare("INSERT INTO posts (title, content, user_id, thumbnail) VALUES (?, ?, ?, ?)");
+            if ($stmt->execute([$title, $content, $user_id, $thumbnail])) {
                 $status_message = "Post added successfully!";
                 if ($thumbnail_warning !== '') {
                     $status_message .= ' ' . $thumbnail_warning;
                 }
+            } else {
+                $status_message = "Failed to add post.";
             }
-        } else {
-            $status_message = "Failed to add post.";
-        }
-    } catch (PDOException $e) {
-        if ($e->getCode() === '22001') {
-            $status_message = "Error: Post content is larger than the current database column size. Update posts.content to MEDIUMTEXT and retry.";
-        } else {
-            throw $e;
+        } catch (PDOException $e) {
+            if ($e->getCode() === '22001') {
+                $status_message = "Error: Post content is larger than the current database column size. Update posts.content to MEDIUMTEXT and retry.";
+            } else {
+                throw $e;
+            }
         }
     }
 }

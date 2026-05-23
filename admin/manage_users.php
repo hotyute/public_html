@@ -1,20 +1,21 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+if (getenv('APP_DEBUG')) {
+    ini_set('display_errors', '1');
+    error_reporting(E_ALL);
+}
 
 require_once '../includes/session.php';
-require_once '../includes/config.php';
+require_once '../includes/database.php';
 require_once '../includes/notifications/notification_data.php';
 
-if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+if (($_SESSION['user_role'] ?? '') !== 'admin') {
     header('Location: /login.php');
     exit();
 }
 
-try {
-    $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$status_message = '';
 
+try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $token = $_POST['csrf_token'] ?? '';
         if (!hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
@@ -23,21 +24,33 @@ try {
         }
 
         if (isset($_POST['assign_test'])) {
-            $user_id = (int)$_POST['user_id'];
-            $test_id = (int)$_POST['test_id'];
+            $user_id = filter_input(INPUT_POST, 'user_id', FILTER_VALIDATE_INT);
+            $test_id = filter_input(INPUT_POST, 'test_id', FILTER_VALIDATE_INT);
             $test_name = trim($_POST['test_name'] ?? '');
 
-            $stmt = $pdo->prepare("INSERT INTO user_tests (user_id, test_id) VALUES (?, ?)");
-            $stmt->execute([$user_id, $test_id]);
+            if (!$user_id || !$test_id) {
+                throw new RuntimeException('Invalid user or test selection.');
+            }
+
+            $exists = $pdo->prepare("SELECT COUNT(*) FROM user_tests WHERE user_id = ? AND test_id = ?");
+            $exists->execute([$user_id, $test_id]);
+            if ((int)$exists->fetchColumn() === 0) {
+                $stmt = $pdo->prepare("INSERT INTO user_tests (user_id, test_id) VALUES (?, ?)");
+                $stmt->execute([$user_id, $test_id]);
+            }
 
             $message = "Test '{$test_name}' assigned successfully! Take the test at <a href='/test.php?test_id={$test_id}' style='color: blue; font-size: 1.0em; font-weight: bold;'>this link</a>";
             add_notification($user_id, "Test Assigned", $message);
 
-            echo "Test {$test_name} assigned successfully!";
+            $status_message = "Test {$test_name} assigned successfully!";
         } elseif (isset($_POST['remove_test'])) {
-            $user_id = (int)$_POST['user_id'];
-            $test_id = (int)$_POST['test_id'];
+            $user_id = filter_input(INPUT_POST, 'user_id', FILTER_VALIDATE_INT);
+            $test_id = filter_input(INPUT_POST, 'test_id', FILTER_VALIDATE_INT);
             $test_name = trim($_POST['test_name'] ?? '');
+
+            if (!$user_id || !$test_id) {
+                throw new RuntimeException('Invalid user or test selection.');
+            }
 
             $stmt = $pdo->prepare("DELETE FROM user_tests WHERE user_id = ? AND test_id = ?");
             $stmt->execute([$user_id, $test_id]);
@@ -45,12 +58,12 @@ try {
             $message = "Test '{$test_name}' removed successfully.";
             add_notification($user_id, "Test Removed", $message);
 
-            echo "Test removed successfully!";
+            $status_message = "Test removed successfully!";
         }
     }
 
     $tests = $pdo->query("SELECT id, test_name FROM tests")->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
+} catch (Throwable $e) {
     die("Database error: " . $e->getMessage());
 }
 
@@ -58,6 +71,9 @@ include '../header.php';
 ?>
 <div class="musers-container">
     <h2>User Management</h2>
+    <?php if ($status_message !== ''): ?>
+        <p style="color: green;"><?= htmlspecialchars($status_message, ENT_QUOTES, 'UTF-8') ?></p>
+    <?php endif; ?>
     <form id="searchForm">
         <input type="text" id="searchQuery" placeholder="Search by username or display name">
         <button type="submit">Search</button>

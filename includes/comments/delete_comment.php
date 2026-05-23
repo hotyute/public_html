@@ -1,42 +1,53 @@
 <?php
-require '../session.php'; // Ensure session management is initialized
-require '../database.php'; // Include the database connection
+require_once __DIR__ . '/../session.php';
+require_once __DIR__ . '/../database.php';
 
 header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // CSRF token validation to prevent CSRF attacks
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+    exit;
+}
+
+if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
+    exit;
+}
+
+$user_id = $_SESSION['user_id'] ?? null;
+$comment_id = filter_input(INPUT_POST, 'comment_id', FILTER_VALIDATE_INT);
+
+if ($user_id && $comment_id) {
+    $comment_owner_query = $pdo->prepare("SELECT user_id FROM comments WHERE id = ?");
+    $comment_owner_query->execute([$comment_id]);
+    $comment_owner_id = $comment_owner_query->fetchColumn();
+
+    if (!$comment_owner_id) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Comment not found']);
         exit;
     }
 
-    // Check if the user is logged in
-    $user_id = $_SESSION['user_id'] ?? null;
-    $comment_id = filter_var($_POST['comment_id'], FILTER_VALIDATE_INT);
-
-    if ($user_id && $comment_id) {
-        // Retrieve the owner of the comment
-        $comment_owner_query = $pdo->prepare("SELECT user_id FROM comments WHERE id = ?");
-        $comment_owner_query->execute([$comment_id]);
-        $comment_owner_id = $comment_owner_query->fetchColumn();
-
-        // Check if the current user is the owner of the comment or an admin
-        if ($user_id == $comment_owner_id || $_SESSION['user_role'] === 'admin') {
-            // Delete the comment
-            $delete_stmt = $pdo->prepare("DELETE FROM comments WHERE id = ?");
-            if ($delete_stmt->execute([$comment_id])) {
-                echo json_encode(['success' => true, 'message' => 'Comment deleted successfully']);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Failed to delete comment']);
-            }
+    if ($user_id == $comment_owner_id || ($_SESSION['user_role'] ?? '') === 'admin') {
+        $pdo->beginTransaction();
+        $delete_replies = $pdo->prepare("DELETE FROM comments WHERE parent_id = ?");
+        $delete_replies->execute([$comment_id]);
+        $delete_stmt = $pdo->prepare("DELETE FROM comments WHERE id = ?");
+        $ok = $delete_stmt->execute([$comment_id]);
+        if ($ok) {
+            $pdo->commit();
+            echo json_encode(['success' => true, 'message' => 'Comment deleted successfully']);
         } else {
-            // User is not authorized to delete this comment
-            echo json_encode(['success' => false, 'message' => 'You do not have permission to delete this comment']);
+            $pdo->rollBack();
+            echo json_encode(['success' => false, 'message' => 'Failed to delete comment']);
         }
     } else {
-        // Invalid input, either user_id or comment_id is missing or invalid
-        echo json_encode(['success' => false, 'message' => 'Invalid input']);
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'You do not have permission to delete this comment']);
     }
+} else {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Invalid input']);
 }
-?>

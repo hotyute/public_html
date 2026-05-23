@@ -2,14 +2,14 @@
 
 <?php
 // Include the database connection
-require '../includes/database.php';
+require_once __DIR__ . '/../includes/database.php';
 
 // Fetch the most recent thumbnail for each unique issue
 $query = "
-    SELECT issue, MIN(image_url) AS thumbnail 
+    SELECT issue, MIN(image_url) AS thumbnail, MAX(published_date) AS latest_date
     FROM magazine_articles 
     GROUP BY issue 
-    ORDER BY issue DESC";
+    ORDER BY latest_date DESC, issue DESC";
 $issues = $pdo->query($query)->fetchAll(PDO::FETCH_ASSOC);
 ?>
 

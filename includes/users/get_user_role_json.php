@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../session.php';
 
 header('Content-Type: application/json');
 
@@ -8,4 +8,3 @@ if (isset($_SESSION['user_role'])) {
 } else {
     echo json_encode(['role' => 'guest']); // Default role if not set
 }
-?>

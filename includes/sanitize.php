@@ -1,8 +1,8 @@
 <?php
-require_once 'session.php';
+require_once __DIR__ . '/session.php';
 
 // Prefer Composer vendor path; fallback via env; last resort local path
-$purifierVendor = __DIR__ . '/../../vendor/ezyang/htmlpurifier/library/HTMLPurifier.auto.php';
+$purifierVendor = dirname(__DIR__) . '/vendor/ezyang/htmlpurifier/library/HTMLPurifier.auto.php';
 if (file_exists($purifierVendor)) {
     require_once $purifierVendor;
 } else {
@@ -10,13 +10,12 @@ if (file_exists($purifierVendor)) {
     if ($fallback && file_exists($fallback)) {
         require_once $fallback;
     } else {
-        // Adjust for your environment if needed (Windows path example)
         require_once '/usr/share/php/HTMLPurifier/library/HTMLPurifier.auto.php';
     }
 }
 
-require_once 'HTMLPurifier_Filter_PageBreak.php';
-require_once 'HTMLPurifier_Filter_FontToSpan.php';
+require_once __DIR__ . '/HTMLPurifier_Filter_PageBreak.php';
+require_once __DIR__ . '/HTMLPurifier_Filter_FontToSpan.php';
 
 // CSRF token generation (used elsewhere in app too)
 if (empty($_SESSION['csrf_token'])) {

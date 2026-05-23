@@ -1,25 +1,26 @@
 <?php
-include 'includes/config.php';
-include 'includes/database.php';
-session_start();
+require_once __DIR__ . '/includes/session.php';
+require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/database.php';
 
 $error_message = ''; // Initialize the error message variable
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = htmlspecialchars($_POST['username']);
-    $password = htmlspecialchars($_POST['password']);
+    $username = trim($_POST['username'] ?? '');
+    $password = $_POST['password'] ?? '';
 
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
+    $stmt = $pdo->prepare("SELECT id, username, displayname, password, role FROM users WHERE username = ? LIMIT 1");
     $stmt->execute([$username]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($stmt->rowCount() > 0) {
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($user) {
         if (password_verify($password, $user['password'])) {
+            app_regenerate_session(true);
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['displayname'] = $user['displayname'];
             $_SESSION['user_role'] = $user['role'];
-            header("Location: index.php");
+            header("Location: /index.php");
             exit;
         } else {
             $error_message = "Incorrect password!";

@@ -3,20 +3,27 @@ include 'header.php';
 require 'includes/database.php';
 
 $default_posts_per_page = 10;
+$allowed_posts_per_page = [10, 20, 30, 100];
 $posts_per_page = isset($_GET['posts_per_page']) ? (int)$_GET['posts_per_page'] : $default_posts_per_page;
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+if (!in_array($posts_per_page, $allowed_posts_per_page, true)) {
+    $posts_per_page = $default_posts_per_page;
+}
+$page = max(1, isset($_GET['page']) ? (int)$_GET['page'] : 1);
 $offset = ($page - 1) * $posts_per_page;
 
 $total_posts_query = "SELECT COUNT(*) FROM posts";
 $total_posts_result = $pdo->query($total_posts_query);
 $total_posts = $total_posts_result->fetchColumn();
 
-$query = "SELECT posts.id, posts.title, posts.thumbnail, users.displayname AS author, posts.created_at 
+$query = "SELECT posts.id, posts.title, posts.thumbnail, COALESCE(users.displayname, 'Unknown') AS author, posts.created_at
           FROM posts
-          JOIN users ON posts.user_id = users.id
+          LEFT JOIN users ON posts.user_id = users.id
           ORDER BY posts.id DESC
-          LIMIT $posts_per_page OFFSET $offset";
-$posts = $pdo->query($query);
+          LIMIT :limit OFFSET :offset";
+$posts = $pdo->prepare($query);
+$posts->bindValue(':limit', $posts_per_page, PDO::PARAM_INT);
+$posts->bindValue(':offset', $offset, PDO::PARAM_INT);
+$posts->execute();
 ?>
 <div class="main-container">
     <main>
@@ -48,7 +55,7 @@ $posts = $pdo->query($query);
             </ul>
             <div class="pagination">
                 <?php
-                $total_pages = ceil($total_posts / $posts_per_page);
+                $total_pages = max(1, (int)ceil($total_posts / $posts_per_page));
                 if ($page > 1) {
                     echo '<a href="?page=' . ($page - 1) . '&posts_per_page=' . $posts_per_page . '">Previous</a>';
                 }

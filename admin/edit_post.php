@@ -1,15 +1,15 @@
 <?php
-session_start();
+require_once __DIR__ . '/../includes/session.php';
 
 // Auth: admins only
-if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+if (($_SESSION['user_role'] ?? '') !== 'admin') {
     header('Location: /login.php');
     exit();
 }
 
-require_once '../base_config.php';
-require_once '../includes/database.php';
-require_once '../includes/sanitize.php';
+require_once __DIR__ . '/../base_config.php';
+require_once __DIR__ . '/../includes/database.php';
+require_once __DIR__ . '/../includes/sanitize.php';
 
 // Fetch posts for dropdown
 $stmt = $pdo->prepare("SELECT id, title, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') as formatted_date FROM posts ORDER BY created_at DESC");
@@ -19,7 +19,7 @@ $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Handle POST (update/delete)
 $status_message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== ($_SESSION['csrf_token'] ?? '')) {
+    if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
         die('Invalid CSRF token');
     }
 
@@ -60,7 +60,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $thumbnail_error = '';
 
         if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
-            $allowed = ['image/jpeg','image/png','image/gif','image/webp'];
+            $allowed = [
+                'image/jpeg' => 'jpg',
+                'image/png' => 'png',
+                'image/gif' => 'gif',
+                'image/webp' => 'webp'
+            ];
             $mime = null;
             $mime_warning = '';
 
@@ -80,17 +85,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($mime === null) {
                 $thumbnail_error = "Error: unable to determine image type.";
-            } elseif (in_array($mime, $allowed, true)) {
-                if ($existing_thumbnail && file_exists($existing_thumbnail)) {
-                    @unlink($existing_thumbnail);
-                }
+            } elseif (isset($allowed[$mime])) {
                 $target_directory = "../images/uploads/";
                 @mkdir($target_directory, 0755, true);
-                $ext = pathinfo($_FILES['thumbnail']['name'], PATHINFO_EXTENSION);
+                $ext = $allowed[$mime];
                 $new_filename = uniqid('thumb_', true) . '.' . $ext;
                 $target_file = $target_directory . $new_filename;
 
                 if (move_uploaded_file($_FILES['thumbnail']['tmp_name'], $target_file)) {
+                    if ($existing_thumbnail && file_exists($existing_thumbnail)) {
+                        @unlink($existing_thumbnail);
+                    }
                     $thumbnail = $target_file;
                     if ($mime_warning !== '') {
                         $thumbnail_warning = $mime_warning;
@@ -318,7 +323,10 @@ function loadPostData(postId) {
     return;
   }
   fetch('/includes/posts/get_post_data.php?post_id=' + encodeURIComponent(postId))
-    .then(r => r.json())
+    .then(r => {
+      if (!r.ok) throw new Error('Failed to load post data');
+      return r.json();
+    })
     .then(data => {
       $('#title').val(decodeHtmlEntities(data.title || ''));
       const html = serverToEditor(decodeHtmlEntities(data.content || ''));
@@ -327,11 +335,16 @@ function loadPostData(postId) {
       const div = document.getElementById('current_thumbnail');
       if (data.thumbnail) {
         const path = data.thumbnail.replace('../', '/');
-        div.innerHTML = '<img src="' + path + '" alt="Current Thumbnail">';
+        div.textContent = '';
+        const img = document.createElement('img');
+        img.src = path;
+        img.alt = 'Current Thumbnail';
+        div.appendChild(img);
       } else {
-        div.innerHTML = 'No thumbnail.';
+        div.textContent = 'No thumbnail.';
       }
-    });
+    })
+    .catch(err => alert(err.message));
 }
 
 function decodeHtmlEntities(str) {

@@ -4,7 +4,7 @@ require 'includes/database.php';
 require 'includes/sanitize.php'; // Include the sanitization function
 
 $post_id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : 0;
-$page = isset($_GET['page']) ? filter_var($_GET['page'], FILTER_VALIDATE_INT) : 1;
+$page = max(1, (int)(filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1));
 
 function getUserClass($user_role)
 {
@@ -46,6 +46,12 @@ function time_ago($datetime)
     }
 }
 
+function render_comment_text(string $content): string
+{
+    $decoded = html_entity_decode($content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    return nl2br(htmlspecialchars($decoded, ENT_QUOTES, 'UTF-8'));
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_comment']) && isset($_POST['comment_id'])) {
     // CSRF token validation
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
@@ -57,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_comment']) && i
     $comment_owner_query->execute([$comment_id]);
     $comment_owner_id = $comment_owner_query->fetchColumn();
 
-    if ($_SESSION['user_id'] == $comment_owner_id || $_SESSION['user_role'] === 'admin') {
+    if (($_SESSION['user_id'] ?? null) == $comment_owner_id || ($_SESSION['user_role'] ?? '') === 'admin') {
         $delete_stmt = $pdo->prepare("DELETE FROM comments WHERE id = ?");
         if ($delete_stmt->execute([$comment_id])) {
             echo "Comment deleted successfully!";
@@ -83,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_comment']) && iss
     $comment_owner_query->execute([$comment_id]);
     $comment_owner_id = $comment_owner_query->fetchColumn();
 
-    if ($_SESSION['user_id'] == $comment_owner_id || $_SESSION['user_role'] === 'admin') {
+    if (($_SESSION['user_id'] ?? null) == $comment_owner_id || ($_SESSION['user_role'] ?? '') === 'admin') {
         $update_stmt = $pdo->prepare("UPDATE comments SET content = ? WHERE id = ?");
         if ($update_stmt->execute([$content, $comment_id])) {
             echo "Comment updated successfully!";
@@ -103,13 +109,17 @@ if ($post_id > 0) {
     }
 
     if (!in_array($post_id, $_SESSION['viewed_posts'])) {
-        $pdo->exec("UPDATE posts SET views = views + 1 WHERE id = $post_id");
+        $viewStmt = $pdo->prepare("UPDATE posts SET views = views + 1 WHERE id = ?");
+        $viewStmt->execute([$post_id]);
         $_SESSION['viewed_posts'][] = $post_id;
     }
 
-    $stmt = $pdo->prepare("SELECT posts.title, posts.content, posts.thumbnail, posts.voiceover_url, users.displayname AS author, users.role AS user_role, posts.views 
+    $stmt = $pdo->prepare("SELECT posts.title, posts.content, posts.thumbnail, posts.voiceover_url,
+                                  COALESCE(users.displayname, 'Unknown') AS author,
+                                  COALESCE(users.role, 'member') AS user_role,
+                                  posts.views
                            FROM posts 
-                           JOIN users ON posts.user_id = users.id 
+                           LEFT JOIN users ON posts.user_id = users.id
                            WHERE posts.id = ?");
     $stmt->execute([$post_id]);
     $post = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -197,6 +207,7 @@ if ($post_id > 0) {
         if (isset($_SESSION['user_id'])) {
             echo '<form id="commentForm" class="comment-form">';
             echo '<textarea oninput="autoExpand(this)" name="comment" required placeholder="Add a comment..."></textarea>';
+            echo '<input type="hidden" name="post_id" value="' . (int)$post_id . '">';
             echo '<input type="hidden" name="csrf_token" value="' . $csrf_token . '">';
             echo '<button type="button" id="submitComment">Comment</button>';
             echo '</form>';
@@ -210,19 +221,22 @@ if ($post_id > 0) {
         $comments_stmt = $pdo->prepare("SELECT comments.id, comments.content, comments.user_id, comments.created_at, users.displayname AS author, users.role AS user_role 
                                         FROM comments 
                                         JOIN users ON comments.user_id = users.id 
-                                        WHERE comments.post_id = ? AND comments.parent_id IS NULL");
+                                        WHERE comments.post_id = ? AND comments.parent_id IS NULL
+                                        ORDER BY comments.created_at ASC");
         $comments_stmt->execute([$post_id]);
 
+        $hasComments = false;
         while ($comment = $comments_stmt->fetch(PDO::FETCH_ASSOC)) {
+            $hasComments = true;
             $commentUserClass = getUserClass($comment['user_role']);
             $timeAgo = time_ago($comment['created_at']);
 
             echo '<div class="comment" data-comment-id="' . htmlspecialchars($comment['id'], ENT_QUOTES, 'UTF-8') . '">';
             echo '<strong class="' . $commentUserClass . '">' . htmlspecialchars($comment['author'], ENT_QUOTES, 'UTF-8') . '</strong> <span class="time-ago">' . $timeAgo . '</span>';
-            echo '<p class="comment-content">' . nl2br(htmlspecialchars($comment['content'], ENT_QUOTES, 'UTF-8')) . '</p>';
+            echo '<p class="comment-content">' . render_comment_text($comment['content']) . '</p>';
 
             // Display edit and delete buttons if the user is the comment owner or an admin
-            if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $comment['user_id'] || $_SESSION['user_role'] === 'admin' || $_SESSION['user_role'] === 'owner')) {
+            if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $comment['user_id'] || ($_SESSION['user_role'] ?? '') === 'admin' || ($_SESSION['user_role'] ?? '') === 'owner')) {
                 echo '<button type="button" class="editComment" data-comment-id="' . htmlspecialchars($comment['id'], ENT_QUOTES, 'UTF-8') . '">Edit</button>';
                 echo '<button type="button" class="deleteComment" data-comment-id="' . htmlspecialchars($comment['id'], ENT_QUOTES, 'UTF-8') . '">Delete</button>';
             }
@@ -231,6 +245,7 @@ if ($post_id > 0) {
             if (isset($_SESSION['user_id'])) {
                 echo '<form class="reply-form">';
                 echo '<textarea oninput="autoExpand(this)" required placeholder="Reply to this comment..."></textarea>';
+                echo '<input type="hidden" name="post_id" value="' . (int)$post_id . '">';
                 echo '<input type="hidden" name="csrf_token" value="' . $csrf_token . '">';
                 echo '<button type="button" class="submitReply" style="display: block;" data-parent-id="' . htmlspecialchars($comment['id'], ENT_QUOTES, 'UTF-8') . '">Reply</button>';
                 echo '</form>';
@@ -240,7 +255,8 @@ if ($post_id > 0) {
             $replies_stmt = $pdo->prepare("SELECT comments.id, comments.content, comments.user_id, comments.created_at, users.displayname AS author, users.role AS user_role 
                                            FROM comments 
                                            JOIN users ON comments.user_id = users.id 
-                                           WHERE comments.parent_id = ?");
+                                           WHERE comments.parent_id = ?
+                                           ORDER BY comments.created_at ASC");
             $replies_stmt->execute([$comment['id']]);
 
             while ($reply = $replies_stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -249,10 +265,10 @@ if ($post_id > 0) {
 
                 echo '<div class="comment reply" data-comment-id="' . htmlspecialchars($reply['id'], ENT_QUOTES, 'UTF-8') . '">';
                 echo '<strong class="' . $replyUserClass . '">' . htmlspecialchars($reply['author'], ENT_QUOTES, 'UTF-8') . '</strong> <span class="time-ago">' . $replyTimeAgo . '</span>';
-                echo '<p class="comment-content">' . nl2br(htmlspecialchars($reply['content'], ENT_QUOTES, 'UTF-8')) . '</p>';
+                echo '<p class="comment-content">' . render_comment_text($reply['content']) . '</p>';
 
                 // Display edit and delete buttons for replies if the user is the owner or an admin
-                if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $reply['user_id'] || $_SESSION['user_role'] === 'admin')) {
+                if (isset($_SESSION['user_id']) && ($_SESSION['user_id'] == $reply['user_id'] || ($_SESSION['user_role'] ?? '') === 'admin')) {
                     echo '<button type="button" class="editComment" data-comment-id="' . htmlspecialchars($reply['id'], ENT_QUOTES, 'UTF-8') . '">Edit</button>';
                     echo '<button type="button" class="deleteComment" data-comment-id="' . htmlspecialchars($reply['id'], ENT_QUOTES, 'UTF-8') . '">Delete</button>';
                 }
@@ -263,7 +279,7 @@ if ($post_id > 0) {
             echo '</div>'; // Close original comment div
         }
 
-        if ($comments_stmt->rowCount() == 0) {
+        if (!$hasComments) {
             echo '<p>No Comments Yet.</p>';
         }
         echo '</div>'; // Close comments section

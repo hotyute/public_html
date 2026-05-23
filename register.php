@@ -1,12 +1,22 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+if (getenv('APP_DEBUG')) {
+    ini_set('display_errors', '1');
+    error_reporting(E_ALL);
+}
 
-require 'includes/database.php';   // Include the database connection
-require 'includes/sanitize.php';   // Include the sanitization function
+require_once __DIR__ . '/includes/session.php';
+require __DIR__ . '/includes/database.php';
+
+function app_strlen(string $value): int {
+    return function_exists('mb_strlen') ? mb_strlen($value) : strlen($value);
+}
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+        $errors[] = "Invalid CSRF token.";
+    }
+
     // Collect raw inputs
     $rawUsername    = trim($_POST['username'] ?? '');
     $rawDisplayName = trim($_POST['displayname'] ?? '');
@@ -14,33 +24,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $rawPassword    = $_POST['password'] ?? '';
 
     // Validate length & format
-    $errors = [];
+    $errors = $errors ?? [];
 
     // Username
     if ($rawUsername === '') {
         $errors[] = "Username is required.";
-    } elseif (mb_strlen($rawUsername) > 25) {
+    } elseif (app_strlen($rawUsername) > 25) {
         $errors[] = "Username must be 25 characters or fewer.";
     }
 
     // Display name
     if ($rawDisplayName === '') {
         $errors[] = "Full name is required.";
-    } elseif (mb_strlen($rawDisplayName) > 50) {
+    } elseif (app_strlen($rawDisplayName) > 50) {
         $errors[] = "Full name must be 50 characters or fewer.";
     }
 
     // Email
     if ($rawEmail === '') {
         $errors[] = "Email is required.";
-    } elseif (mb_strlen($rawEmail) > 50) {
+    } elseif (app_strlen($rawEmail) > 50) {
         $errors[] = "Email must be 50 characters or fewer.";
     } elseif (!filter_var($rawEmail, FILTER_VALIDATE_EMAIL)) {
         $errors[] = "Email address is not valid.";
     }
 
     // Password length: require between 8 and 128
-    $pwLen = mb_strlen($rawPassword);
+    $pwLen = app_strlen($rawPassword);
     if ($pwLen === 0) {
         $errors[] = "Password is required.";
     } elseif ($pwLen < 8) {
@@ -51,12 +61,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // If any errors, don't proceed
     if (!empty($errors)) {
-        $error_message = implode('<br>', $errors);
+        $error_message = implode("\n", $errors);
     } else {
-        // Sanitize for HTML output
-        $username    = htmlspecialchars(sanitize_html($rawUsername),    ENT_QUOTES, 'UTF-8');
-        $displayname = htmlspecialchars(sanitize_html($rawDisplayName), ENT_QUOTES, 'UTF-8');
-        $email       = htmlspecialchars($rawEmail,                      ENT_QUOTES, 'UTF-8');
+        $username    = strip_tags($rawUsername);
+        $displayname = strip_tags($rawDisplayName);
+        $email       = strtolower($rawEmail);
         $password    = $rawPassword;
         $role        = "member";
 
@@ -86,10 +95,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <div class="register-container">
     <h1>Register User</h1>
     <?php if (!empty($error_message)): ?>
-        <p style="color: red;"><?= $error_message ?></p>
+        <p style="color: red;"><?= nl2br(htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8')) ?></p>
     <?php endif; ?>
     <?php if (!empty($success_message)): ?>
-        <p style="color: green;"><?= $success_message ?></p>
+        <p style="color: green;"><?= htmlspecialchars($success_message, ENT_QUOTES, 'UTF-8') ?></p>
     <?php endif; ?>
     <form method="POST" action="register.php">
         <label for="username">Username:</label>
@@ -104,6 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required><br>
 
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
         <button type="submit">Register</button>
     </form>
 </div>

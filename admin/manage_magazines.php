@@ -2,7 +2,7 @@
 // admin/manage_magazines.php
 require_once '../includes/session.php';
 require_once '../includes/config.php';
-if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+if (($_SESSION['user_role'] ?? '') !== 'admin') {
     header('Location: /login.php');
     exit();
 }
@@ -225,11 +225,13 @@ include '../header.php';
 
       const meta = document.createElement('div');
       const title = document.createElement('div');
-      title.innerHTML = `<strong>${escapeHtml(a.title)}</strong>`;
+      const titleStrong = document.createElement('strong');
+      titleStrong.textContent = a.title || '';
+      title.appendChild(titleStrong);
       const small = document.createElement('div');
       small.style.fontSize = '0.9em';
       small.style.color = '#555';
-      small.textContent = `${a.author} — ${a.published_date}`;
+      small.textContent = `${a.author || ''} - ${a.published_date || ''}`;
       const issue = document.createElement('div');
       issue.style.fontSize = '0.9em';
       issue.style.color = '#333';

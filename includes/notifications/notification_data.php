@@ -7,16 +7,16 @@ function add_notification($user_id, $title, $message) {
     $stmt->execute([$user_id, $title, $message]);
 }
 
-function get_notifications($user_id, $all = false) {
+function get_notifications($user_id, $all = false, $markRead = false) {
     global $pdo;
     if ($all) {
-        $stmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = ?");
+        $stmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC");
     } else {
-        $stmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = ? AND is_read = FALSE");
+        $stmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = ? AND is_read = FALSE ORDER BY created_at DESC");
     }
     $stmt->execute([$user_id]);
     $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    if (!$all) {
+    if (!$all && $markRead) {
         mark_notifications_as_read($user_id);
     }
     return $notifications;

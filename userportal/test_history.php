@@ -1,7 +1,7 @@
 <?php
 // Start the session and check if the user is authenticated
-session_start();
-if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'], ['admin', 'editor', 'member'])) {
+require_once '../includes/session.php';
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'] ?? '', ['admin', 'editor', 'member'], true)) {
     header('Location: /login.php');
     exit();
 }

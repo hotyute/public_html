@@ -1,29 +1,32 @@
 <?php
-session_start();
-require_once '../base_config.php';
-require 'includes/config.php';
+require_once __DIR__ . '/../includes/session.php';
+require_once __DIR__ . '/../base_config.php';
+require_once __DIR__ . '/../includes/database.php';
 
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] ?? '') !== 'admin') {
     die("Unauthorized access.");
 }
 
 try {
-    $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $status_message = '';
 
     // Handle form submissions
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+            die('Invalid CSRF token');
+        }
+
         if (isset($_POST['add_test'])) {
             $test_name = $_POST['test_name'];
             $num_questions = $_POST['num_questions'];
             $stmt = $pdo->prepare("INSERT INTO tests (test_name, num_questions) VALUES (?, ?)");
             $stmt->execute([$test_name, $num_questions]);
-            echo "Test added successfully!";
+            $status_message = "Test added successfully!";
         } elseif (isset($_POST['delete_test'])) {
             $test_id = $_POST['test_id'];
             $stmt = $pdo->prepare("DELETE FROM tests WHERE id = ?");
             $stmt->execute([$test_id]);
-            echo "Test deleted successfully!";
+            $status_message = "Test deleted successfully!";
         } elseif (isset($_POST['add_question'])) {
             $test_id = $_POST['test_id'];
             $question = $_POST['question'];
@@ -36,12 +39,12 @@ try {
             $stmt = $pdo->prepare("INSERT INTO questions (question, num_options, option_struct, options, correct_option, test_ids) VALUES (?, ?, ?, ?, ?, JSON_ARRAY(?))");
             $stmt->execute([$question, $num_options, $option_struct, $options_json, $correct_option, $test_id]);
 
-            echo "Question added successfully!";
+            $status_message = "Question added successfully!";
         } elseif (isset($_POST['delete_question'])) {
             $question_id = $_POST['question_id'];
             $stmt = $pdo->prepare("DELETE FROM questions WHERE id = ?");
             $stmt->execute([$question_id]);
-            echo "Question deleted successfully!";
+            $status_message = "Question deleted successfully!";
         } elseif (isset($_POST['edit_question'])) {
             $question_id = $_POST['question_id'];
             $question = $_POST['question'];
@@ -54,13 +57,13 @@ try {
             $stmt = $pdo->prepare("UPDATE questions SET question = ?, num_options = ?, option_struct = ?, options = ?, correct_option = ? WHERE id = ?");
             $stmt->execute([$question, $num_options, $option_struct, $options_json, $correct_option, $question_id]);
 
-            echo "Question edited successfully!";
+            $status_message = "Question edited successfully!";
         }
     }
 
     // Fetch existing tests and questions
-    $tests = $pdo->query("SELECT * FROM tests")->fetchAll(PDO::FETCH_ASSOC);
-    $questions = $pdo->query("SELECT * FROM questions")->fetchAll(PDO::FETCH_ASSOC);
+    $tests = $pdo->query("SELECT id, test_name, num_questions FROM tests ORDER BY test_name ASC")->fetchAll(PDO::FETCH_ASSOC);
+    $questions = $pdo->query("SELECT id, question FROM questions ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
 }
@@ -79,10 +82,14 @@ try {
 </style>
 <div class="admin-container">
     <h1>Manage Tests and Questions</h1>
+    <?php if (!empty($status_message)): ?>
+        <p style="color: green;"><?= htmlspecialchars($status_message, ENT_QUOTES, 'UTF-8') ?></p>
+    <?php endif; ?>
 
     <!-- Form to add a new test -->
     <h2>Add New Test</h2>
     <form method="POST">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
         <input type="text" name="test_name" placeholder="Test Name" required>
         <input type="number" name="num_questions" placeholder="Number of Questions" required>
         <button type="submit" name="add_test">Add Test</button>
@@ -91,6 +98,7 @@ try {
     <!-- Form to delete a test -->
     <h2>Delete Test</h2>
     <form method="POST">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
         <select name="test_id" required>
             <?php foreach ($tests as $test) : ?>
                 <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
@@ -102,6 +110,7 @@ try {
     <!-- Form to add a new question -->
     <h2>Add New Question</h2>
     <form method="POST" id="questionForm">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
         <select name="test_id" required>
             <?php foreach ($tests as $test) : ?>
                 <option value="<?= htmlspecialchars($test['id']) ?>"><?= htmlspecialchars($test['test_name']) ?></option>
@@ -140,6 +149,7 @@ try {
     <!-- Form to delete a question -->
     <h2>Delete Question</h2>
     <form method="POST">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
         <select name="question_id" required>
             <?php foreach ($questions as $question) : ?>
                 <option value="<?= htmlspecialchars($question['id']) ?>"><?= htmlspecialchars($question['question']) ?></option>
@@ -151,6 +161,7 @@ try {
     <!-- Form to edit a question -->
     <h2>Edit Question</h2>
     <form method="POST" id="editQuestionForm">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
         <label for="edit_question_id">Select Question:</label>
         <select name="question_id" id="edit_question_id" required>
             <option value="">-- Select a Question --</option>

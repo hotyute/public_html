@@ -1,11 +1,13 @@
 <?php
-session_start();
-require 'includes/config.php';
-require_once 'base_config.php';
+require_once __DIR__ . '/includes/session.php';
+require_once __DIR__ . '/base_config.php';
+require_once __DIR__ . '/includes/database.php';
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+if (getenv('APP_DEBUG')) {
+    ini_set('display_errors', '1');
+    ini_set('display_startup_errors', '1');
+    error_reporting(E_ALL);
+}
 ?>
 
 <!DOCTYPE html>
@@ -27,15 +29,20 @@ error_reporting(E_ALL);
     }
 
     try {
-        $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+                die("Invalid CSRF token.");
+            }
+
             if (isset($_SESSION['test_started'], $_SESSION['test_completed']) && $_SESSION['test_started'] && $_SESSION['test_completed']) {
                 // Handle form submission
-                $answers = $_POST['answers'];
-                $test_id = $_POST['test_id'];
+                $answers = $_POST['answers'] ?? [];
+                $test_id = filter_input(INPUT_POST, 'test_id', FILTER_VALIDATE_INT);
                 $username = $_SESSION['username'];
+
+                if (!$test_id) {
+                    die("Invalid test.");
+                }
 
                 $stmt = $pdo->prepare("SELECT test_name, num_questions FROM tests WHERE id = ?");
                 $stmt->execute([$test_id]);
@@ -44,7 +51,7 @@ error_reporting(E_ALL);
                 if (!empty($test_info)) {
 
                     $test_name = $test_info['test_name'];
-                    $total_questions = $test_info['num_questions'];
+                    $total_questions = max(1, (int)$test_info['num_questions']);
 
                     $correct_count = 0;
 
@@ -98,17 +105,16 @@ error_reporting(E_ALL);
             }
         } else {
             // Display the test
-            $test_id = $_GET['test_id'];
+            $test_id = filter_input(INPUT_GET, 'test_id', FILTER_VALIDATE_INT);
+            if (!$test_id) {
+                die("Invalid test.");
+            }
 
             $stmt = $pdo->prepare("SELECT COUNT(*) FROM user_tests WHERE user_id = ? AND test_id = ?");
             $stmt->execute([$_SESSION['user_id'], $test_id]);
             if ($stmt->fetchColumn() == 0) {
                 die("You are not assigned to this test.");
             }
-
-            // Remove the test assignment
-            $stmt = $pdo->prepare("DELETE FROM user_tests WHERE user_id = ? AND test_id = ?");
-            $stmt->execute([$_SESSION['user_id'], $test_id]);
 
             // Set the session flag indicating the test has started
             $_SESSION['test_started'] = true;
@@ -134,6 +140,10 @@ error_reporting(E_ALL);
                 die("No questions found for this test.");
             }
 
+            // Remove the assignment only after the test is ready to display.
+            $stmt = $pdo->prepare("DELETE FROM user_tests WHERE user_id = ? AND test_id = ?");
+            $stmt->execute([$_SESSION['user_id'], $test_id]);
+
             // Set the timer
             $_SESSION['start_time'] = time();
             $test_duration = 60 * 5; // 5 minutes, adjust as needed
@@ -142,6 +152,7 @@ error_reporting(E_ALL);
             echo '<div id="timer"></div>';
             echo '<form method="POST" onsubmit="window.formSubmitting = true;">';
             echo '<input type="hidden" name="test_id" value="' . htmlspecialchars($test_id) . '">';
+            echo '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') . '">';
             foreach ($questions as $index => $question) {
                 $options = json_decode($question['options'], true);
                 echo '<div class="question">';
@@ -224,21 +235,25 @@ error_reporting(E_ALL);
                 if (--timer < 0) {
                     timer = duration;
                     alert("Time's up! The test will be submitted automatically.");
-                    document.querySelector('form').submit();
+                    var testForm = document.querySelector('form');
+                    if (testForm) testForm.submit();
                 }
             }, 1000);
         }
 
         window.onload = function() {
-            var endTime = <?= $_SESSION['end_time'] ?>;
+            var display = document.querySelector('#timer');
+            var form = document.querySelector('form');
+            if (!display || !form) return;
+
+            var endTime = <?= (int)($_SESSION['end_time'] ?? 0) ?>;
             var currentTime = Math.floor(Date.now() / 1000);
             var timeLeft = endTime - currentTime;
 
             if (timeLeft <= 0) {
                 alert("Time's up! The test will be submitted automatically.");
-                document.querySelector('form').submit();
+                form.submit();
             } else {
-                var display = document.querySelector('#timer');
                 startTimer(timeLeft, display);
             }
         };

@@ -59,19 +59,23 @@ document.getElementById('searchForm').addEventListener('submit', function (event
                                     });
                                 }
 
-                                if (assignTestSelect.options.length > 0) {
-                                    assignTestName.value = assignTestSelect.options[assignTestSelect.selectedIndex].textContent;
-                                }
-                                if (removeTestSelect.options.length > 0) {
-                                    removeTestName.value = removeTestSelect.options[removeTestSelect.selectedIndex].textContent;
-                                }
+                                assignTestName.value = assignTestSelect.options.length > 0
+                                    ? assignTestSelect.options[assignTestSelect.selectedIndex].textContent
+                                    : '';
+                                removeTestName.value = removeTestSelect.options.length > 0
+                                    ? removeTestSelect.options[removeTestSelect.selectedIndex].textContent
+                                    : '';
 
-                                assignTestSelect.addEventListener('change', function () {
-                                    assignTestName.value = assignTestSelect.options[assignTestSelect.selectedIndex].textContent;
-                                });
-                                removeTestSelect.addEventListener('change', function () {
-                                    removeTestName.value = removeTestSelect.options[removeTestSelect.selectedIndex].textContent;
-                                });
+                                assignTestSelect.onchange = function () {
+                                    assignTestName.value = assignTestSelect.options.length > 0
+                                        ? assignTestSelect.options[assignTestSelect.selectedIndex].textContent
+                                        : '';
+                                };
+                                removeTestSelect.onchange = function () {
+                                    removeTestName.value = removeTestSelect.options.length > 0
+                                        ? removeTestSelect.options[removeTestSelect.selectedIndex].textContent
+                                        : '';
+                                };
                             })
                             .catch(err => console.error('Fetch tests error:', err));
 
