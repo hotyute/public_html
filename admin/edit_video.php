@@ -1,7 +1,6 @@
 <?php
-// Start the session and check if the user is logged in as an admin
 require_once __DIR__ . '/../includes/session.php';
-if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] ?? '') !== 'admin') {
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'] ?? '', ['admin', 'editor'], true)) {
     header('Location: /login.php');
     exit();
 }
@@ -11,7 +10,11 @@ $success = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $new_link = trim($_POST['video_link']);
+    if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+        die('Invalid CSRF token');
+    }
+
+    $new_link = trim($_POST['video_link'] ?? '');
     if (!empty($new_link)) {
         file_put_contents($video_file, $new_link);
         $success = 'Video link updated successfully!';
@@ -31,7 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <?php endif; ?>
 <form action="" method="POST">
     <label for="video_link">Video Link:</label>
-    <input type="text" id="video_link" name="video_link" value="<?php echo file_exists($video_file) ? trim(file_get_contents($video_file)) : ''; ?>">
+    <input type="text" id="video_link" name="video_link" value="<?php echo htmlspecialchars(file_exists($video_file) ? trim(file_get_contents($video_file)) : '', ENT_QUOTES, 'UTF-8'); ?>">
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
     <button type="submit">Update Video</button>
 </form>
 <?php include '../footer.php'; ?>

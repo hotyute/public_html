@@ -4,7 +4,7 @@ require_once __DIR__ . '/../database.php';
 
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['user_id']) || ($_SESSION['user_role'] ?? '') !== 'admin') {
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'] ?? '', ['admin', 'editor'], true)) {
     http_response_code(403);
     echo json_encode(['error' => 'Unauthorized']);
     exit;

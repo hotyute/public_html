@@ -27,9 +27,6 @@ $footerLinks = [
     </div>
 </footer>
 
-<?php if ($current_page == 'index') : ?>
-    <script src="/js/post-preview.js"></script>
-<?php endif; ?>
 <?php if ($current_page == 'manage_users') : ?>
     <script src="/js/manage_users.js"></script>
 <?php endif; ?>
@@ -38,6 +35,9 @@ $footerLinks = [
 <?php endif; ?>
 <?php if ($current_page == 'post') : ?>
     <script src="/js/tools.js"></script>
+<?php endif; ?>
+<?php if (in_array($current_page, ['index', 'post'], true) && isset($_SESSION['user_id']) && in_array($_SESSION['user_role'] ?? '', ['admin', 'editor'], true)) : ?>
+    <script src="/js/inline-post-editor.js"></script>
 <?php endif; ?>
 </body>
 

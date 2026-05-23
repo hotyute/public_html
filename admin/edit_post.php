@@ -1,11 +1,14 @@
 <?php
 require_once __DIR__ . '/../includes/session.php';
 
-// Auth: admins only
-if (($_SESSION['user_role'] ?? '') !== 'admin') {
+if (!in_array($_SESSION['user_role'] ?? '', ['admin', 'editor'], true)) {
     header('Location: /login.php');
     exit();
 }
+$canDeletePosts = ($_SESSION['user_role'] ?? '') === 'admin';
+$selectedPostId = filter_input(INPUT_GET, 'post_id', FILTER_VALIDATE_INT)
+    ?: filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT)
+    ?: 0;
 
 require_once __DIR__ . '/../base_config.php';
 require_once __DIR__ . '/../includes/database.php';
@@ -24,21 +27,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (isset($_POST['delete']) && isset($_POST['post_id'])) {
-        $post_id = (int)$_POST['post_id'];
-
-        // Remove thumbnail if exists
-        $existing_thumbnail_stmt = $pdo->prepare("SELECT thumbnail FROM posts WHERE id = ?");
-        $existing_thumbnail_stmt->execute([$post_id]);
-        $existing_thumbnail = $existing_thumbnail_stmt->fetchColumn();
-
-        $delete_stmt = $pdo->prepare("DELETE FROM posts WHERE id = ?");
-        if ($delete_stmt->execute([$post_id])) {
-            if ($existing_thumbnail && file_exists($existing_thumbnail)) {
-                @unlink($existing_thumbnail);
-            }
-            $status_message = "Post deleted successfully!";
+        if (!$canDeletePosts) {
+            $status_message = "Only administrators can delete posts.";
         } else {
-            $status_message = "Failed to delete post.";
+            $post_id = (int)$_POST['post_id'];
+
+            // Remove thumbnail if exists
+            $existing_thumbnail_stmt = $pdo->prepare("SELECT thumbnail FROM posts WHERE id = ?");
+            $existing_thumbnail_stmt->execute([$post_id]);
+            $existing_thumbnail = $existing_thumbnail_stmt->fetchColumn();
+
+            $delete_stmt = $pdo->prepare("DELETE FROM posts WHERE id = ?");
+            if ($delete_stmt->execute([$post_id])) {
+                if ($existing_thumbnail && file_exists($existing_thumbnail)) {
+                    @unlink($existing_thumbnail);
+                }
+                $status_message = "Post deleted successfully!";
+            } else {
+                $status_message = "Failed to delete post.";
+            }
         }
     } elseif (isset($_POST['post_id'])) {
         $post_id = (int)$_POST['post_id'];
@@ -149,13 +156,13 @@ include '../header.php';
         </p>
     <?php endif; ?>
 
-    <form method="POST" action="edit_post.php" enctype="multipart/form-data" class="admin-form" id="edit-post-form">
+    <form method="POST" action="edit_post.php" enctype="multipart/form-data" class="admin-form" id="edit-post-form" data-initial-post-id="<?= (int)$selectedPostId ?>">
         <div class="form-group">
             <label for="post_id">Choose a post to edit:</label>
             <select id="post_id" name="post_id" onchange="loadPostData(this.value)" class="form-control">
                 <option value="">Select a post</option>
                 <?php foreach ($posts as $post): ?>
-                    <option value="<?= (int)$post['id'] ?>"><?= htmlspecialchars($post['title']) ?> - <?= $post['formatted_date'] ?></option>
+                    <option value="<?= (int)$post['id'] ?>" <?= (int)$post['id'] === (int)$selectedPostId ? 'selected' : '' ?>><?= htmlspecialchars($post['title']) ?> - <?= $post['formatted_date'] ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -183,7 +190,9 @@ include '../header.php';
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
         <button type="submit" class="btn btn-primary">Update Post</button>
-        <button type="submit" name="delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</button>
+        <?php if ($canDeletePosts): ?>
+            <button type="submit" name="delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this post?');">Delete Post</button>
+        <?php endif; ?>
     </form>
 </div>
 
@@ -312,6 +321,11 @@ $(function() {
     const ta = document.getElementById('rawModalTextarea');
     ta.focus(); ta.select(); document.execCommand('copy');
   });
+
+  const initialPostId = Number(document.getElementById('edit-post-form')?.dataset.initialPostId || 0);
+  if (initialPostId > 0) {
+    loadPostData(initialPostId);
+  }
 });
 
 // Load post data (convert <!-- pagebreak --> to HR for editor)

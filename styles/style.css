@@ -46,12 +46,18 @@ body {
 h1, h2, h3 {
   font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
   color: var(--text-900);
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
   line-height: 1.2;
 }
-h1 { font-size: clamp(2rem, 2vw + 1.5rem, 3rem); }
-h2 { font-size: clamp(1.5rem, 1.3vw + 1.2rem, 2.2rem); }
-h3 { font-size: clamp(1.2rem, 1vw + 1rem, 1.6rem); }
+h1 { font-size: 3rem; }
+h2 { font-size: 2.2rem; }
+h3 { font-size: 1.6rem; }
+
+@media (max-width: 820px) {
+  h1 { font-size: 2.1rem; }
+  h2 { font-size: 1.65rem; }
+  h3 { font-size: 1.3rem; }
+}
 
 /* Links */
 a {
@@ -136,6 +142,94 @@ button:focus-visible { outline: none; box-shadow: var(--ring); }
   transition: transform .25s ease, box-shadow .25s ease;
 }
 .card:hover { transform: translateY(-4px); box-shadow: var(--card-shadow-hover); }
+
+/* Inline editing */
+.inline-editor-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.inline-editor-modal.is-open {
+  display: flex;
+}
+
+.inline-editor-dialog {
+  width: min(900px, 96vw);
+  max-height: 92vh;
+  overflow: auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.28);
+}
+
+.inline-editor-header,
+.inline-editor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px 22px;
+  border-bottom: 1px solid rgba(14, 58, 93, 0.12);
+}
+
+.inline-editor-footer {
+  border-top: 1px solid rgba(14, 58, 93, 0.12);
+  border-bottom: 0;
+  justify-content: flex-end;
+}
+
+.inline-editor-form {
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+}
+
+.inline-editor-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-700);
+  font-weight: 700;
+}
+
+.inline-editor-form input,
+.inline-editor-form textarea {
+  width: 100%;
+  border: 1px solid rgba(14, 58, 93, 0.18);
+  border-radius: 8px;
+  padding: 11px 12px;
+  color: var(--text-900);
+  font: inherit;
+}
+
+.inline-editor-form textarea {
+  min-height: 260px;
+  resize: vertical;
+  font-family: Consolas, Monaco, 'Courier New', monospace;
+  line-height: 1.5;
+}
+
+.inline-editor-message {
+  min-height: 1.4em;
+  color: var(--text-700);
+}
+
+.inline-editor-message.is-error {
+  color: #b91c1c;
+}
+
+.admin-inline-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 0 auto 14px;
+  max-width: 90%;
+}
 
 /* Decorative HR */
 hr {

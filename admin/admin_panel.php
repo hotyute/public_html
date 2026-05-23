@@ -13,9 +13,9 @@ include '../header.php';
     <ul class="admin-links">
         <li><a href="create_post.php">Create New Post</a></li>
         <li><a href="edit_post.php">Edit Post</a></li>
-        <li><a href="delete_post.php">Delete Post</a></li>
         <li><a href="edit_video.php">Edit Video of the Week</a></li>
         <?php if (($_SESSION['user_role'] ?? '') === 'admin') : ?>
+            <li><a href="delete_post.php">Delete Post</a></li>
             <li><a href="manage_users.php">Manage Users</a></li>
             <li><a href="test_manage.php">Manage Tests</a></li>
             <li><a href="manage_magazines.php">Manage External Magazines</a></li>

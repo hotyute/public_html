@@ -2,9 +2,11 @@
 include 'header.php';
 require 'includes/database.php';
 require 'includes/sanitize.php'; // Include the sanitization function
+require_once __DIR__ . '/includes/content_helpers.php';
 
 $post_id = isset($_GET['id']) ? filter_var($_GET['id'], FILTER_VALIDATE_INT) : 0;
 $page = max(1, (int)(filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1));
+$canEditPosts = app_can_edit_posts();
 
 function getUserClass($user_role)
 {
@@ -130,6 +132,13 @@ if ($post_id > 0) {
         $total_pages = count($pages);
         $content_page = isset($pages[$page - 1]) ? $pages[$page - 1] : '';
         $userClass = getUserClass($post['user_role']);
+
+        if ($canEditPosts) {
+            echo '<div class="admin-inline-toolbar">';
+            echo '<button type="button" class="js-edit-post" data-post-id="' . (int)$post_id . '">Edit This Article</button>';
+            echo '<a class="button secondary-button" href="/admin/edit_post.php?post_id=' . (int)$post_id . '">Advanced Editor</a>';
+            echo '</div>';
+        }
 
         echo '<div class="post-container">';
         echo '<h1 class="post-title">' . htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') . '</h1>';

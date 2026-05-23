@@ -1,333 +1,195 @@
-<?php include 'header.php'; ?>
-
 <?php
-// Database connection, function, and setup code
+require_once __DIR__ . '/includes/session.php';
+require_once __DIR__ . '/includes/database.php';
+require_once __DIR__ . '/includes/content_helpers.php';
 
-// Function to determine the current issue based on the current date
-function getCurrentIssue()
-{
-    $month = date('n');  // Current month as a number (1-12)
-    $year = date('Y');   // Current year
+$issue = app_current_issue_label();
+$canEditPosts = app_can_edit_posts();
 
-    switch ($month) {
-        case 1:
-        case 2:
-            return "January-February $year";
-        case 3:
-        case 4:
-            return "March-April $year";
-        case 5:
-        case 6:
-            return "May-June $year";
-        case 7:
-        case 8:
-            return "July-August $year";
-        case 9:
-        case 10:
-            return "September-October $year";
-        case 11:
-        case 12:
-            return "November-December $year";
-        default:
-            return "Unknown Issue";
-    }
+$postsStmt = $pdo->query("
+    SELECT posts.id, posts.title, posts.thumbnail, posts.content, posts.created_at,
+           COALESCE(users.displayname, 'Unknown') AS author,
+           COALESCE(users.role, 'member') AS user_role,
+           COUNT(comments.id) AS comment_count
+    FROM posts
+    LEFT JOIN users ON posts.user_id = users.id
+    LEFT JOIN comments ON posts.id = comments.post_id
+    GROUP BY posts.id, posts.title, posts.thumbnail, posts.content, posts.created_at, users.displayname, users.role
+    ORDER BY posts.id DESC
+    LIMIT 12
+");
+$posts = $postsStmt->fetchAll(PDO::FETCH_ASSOC);
+$heroPost = $posts[0] ?? null;
+$spotlightPosts = array_slice($posts, 1, 2);
+$morePosts = array_slice($posts, 3);
+
+$video_link = '';
+$video_file = __DIR__ . '/includes/featured_video.txt';
+if (file_exists($video_file)) {
+    $video_link = trim(file_get_contents($video_file));
 }
 
-function getUserClass($user_role)
+$magazinesStmt = $pdo->prepare("
+    SELECT title, author, image_url, article_url
+    FROM magazine_articles
+    WHERE issue = :issue
+    ORDER BY id DESC
+    LIMIT 3
+");
+$magazinesStmt->execute(['issue' => $issue]);
+$magazineArticles = $magazinesStmt->fetchAll(PDO::FETCH_ASSOC);
+
+function render_home_article_card(array $post, bool $canEditPosts, string $className = 'article-card'): void
 {
-    switch ($user_role) {
-        case 'admin':
-        case 'owner':
-            return 'admin-owner';
-        case 'editor':
-            return 'editor-user';
-        default:
-            return 'regular-user';
-    }
+    $postId = (int)$post['id'];
+    $postUrl = '/post.php?id=' . $postId;
+    $roleClass = app_user_role_class($post['user_role'] ?? '');
+    ?>
+    <article class="<?= htmlspecialchars($className, ENT_QUOTES, 'UTF-8') ?>">
+        <a class="article-card__image" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>">
+            <img src="<?= htmlspecialchars(app_post_image_src($post['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?>">
+        </a>
+        <div class="article-card__body">
+            <a class="article-card__title" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>">
+                <?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?>
+            </a>
+            <p class="article-meta">
+                By <span class="<?= htmlspecialchars($roleClass, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8') ?></span>
+                <span><?= (int)$post['comment_count'] ?> Comments</span>
+            </p>
+            <p class="article-card__excerpt"><?= htmlspecialchars(app_plain_excerpt($post['content'] ?? '', 120), ENT_QUOTES, 'UTF-8') ?></p>
+            <?php if ($canEditPosts): ?>
+                <div class="inline-edit-actions">
+                    <button type="button" class="inline-edit-button js-edit-post" data-post-id="<?= $postId ?>">Edit</button>
+                </div>
+            <?php endif; ?>
+        </div>
+    </article>
+    <?php
 }
 
-// Calculate the current issue before starting the main HTML output
-$issue = getCurrentIssue();
-
-// Truncate content function for limiting post content preview length
-function truncateContent($content, $limit = 100)
-{
-    $content = strip_tags($content); // Remove HTML tags
-    return strlen($content) > $limit ? substr($content, 0, $limit) . '...' : $content;
-}
+include __DIR__ . '/header.php';
 ?>
 
-<div class="main-container">
-    <main>
-        <section>
-            <h2>Welcome to the Divine Word Community</h2>
-            <p>This is the home of the Christian community, part of the little flock, The Church of God, where we share insights, teachings, and fellowship together.</p>
-            <hr>
-            <div class="carousel-container">
-                <div class="carousel-button-row mobile-only">
-                    <button class="carousel-button prev" onclick="prevSlide()" aria-label="Previous slide">
-                        <svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true">
-                            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-                        </svg>
-                    </button>
-                    <button class="carousel-button next" onclick="nextSlide()" aria-label="Next slide">
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="carousel">
-                    <div class="carousel-slides">
-                        <?php
-                        require 'includes/database.php';
-                        // Removed LIMIT clause to fetch all posts
-                        $query = "SELECT posts.id, posts.title, posts.thumbnail, posts.content,
-                                         COALESCE(users.displayname, 'Unknown') AS author,
-                                         COALESCE(users.role, 'member') AS user_role,
-                                         COUNT(comments.id) AS comment_count
-                                  FROM posts
-                                  LEFT JOIN users ON posts.user_id = users.id
-                                  LEFT JOIN comments ON posts.id = comments.post_id
-                                  GROUP BY posts.id, posts.title, posts.thumbnail, posts.content, users.displayname, users.role
-                                  ORDER BY posts.id DESC";
-                        $posts = $pdo->query($query);
-                        $count = 0;
-                        while ($post = $posts->fetch(PDO::FETCH_ASSOC)) {
-                            if ($count % 6 == 0) {
-                                if ($count > 0) {
-                                    echo '</div>'; // Close previous slide
-                                }
-                                echo '<div class="carousel-slide">'; // Start new slide
-                            }
-                            $userClass = getUserClass($post['user_role']);
-                            echo '<div class="post-preview">';
-                            echo '<a href="post.php?id=' . (int)$post['id'] . '" style="text-decoration: none; color: black;">';
-                            if ($post['thumbnail']) {
-                                echo '<img src="' . htmlspecialchars($post['thumbnail'], ENT_QUOTES, 'UTF-8') . '" alt="Post thumbnail" class="post-thumbnail">';
-                            }
-                            echo '<h3>' . htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') . '</h3>';
-                            echo '<p>By <span class="' . $userClass . '">' . htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8') . '</span></p>';
-                            $truncatedContent = truncateContent($post['content'], 100);
-                            echo '<div class="content-preview" data-content="' . htmlspecialchars($truncatedContent, ENT_QUOTES, 'UTF-8') . '"></div>';
-                            echo '<p class="comment-count">' . (int)$post['comment_count'] . ' Comments</p>';
-                            echo '</a>';
-                            echo '</div>';
-                            $count++;
-                        }
-                        if ($count > 0) {
-                            echo '</div>'; // Close last slide
-                        }
-                        ?>
-                    </div>
-                </div>
-                <div class="carousel-button-row mobile-only">
-                    <button class="carousel-button prev" onclick="prevSlide()" aria-label="Previous slide">
-                        <svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true">
-                            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-                        </svg>
-                    </button>
-                    <button class="carousel-button next" onclick="nextSlide()" aria-label="Next slide">
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z" />
-                        </svg>
-                    </button>
-                </div>
+<div class="main-container home-layout">
+    <main class="home-main">
+        <section class="home-intro">
+            <div>
+                <p class="section-kicker">Divine Word Community</p>
+                <h1>Teachings, studies, and reflections for the flock.</h1>
+                <p class="home-intro__copy">Read the latest posts, revisit recent studies, and continue into the archive when you want the full library.</p>
             </div>
-            <hr>
-            <?php
-            // Fetch the video link from a text file (or database)
-            $video_link = '';
-            $video_file = 'includes/featured_video.txt';
-            if (file_exists($video_file)) {
-                $video_link = trim(file_get_contents($video_file));
-            }
-            ?>
-
-            <!-- Featured Video of the Week -->
-            <div class="featured-video">
-                <h2>Featured Video of the Week</h2>
-                <?php if (!empty($video_link)) : ?>
-                    <iframe width="560" height="315" src="<?php echo $video_link; ?>" frameborder="0" allowfullscreen></iframe>
-                <?php else : ?>
-                    <p>No featured video this week. Check back later!</p>
+            <div class="home-actions">
+                <a class="button secondary-button" href="/archive.php">All Articles</a>
+                <?php if ($canEditPosts): ?>
+                    <button type="button" class="button js-new-post">New Article</button>
                 <?php endif; ?>
             </div>
         </section>
-    </main>
-    <aside class="sidebar">
-        <h3>External Magazines</h3>
-        <h4><?php echo htmlspecialchars($issue); ?></h4>
-        <ul>
-            <?php
-            // Fetch and display the latest articles for the current issue
-            $stmt = $pdo->prepare("SELECT title, author, image_url, article_url FROM magazine_articles WHERE issue = :issue ORDER BY id DESC LIMIT 3");
-            $stmt->bindParam(':issue', $issue);
-            $stmt->execute();
-            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            if (count($results) > 0) :
-                foreach ($results as $row) :
-            ?>
+        <?php if ($heroPost): ?>
+            <section class="story-stage" aria-label="Featured articles">
+                <article class="featured-story">
+                    <a class="featured-story__image" href="/post.php?id=<?= (int)$heroPost['id'] ?>">
+                        <img src="<?= htmlspecialchars(app_post_image_src($heroPost['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($heroPost['title'], ENT_QUOTES, 'UTF-8') ?>">
+                    </a>
+                    <div class="featured-story__body">
+                        <p class="section-kicker">Latest Article</p>
+                        <h2><a href="/post.php?id=<?= (int)$heroPost['id'] ?>"><?= htmlspecialchars($heroPost['title'], ENT_QUOTES, 'UTF-8') ?></a></h2>
+                        <p class="article-meta">
+                            By <span class="<?= htmlspecialchars(app_user_role_class($heroPost['user_role'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($heroPost['author'], ENT_QUOTES, 'UTF-8') ?></span>
+                            <span><?= (int)$heroPost['comment_count'] ?> Comments</span>
+                        </p>
+                        <p><?= htmlspecialchars(app_plain_excerpt($heroPost['content'] ?? '', 260), ENT_QUOTES, 'UTF-8') ?></p>
+                        <div class="featured-story__actions">
+                            <a class="button" href="/post.php?id=<?= (int)$heroPost['id'] ?>">Read Article</a>
+                            <?php if ($canEditPosts): ?>
+                                <button type="button" class="button secondary-button js-edit-post" data-post-id="<?= (int)$heroPost['id'] ?>">Edit</button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </article>
+
+                <?php if ($spotlightPosts): ?>
+                    <div class="story-queue" aria-label="Recent articles">
+                        <?php foreach ($spotlightPosts as $spotlightPost): ?>
+                            <?php render_home_article_card($spotlightPost, $canEditPosts, 'article-card article-card--compact'); ?>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </section>
+        <?php else: ?>
+            <section class="empty-state">
+                <h2>No articles yet</h2>
+                <p>Once posts are created, the newest one will appear here as the featured story.</p>
+                <?php if ($canEditPosts): ?>
+                    <button type="button" class="button js-new-post">Create First Article</button>
+                <?php endif; ?>
+            </section>
+        <?php endif; ?>
+
+        <?php if ($morePosts): ?>
+            <section class="article-library" aria-label="Latest articles">
+                <div class="section-heading">
+                    <div>
+                        <p class="section-kicker">Latest</p>
+                        <h2>Continue Reading</h2>
+                    </div>
+                    <a href="/archive.php">Open archive</a>
+                </div>
+                <div class="article-grid">
+                    <?php foreach ($morePosts as $post): ?>
+                        <?php render_home_article_card($post, $canEditPosts); ?>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <section class="featured-video">
+            <div class="section-heading">
+                <div>
+                    <p class="section-kicker">Watch</p>
+                    <h2>Featured Video</h2>
+                </div>
+                <?php if ($canEditPosts): ?>
+                    <a href="/admin/edit_video.php">Edit video</a>
+                <?php endif; ?>
+            </div>
+            <?php if (!empty($video_link)) : ?>
+                <iframe src="<?= htmlspecialchars($video_link, ENT_QUOTES, 'UTF-8') ?>" title="Featured video" allowfullscreen></iframe>
+            <?php else : ?>
+                <p>No featured video this week. Check back later.</p>
+            <?php endif; ?>
+        </section>
+    </main>
+
+    <aside class="sidebar home-sidebar">
+        <div class="section-heading sidebar-heading">
+            <div>
+                <p class="section-kicker">External Magazines</p>
+                <h3><?= htmlspecialchars($issue, ENT_QUOTES, 'UTF-8') ?></h3>
+            </div>
+            <?php if ($canEditPosts): ?>
+                <a href="/admin/manage_magazines.php">Manage</a>
+            <?php endif; ?>
+        </div>
+        <ul>
+            <?php if ($magazineArticles): ?>
+                <?php foreach ($magazineArticles as $row): ?>
                     <li>
-                        <img src="<?php echo htmlspecialchars($row['image_url']); ?>" alt="<?php echo htmlspecialchars($row['title']); ?>" class="thumbnail">
-                        <a href="<?php echo htmlspecialchars($row['article_url']); ?>"><?php echo htmlspecialchars($row['title']); ?></a><br>
-                        <small><?php echo htmlspecialchars($row['author']); ?></small>
+                        <img src="<?= htmlspecialchars($row['image_url'], ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8') ?>" class="thumbnail">
+                        <span>
+                            <a href="<?= htmlspecialchars($row['article_url'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8') ?></a>
+                            <small><?= htmlspecialchars($row['author'], ENT_QUOTES, 'UTF-8') ?></small>
+                        </span>
                     </li>
-                <?php
-                endforeach;
-            else :
-                ?>
+                <?php endforeach; ?>
+            <?php else: ?>
                 <li>No articles available for this issue.</li>
             <?php endif; ?>
         </ul>
-        <a href="magazines/all_issues.php" class="view-all">VIEW ALL</a>
+        <a href="/magazines/all_issues.php" class="view-all">View All Issues</a>
     </aside>
 </div>
 
-<script>
-/* Enhanced, looping, accessible carousel with autoplay, dots, swipe, and keyboard */
-(function () {
-  const container = document.querySelector('.carousel-container');
-  if (!container) return;
-
-  const track = container.querySelector('.carousel-slides');
-  let slides = Array.from(track.querySelectorAll('.carousel-slide'));
-  const prevBtns = container.querySelectorAll('.carousel-button.prev');
-  const nextBtns = container.querySelectorAll('.carousel-button.next');
-
-  if (!slides.length) return;
-
-  container.setAttribute('role', 'region');
-  container.setAttribute('aria-label', 'Post previews carousel');
-  container.tabIndex = 0;
-
-  const firstClone = slides[0].cloneNode(true);
-  const lastClone = slides[slides.length - 1].cloneNode(true);
-  track.insertBefore(lastClone, slides[0]);
-  track.appendChild(firstClone);
-
-  slides = Array.from(track.querySelectorAll('.carousel-slide'));
-
-  let index = 1;
-  let allowNav = true;
-  let autoTimer = null;
-  const TRANSITION_MS = 450;
-  const AUTO_MS = 6000;
-  const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  const dotsWrap = document.createElement('div');
-  dotsWrap.className = 'carousel-dots';
-  const realSlideCount = slides.length - 2;
-  const dots = [];
-  for (let i = 0; i < realSlideCount; i++) {
-    const dot = document.createElement('button');
-    dot.className = 'carousel-dot';
-    dot.type = 'button';
-    dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
-    dot.addEventListener('click', () => goTo(i + 1));
-    dotsWrap.appendChild(dot);
-    dots.push(dot);
-  }
-  container.appendChild(dotsWrap);
-
-  function setTransition(on) { track.style.transition = on ? `transform ${TRANSITION_MS}ms ease` : 'none'; }
-  function updateTransform() { track.style.transform = `translateX(-${index * 100}%)`; }
-  function updateDots() {
-    const dotIndex = ((index - 1 + realSlideCount) % realSlideCount);
-    dots.forEach((d, i) => {
-      d.classList.toggle('active', i === dotIndex);
-      if (i === dotIndex) d.setAttribute('aria-current', 'true');
-      else d.removeAttribute('aria-current');
-    });
-  }
-
-  function goTo(nextIndex, animate = true) {
-    if (!allowNav) return;
-    allowNav = false;
-    setTransition(animate);
-    index = nextIndex;
-    updateTransform();
-    setTimeout(() => {
-      if (index === slides.length - 1) {
-        setTransition(false);
-        index = 1;
-        updateTransform();
-      } else if (index === 0) {
-        setTransition(false);
-        index = slides.length - 2;
-        updateTransform();
-      }
-      setTimeout(() => { setTransition(true); allowNav = true; updateDots(); }, 20);
-    }, animate ? TRANSITION_MS : 0);
-  }
-
-  function next() { goTo(index + 1); }
-  function prev() { goTo(index - 1); }
-
-  prevBtns.forEach(btn => btn.addEventListener('click', prev));
-  nextBtns.forEach(btn => btn.addEventListener('click', next));
-  window.nextSlide = next;
-  window.prevSlide = prev;
-
-  function startAuto() {
-    if (prefersReduce) return;
-    stopAuto();
-    autoTimer = setInterval(next, AUTO_MS);
-  }
-  function stopAuto() { if (autoTimer) clearInterval(autoTimer); autoTimer = null; }
-
-  container.addEventListener('mouseenter', stopAuto);
-  container.addEventListener('mouseleave', startAuto);
-  container.addEventListener('focusin', stopAuto);
-  container.addEventListener('focusout', startAuto);
-  document.addEventListener('visibilitychange', () => { if (document.hidden) stopAuto(); else startAuto(); });
-
-  container.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
-    if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
-  });
-
-  let startX = 0, dx = 0, dragging = false;
-  function onPointerDown(e) {
-    dragging = true; dx = 0;
-    startX = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
-    stopAuto(); setTransition(false);
-  }
-  function onPointerMove(e) {
-    if (!dragging) return;
-    const x = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
-    dx = x - startX;
-    const percent = (dx / container.clientWidth) * 100;
-    track.style.transform = `translateX(calc(-${index * 100}% + ${percent}%))`;
-  }
-  function onPointerUp() {
-    if (!dragging) return;
-    setTransition(true);
-    const threshold = container.clientWidth * 0.12;
-    if (Math.abs(dx) > threshold) { if (dx < 0) next(); else prev(); }
-    else { updateTransform(); }
-    dragging = false; startAuto();
-  }
-
-  track.addEventListener('mousedown', onPointerDown);
-  track.addEventListener('touchstart', onPointerDown, { passive: true });
-  window.addEventListener('mousemove', onPointerMove);
-  window.addEventListener('touchmove', onPointerMove, { passive: true });
-  window.addEventListener('mouseup', onPointerUp);
-  window.addEventListener('touchend', onPointerUp);
-
-  setTransition(false);
-  updateTransform();
-  setTimeout(() => setTransition(true), 30);
-  updateDots();
-  startAuto();
-
-  window.addEventListener('resize', () => {
-    setTransition(false);
-    updateTransform();
-    setTimeout(() => setTransition(true), 20);
-  });
-})();
-</script>
-
-<?php include 'footer.php'; ?>
+<?php include __DIR__ . '/footer.php'; ?>

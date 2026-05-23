@@ -3,7 +3,7 @@ require_once __DIR__ . '/../includes/session.php';
 require __DIR__ . '/../includes/database.php';
 require __DIR__ . '/../includes/sanitize.php';
 
-if (($_SESSION['user_role'] ?? '') !== 'admin') {
+if (!in_array($_SESSION['user_role'] ?? '', ['admin', 'editor'], true)) {
     header('Location: /login.php');
     exit();
 }

@@ -1,60 +1,67 @@
 .sidebar {
-    background-color: #f4f4f4;
-    padding: 15px;
-    border: 1px solid #ddd;
-    margin: 5px 0;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(14, 58, 93, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 18px 45px rgba(17, 24, 39, 0.1);
 }
 
-.sidebar h3 {
-    font-size: 24px;
-    margin-bottom: 10px;
-}
-
-.sidebar h4 {
-    font-size: 18px;
-    color: #555;
-    margin-bottom: 20px;
+.sidebar-heading {
+    align-items: flex-start;
 }
 
 .sidebar ul {
     list-style-type: none;
     padding: 0;
+    margin: 0;
 }
 
 .sidebar li {
-    display: flex;
-    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(14, 58, 93, 0.1);
+}
+
+.sidebar li:last-child {
+    border-bottom: 0;
 }
 
 .sidebar .thumbnail {
-    width: 80px;
-    height: 80px;
+    width: 76px;
+    height: 76px;
     object-fit: cover;
-    margin-right: 10px;
+    border-radius: 8px;
+    background: #e5e7eb;
 }
 
 .sidebar a {
-    font-size: 16px;
-    font-weight: bold;
-    text-decoration: none;
-    color: #333;
+    display: inline-block;
+    color: var(--text-900);
+    font-size: 0.96rem;
+    font-weight: 800;
+    line-height: 1.35;
 }
 
 .sidebar small {
-    font-size: 14px;
-    color: #777;
+    display: block;
+    color: var(--text-700);
+    font-size: 0.88rem;
+    margin-top: 4px;
 }
 
 .view-all {
     display: block;
     text-align: center;
-    margin-top: 15px;
-    padding: 10px;
-    background-color: red;
-    color: white;
+    margin-top: 18px;
+    padding: 11px 14px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--brand-700), var(--brand-800));
+    color: #fff !important;
     text-decoration: none;
 }
 
 .view-all:hover {
-    background-color: darkred;
+    background: linear-gradient(135deg, var(--brand-800), #123f67);
 }
