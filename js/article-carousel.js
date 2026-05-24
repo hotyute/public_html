@@ -28,4 +28,35 @@
         window.addEventListener('resize', updateButtons);
         updateButtons();
     });
+
+    document.querySelectorAll('[data-mobile-article-slider]').forEach(slider => {
+        const track = slider.querySelector('.article-mobile-list__track');
+        const slides = Array.from(slider.querySelectorAll('.article-mobile-slide'));
+        const prev = slider.querySelector('[data-mobile-prev]');
+        const next = slider.querySelector('[data-mobile-next]');
+        const dots = Array.from(slider.querySelectorAll('.article-mobile-list__dots span'));
+        if (!track || slides.length <= 1 || !prev || !next) return;
+
+        function currentIndex() {
+            return Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
+        }
+
+        function goTo(index) {
+            const safeIndex = Math.max(0, Math.min(slides.length - 1, index));
+            track.scrollTo({ left: safeIndex * track.clientWidth, behavior: 'smooth' });
+        }
+
+        function updateMobileState() {
+            const index = currentIndex();
+            prev.disabled = index <= 0;
+            next.disabled = index >= slides.length - 1;
+            dots.forEach((dot, dotIndex) => dot.classList.toggle('is-active', dotIndex === index));
+        }
+
+        prev.addEventListener('click', () => goTo(currentIndex() - 1));
+        next.addEventListener('click', () => goTo(currentIndex() + 1));
+        track.addEventListener('scroll', updateMobileState, { passive: true });
+        window.addEventListener('resize', updateMobileState);
+        updateMobileState();
+    });
 })();

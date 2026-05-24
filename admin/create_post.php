@@ -17,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $title   = sanitize_html($_POST['title'] ?? '');
     $raw     = $_POST['content'] ?? '';
+    $generateAudio = (string)($_POST['generate_audio'] ?? '0') === '1';
 
     // Convert Summernote pagebreaks to <!-- pagebreak -->
     $raw = preg_replace('/<hr\b[^>]*class="[^"]*\bpagebreak\b[^"]*"[^>]*>/i', '<!-- pagebreak -->', $raw);
@@ -78,11 +79,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         try {
             $stmt = $pdo->prepare("INSERT INTO posts (title, content, user_id, thumbnail) VALUES (?, ?, ?, ?)");
             if ($stmt->execute([$title, $content, $user_id, $thumbnail])) {
-                $audioResult = article_audio_generate_for_post($pdo, (int)$pdo->lastInsertId(), $content);
+                $audioResult = article_audio_generate_for_post($pdo, (int)$pdo->lastInsertId(), $content, $generateAudio);
                 $status_message = "Post added successfully!";
-                $status_message .= $audioResult['audio_generated']
-                    ? " Audio generated."
-                    : " Reader transcript generated; Piper/espeak audio was unavailable, so browser speech remains as backup.";
+                if ($audioResult['audio_generated']) {
+                    $status_message .= " Audio generated.";
+                } elseif (!$generateAudio) {
+                    $status_message .= " Realistic audio skipped; browser speech will be used.";
+                } else {
+                    $status_message .= " Reader transcript generated; Piper/espeak audio was unavailable, so browser speech remains as backup.";
+                }
                 if ($thumbnail_warning !== '') {
                     $status_message .= ' ' . $thumbnail_warning;
                 }
@@ -128,6 +133,7 @@ include '../header.php';
         <input type="file" id="thumbnail" name="thumbnail" accept="image/*"><br>
 
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+        <input type="hidden" name="generate_audio" id="generate_audio" value="0">
         <input type="submit" value="Create Post">
     </form>
 </div>
@@ -241,6 +247,9 @@ $(function() {
     form.addEventListener('submit', function() {
       const html = $('#content').summernote('code');
       document.getElementById('content').value = editorToServer(html);
+      document.getElementById('generate_audio').value = window.confirm(
+        'Do you want to generate realistic audio?\n\nThis will delete/remove any previously generated audio.'
+      ) ? '1' : '0';
     });
   }
 

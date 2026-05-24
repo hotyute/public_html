@@ -181,10 +181,27 @@ include __DIR__ . '/header.php';
                         <?php endforeach; ?>
                     </div>
                 </div>
-                <div class="article-mobile-list" aria-label="Recent articles for mobile">
-                    <?php foreach (array_slice($continuePosts, 0, 4) as $post): ?>
-                        <?php render_mobile_article_row($post, $canEditPosts); ?>
-                    <?php endforeach; ?>
+                <div class="article-mobile-list" data-mobile-article-slider aria-label="Recent articles for mobile">
+                    <div class="article-mobile-list__track">
+                        <?php foreach (array_chunk($continuePosts, 4) as $slideIndex => $postGroup): ?>
+                            <div class="article-mobile-slide" aria-label="Recent articles group <?= (int)$slideIndex + 1 ?>">
+                                <?php foreach ($postGroup as $post): ?>
+                                    <?php render_mobile_article_row($post, $canEditPosts); ?>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php if (count($continuePosts) > 4): ?>
+                        <div class="article-mobile-list__controls" aria-label="Mobile article slider controls">
+                            <button type="button" class="article-mobile-list__button" data-mobile-prev aria-label="Previous article group">&larr;</button>
+                            <div class="article-mobile-list__dots" aria-hidden="true">
+                                <?php foreach (array_chunk($continuePosts, 4) as $slideIndex => $_): ?>
+                                    <span class="<?= $slideIndex === 0 ? 'is-active' : '' ?>"></span>
+                                <?php endforeach; ?>
+                            </div>
+                            <button type="button" class="article-mobile-list__button" data-mobile-next aria-label="Next article group">&rarr;</button>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </section>
         <?php endif; ?>

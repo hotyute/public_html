@@ -52,6 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (isset($_POST['post_id'])) {
         $post_id = (int)$_POST['post_id'];
         $title   = sanitize_html($_POST['title'] ?? '');
+        $generateAudio = (string)($_POST['generate_audio'] ?? '0') === '1';
 
         // Convert Summernote pagebreak (<hr class="pagebreak">) to <!-- pagebreak -->
         $rawContent = $_POST['content'] ?? '';
@@ -123,11 +124,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($thumbnail_error !== '') {
                     $status_message = $thumbnail_error;
                 } else {
-                    $audioResult = article_audio_generate_for_post($pdo, $post_id, $content);
                     $status_message = "Post updated successfully!";
-                    $status_message .= $audioResult['audio_generated']
-                        ? " Audio regenerated."
-                        : " Reader transcript regenerated; Piper/espeak audio was unavailable, so browser speech remains as backup.";
+                    if ($generateAudio) {
+                        article_audio_delete_for_post($post_id);
+                        $audioResult = article_audio_generate_for_post($pdo, $post_id, $content, true);
+                        $status_message .= $audioResult['audio_generated']
+                            ? " Audio regenerated."
+                            : " Reader transcript regenerated; Piper/espeak audio was unavailable, so browser speech remains as backup.";
+                    } elseif (article_audio_manifest_exists($post_id)) {
+                        $status_message .= " Existing audio was kept.";
+                    } else {
+                        article_audio_generate_for_post($pdo, $post_id, $content, false);
+                        $status_message .= " Realistic audio skipped; browser speech will be used.";
+                    }
                     if ($thumbnail_warning !== '') {
                         $status_message .= ' ' . $thumbnail_warning;
                     }
@@ -194,6 +203,7 @@ include '../header.php';
         </div>
 
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+        <input type="hidden" name="generate_audio" id="generate_audio" value="0">
 
         <button type="submit" class="btn btn-primary">Update Post</button>
         <?php if ($canDeletePosts): ?>
@@ -314,9 +324,15 @@ $(function() {
   // Submit: convert HR markers to <!-- pagebreak -->
   const form = document.getElementById('edit-post-form');
   if (form) {
-    form.addEventListener('submit', function() {
+    form.addEventListener('submit', function(event) {
       const html = $('#content').summernote('code');
       document.getElementById('content').value = editorToServer(html);
+      if (event.submitter?.name === 'delete') {
+        return;
+      }
+      document.getElementById('generate_audio').value = window.confirm(
+        'Do you want to generate realistic audio?\n\nThis will delete/remove any previously generated audio.'
+      ) ? '1' : '0';
     });
   }
 

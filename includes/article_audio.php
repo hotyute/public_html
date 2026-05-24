@@ -41,6 +41,11 @@ function article_audio_manifest_needs_refresh(int $postId): bool
     return false;
 }
 
+function article_audio_manifest_exists(int $postId): bool
+{
+    return is_file(article_audio_manifest_path($postId));
+}
+
 function article_audio_base_url(int $postId): string
 {
     return '/audio/' . article_audio_base_name($postId) . '_p1.mp3';
@@ -316,7 +321,7 @@ function article_audio_generate_audio_file(string $textFile, string $fileStem): 
     return ['engine' => 'browser-speech', 'path' => null, 'url' => null];
 }
 
-function article_audio_generate_for_post(PDO $pdo, int $postId, string $content): array
+function article_audio_generate_for_post(PDO $pdo, int $postId, string $content, bool $generateAudio = true): array
 {
     $audioDir = article_audio_dir();
     if (!is_dir($audioDir)) {
@@ -339,7 +344,9 @@ function article_audio_generate_for_post(PDO $pdo, int $postId, string $content)
         $cues = article_audio_cues($text);
         file_put_contents($vttPath, article_audio_vtt_from_cues($cues));
 
-        $audioResult = article_audio_generate_audio_file($textPath, $fileStem);
+        $audioResult = $generateAudio
+            ? article_audio_generate_audio_file($textPath, $fileStem)
+            : ['engine' => 'browser-speech', 'path' => null, 'url' => null];
         $hasAudio = $audioResult['url'] !== null;
         $generatedAudio = $generatedAudio || $hasAudio;
         if ($hasAudio && $engine === 'browser-speech') {
@@ -366,6 +373,7 @@ function article_audio_generate_for_post(PDO $pdo, int $postId, string $content)
             'post_id' => $postId,
             'generated_at' => date(DATE_ATOM),
             'engine' => $generatedAudio ? $engine : 'browser-speech',
+            'realistic_audio_requested' => $generateAudio,
             'pages' => $manifestPages
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
     );
@@ -377,9 +385,23 @@ function article_audio_generate_for_post(PDO $pdo, int $postId, string $content)
     return [
         'success' => true,
         'audio_generated' => $generatedAudio,
+        'realistic_audio_requested' => $generateAudio,
         'engine' => $engine,
         'manifest_url' => article_audio_manifest_url($postId),
         'page_count' => count($manifestPages)
+    ];
+}
+
+function article_audio_preserved_result(int $postId): array
+{
+    return [
+        'success' => true,
+        'audio_generated' => false,
+        'audio_preserved' => article_audio_manifest_exists($postId),
+        'realistic_audio_requested' => false,
+        'engine' => 'existing',
+        'manifest_url' => article_audio_manifest_exists($postId) ? article_audio_manifest_url($postId) : null,
+        'page_count' => null
     ];
 }
 

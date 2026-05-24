@@ -54,6 +54,30 @@ function posts_api_payload(): array
     return $data;
 }
 
+function posts_api_bool($value, bool $default = true): bool
+{
+    if ($value === null) {
+        return $default;
+    }
+    if (is_bool($value)) {
+        return $value;
+    }
+    if (is_numeric($value)) {
+        return (int)$value === 1;
+    }
+    if (is_string($value)) {
+        $normalized = strtolower(trim($value));
+        if (in_array($normalized, ['1', 'true', 'yes', 'on'], true)) {
+            return true;
+        }
+        if (in_array($normalized, ['0', 'false', 'no', 'off'], true)) {
+            return false;
+        }
+    }
+
+    return $default;
+}
+
 if (!posts_api_can_edit()) {
     posts_api_forbidden();
 }
@@ -106,6 +130,7 @@ try {
     $contentInput = $data['content'] ?? '';
     $thumbnailInput = $data['thumbnail'] ?? '';
     $thumbnailStyleInput = $data['thumbnail_style'] ?? '';
+    $generateAudio = posts_api_bool($data['generate_audio'] ?? null, true);
 
     $title = trim(strip_tags(is_scalar($titleInput) ? (string)$titleInput : ''));
     $rawContent = is_string($contentInput) ? $contentInput : '';
@@ -124,7 +149,7 @@ try {
         $stmt = $pdo->prepare("INSERT INTO posts (title, content, thumbnail, thumbnail_style, user_id) VALUES (?, ?, ?, ?, ?)");
         $stmt->execute([$title, $content, $thumbnail !== '' ? $thumbnail : null, $thumbnailStyle !== '' ? $thumbnailStyle : null, (int)$_SESSION['user_id']]);
         $postId = (int)$pdo->lastInsertId();
-        $audio = article_audio_generate_for_post($pdo, $postId, $content);
+        $audio = article_audio_generate_for_post($pdo, $postId, $content, $generateAudio);
         echo json_encode(['success' => true, 'id' => $postId, 'audio' => $audio]);
         exit;
     }
@@ -139,7 +164,14 @@ try {
 
         $stmt = $pdo->prepare("UPDATE posts SET title = ?, content = ?, thumbnail = ?, thumbnail_style = ? WHERE id = ?");
         $stmt->execute([$title, $content, $thumbnail !== '' ? $thumbnail : null, $thumbnailStyle !== '' ? $thumbnailStyle : null, $postId]);
-        $audio = article_audio_generate_for_post($pdo, $postId, $content);
+        if ($generateAudio) {
+            article_audio_delete_for_post($postId);
+            $audio = article_audio_generate_for_post($pdo, $postId, $content, true);
+        } elseif (article_audio_manifest_exists($postId)) {
+            $audio = article_audio_preserved_result($postId);
+        } else {
+            $audio = article_audio_generate_for_post($pdo, $postId, $content, false);
+        }
         echo json_encode(['success' => true, 'id' => $postId, 'audio' => $audio]);
         exit;
     }

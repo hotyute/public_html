@@ -22,6 +22,19 @@
         activeEditor.message.classList.toggle('is-error', Boolean(isError));
     }
 
+    function audioSaveNote(audio) {
+        if (audio?.audio_generated) {
+            return ` Audio generated${audio.engine ? ` with ${audio.engine}.` : '.'}`;
+        }
+        if (audio?.audio_preserved) {
+            return ' Existing audio was kept.';
+        }
+        if (audio?.realistic_audio_requested === false) {
+            return ' Realistic audio skipped; browser speech will be used.';
+        }
+        return ' Reader transcript generated; browser speech remains as backup.';
+    }
+
     function makeEditable(element, label) {
         element.contentEditable = 'true';
         element.spellcheck = true;
@@ -401,6 +414,10 @@
             return;
         }
 
+        payload.generate_audio = window.confirm(
+            'Do you want to generate realistic audio?\n\nThis will delete/remove any previously generated audio.'
+        );
+
         setMessage('Saving article and preparing reader audio...');
         fetch(apiUrl, {
             method: 'POST',
@@ -418,10 +435,7 @@
                 return data;
             })
             .then(data => {
-                const audioNote = data.audio?.audio_generated
-                    ? ` Audio generated${data.audio.engine ? ` with ${data.audio.engine}.` : '.'}`
-                    : ' Reader transcript generated; browser speech remains as backup.';
-                setMessage(`Saved.${audioNote}`);
+                setMessage(`Saved.${audioSaveNote(data.audio || {})}`);
                 window.setTimeout(() => {
                     if (activeEditor?.mode === 'create' && data.id) {
                         window.location.href = `/post.php?id=${encodeURIComponent(data.id)}`;
