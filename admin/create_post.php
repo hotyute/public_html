@@ -244,12 +244,34 @@ $(function() {
   // On submit: convert HR markers to <!-- pagebreak -->
   const form = document.getElementById('create-post-form');
   if (form) {
-    form.addEventListener('submit', function() {
+    let audioChoiceConfirmed = false;
+    form.addEventListener('submit', function(event) {
       const html = $('#content').summernote('code');
       document.getElementById('content').value = editorToServer(html);
-      document.getElementById('generate_audio').value = window.confirm(
-        'Do you want to generate realistic audio?\n\nThis will delete/remove any previously generated audio.'
-      ) ? '1' : '0';
+      if (audioChoiceConfirmed) {
+        audioChoiceConfirmed = false;
+        return;
+      }
+
+      event.preventDefault();
+      const confirmAudio = typeof window.appConfirmDialog === 'function'
+        ? window.appConfirmDialog({
+            title: 'Generate Realistic Audio?',
+            message: 'This will create Piper audio for the article. Choose skip to use browser speech instead.',
+            confirmText: 'Generate Audio',
+            cancelText: 'Skip For Now'
+          })
+        : Promise.resolve(window.confirm('Do you want to generate realistic audio?'));
+
+      confirmAudio.then(generateAudio => {
+        document.getElementById('generate_audio').value = generateAudio ? '1' : '0';
+        audioChoiceConfirmed = true;
+        if (typeof form.requestSubmit === 'function') {
+          form.requestSubmit();
+        } else {
+          form.submit();
+        }
+      });
     });
   }
 

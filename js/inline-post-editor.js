@@ -10,10 +10,14 @@
         return element.textContent || '';
     }
 
+    function normalizePreviewText(text) {
+        return String(text || '').replace(/\s+/g, ' ').trim();
+    }
+
     function textFromEditablePreview(element) {
         const clone = element.cloneNode(true);
         clone.querySelectorAll('.preview-ellipsis').forEach(node => node.remove());
-        return textFromHtml(clone.innerHTML).trim();
+        return normalizePreviewText(textFromHtml(clone.innerHTML));
     }
 
     function setMessage(text, isError) {
@@ -36,6 +40,23 @@
             return ` ${audio.message} Browser speech remains as backup.`;
         }
         return ' Reader transcript generated; browser speech remains as backup.';
+    }
+
+    function askGenerateRealisticAudio() {
+        const options = {
+            title: 'Generate Realistic Audio?',
+            message: 'This will replace any previously generated article audio. Choose skip to keep existing audio, or use browser speech if no audio exists yet.',
+            confirmText: 'Generate Audio',
+            cancelText: 'Skip For Now'
+        };
+
+        if (typeof window.appConfirmDialog === 'function') {
+            return window.appConfirmDialog(options);
+        }
+
+        return Promise.resolve(window.confirm(
+            'Do you want to generate realistic audio?\n\nThis will delete/remove any previously generated audio.'
+        ));
     }
 
     function makeEditable(element, label) {
@@ -89,76 +110,114 @@
         return pages.join('<!-- pagebreak -->');
     }
 
-    function closestContentBlock(node, root) {
-        const blockTags = new Set(['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'LI', 'FIGCAPTION']);
-        const nestedBlockSelector = 'p, div, h1, h2, h3, h4, h5, h6, blockquote, li, figcaption';
-        let current = node.parentElement;
-        while (current && current !== root) {
-            if (blockTags.has(current.tagName)) {
-                if (current.tagName === 'DIV' && current.querySelector(nestedBlockSelector)) {
-                    return node;
-                }
-                return current;
-            }
-            current = current.parentElement;
-        }
-        return node.parentNode === root ? node : null;
-    }
+    function findNormalizedTextRange(root, needle) {
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        const map = [];
+        let flat = '';
+        let lastWasSpace = true;
 
-    function replacePreviewText(fullHtml, originalText, replacementText) {
-        const original = String(originalText || '').trim();
-        const replacement = String(replacementText || '').trim();
-        if (!original) return fullHtml || replacement;
-
-        const host = document.createElement('div');
-        host.innerHTML = fullHtml || '';
-        const walker = document.createTreeWalker(host, NodeFilter.SHOW_TEXT);
-        let remaining = original.length;
-        let firstBlock = null;
-
-        while (remaining > 0) {
+        while (true) {
             const node = walker.nextNode();
             if (!node) break;
             const value = node.nodeValue || '';
-            if (value.trim() === '') continue;
-            if (!firstBlock) firstBlock = closestContentBlock(node, host) || node;
 
-            const take = Math.min(value.length, remaining);
-            if (closestContentBlock(node, host) !== firstBlock && node !== firstBlock) {
-                node.nodeValue = value.slice(take);
+            for (let offset = 0; offset < value.length; offset += 1) {
+                const char = value[offset];
+                if (/\s/.test(char)) {
+                    if (!lastWasSpace) {
+                        flat += ' ';
+                        map.push({ node, offset });
+                        lastWasSpace = true;
+                    }
+                    continue;
+                }
+
+                flat += char;
+                map.push({ node, offset });
+                lastWasSpace = false;
             }
-            remaining -= take;
         }
 
-        const replacementBlock = document.createElement('p');
-        replacementBlock.textContent = replacement;
-
-        if (firstBlock?.nodeType === Node.TEXT_NODE) {
-            firstBlock.parentNode.replaceChild(replacementBlock, firstBlock);
-            return host.innerHTML;
+        const matchIndex = flat.indexOf(needle);
+        if (matchIndex < 0 || !map[matchIndex] || !map[matchIndex + needle.length - 1]) {
+            return null;
         }
 
-        if (firstBlock?.parentNode) {
-            firstBlock.parentNode.replaceChild(replacementBlock, firstBlock);
-            return host.innerHTML;
+        return {
+            start: map[matchIndex],
+            end: map[matchIndex + needle.length - 1]
+        };
+    }
+
+    function replaceDomTextRange(root, range, replacementText) {
+        const startNode = range.start.node;
+        const endNode = range.end.node;
+        const startOffset = range.start.offset;
+        const endOffset = range.end.offset + 1;
+
+        if (startNode === endNode) {
+            startNode.nodeValue = startNode.nodeValue.slice(0, startOffset) +
+                replacementText +
+                startNode.nodeValue.slice(endOffset);
+            return;
         }
 
-        return fullHtml || replacement;
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        const nodes = [];
+        let capture = false;
+
+        while (true) {
+            const node = walker.nextNode();
+            if (!node) break;
+            if (node === startNode) capture = true;
+            if (capture) nodes.push(node);
+            if (node === endNode) break;
+        }
+
+        startNode.nodeValue = startNode.nodeValue.slice(0, startOffset) + replacementText;
+        nodes.slice(1, -1).forEach(node => {
+            node.nodeValue = '';
+        });
+        endNode.nodeValue = endNode.nodeValue.slice(endOffset);
+    }
+
+    function replacePreviewText(fullHtml, originalText, replacementText) {
+        const original = normalizePreviewText(originalText);
+        const replacement = normalizePreviewText(replacementText);
+
+        if (!original || replacement === original) {
+            return { html: fullHtml || '', matched: true, changed: false };
+        }
+
+        const host = document.createElement('div');
+        host.innerHTML = fullHtml || '';
+        const range = findNormalizedTextRange(host, original);
+        if (!range) {
+            return { html: fullHtml || '', matched: false, changed: false };
+        }
+
+        replaceDomTextRange(host, range, replacement);
+        return { html: host.innerHTML, matched: true, changed: true };
     }
 
     function buildContentPayload() {
         if (!activeEditor) return '';
+        activeEditor.contentMappingError = false;
+        activeEditor.previewContentChanged = false;
         const visibleHtml = cleanEditableHtml(activeEditor.contentEl);
         if (activeEditor.mode === 'create') return visibleHtml;
         if (activeEditor.scope === 'page') {
             return mergeVisiblePage(activeEditor.originalFullContent, activeEditor.pageNumber, visibleHtml);
         }
         if (activeEditor.scope === 'preview') {
-            return replacePreviewText(
+            const result = replacePreviewText(
                 activeEditor.originalFullContent,
                 activeEditor.originalVisibleText,
                 textFromHtml(visibleHtml)
             );
+            activeEditor.contentMappingError = !result.matched;
+            activeEditor.previewContentChanged = result.changed;
+            return result.html;
         }
         return visibleHtml;
     }
@@ -402,6 +461,12 @@
         event.preventDefault();
         if (!activeEditor) return;
         syncImageState(activeEditor.selectedImage);
+        const content = buildContentPayload();
+
+        if (activeEditor.contentMappingError) {
+            setMessage('This preview text could not be safely matched to the full article. No changes were saved. Use the article page or Advanced Editor for this text edit.', true);
+            return;
+        }
 
         const payload = {
             action: activeEditor.mode,
@@ -409,7 +474,8 @@
             title: textFromHtml(activeEditor.titleEl.innerHTML).trim(),
             thumbnail: activeEditor.thumbnailInput.value.trim(),
             thumbnail_style: activeEditor.thumbnailStyleInput.value.trim(),
-            content: buildContentPayload()
+            content,
+            content_changed: activeEditor.mode === 'create' || activeEditor.scope !== 'preview' || activeEditor.previewContentChanged
         };
 
         if (!payload.title || !textFromHtml(payload.content).trim()) {
@@ -417,19 +483,19 @@
             return;
         }
 
-        payload.generate_audio = window.confirm(
-            'Do you want to generate realistic audio?\n\nThis will delete/remove any previously generated audio.'
-        );
-
-        setMessage('Saving article and preparing reader audio...');
-        fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': csrfToken
-            },
-            body: JSON.stringify(payload)
-        })
+        askGenerateRealisticAudio()
+            .then(generateAudio => {
+                payload.generate_audio = generateAudio;
+                setMessage('Saving article and preparing reader audio...');
+                return fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify(payload)
+                });
+            })
             .then(async response => {
                 const data = await response.json().catch(() => ({}));
                 if (!response.ok || !data.success) {

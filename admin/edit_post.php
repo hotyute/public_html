@@ -324,15 +324,41 @@ $(function() {
   // Submit: convert HR markers to <!-- pagebreak -->
   const form = document.getElementById('edit-post-form');
   if (form) {
+    let audioChoiceConfirmed = false;
     form.addEventListener('submit', function(event) {
+      const submitter = event.submitter;
       const html = $('#content').summernote('code');
       document.getElementById('content').value = editorToServer(html);
-      if (event.submitter?.name === 'delete') {
+      if (submitter?.name === 'delete') {
+        audioChoiceConfirmed = false;
         return;
       }
-      document.getElementById('generate_audio').value = window.confirm(
-        'Do you want to generate realistic audio?\n\nThis will delete/remove any previously generated audio.'
-      ) ? '1' : '0';
+      if (audioChoiceConfirmed) {
+        audioChoiceConfirmed = false;
+        return;
+      }
+
+      event.preventDefault();
+      const confirmAudio = typeof window.appConfirmDialog === 'function'
+        ? window.appConfirmDialog({
+            title: 'Generate Realistic Audio?',
+            message: 'This will replace any previously generated article audio. Choose skip to keep existing audio, or use browser speech if no audio exists yet.',
+            confirmText: 'Generate Audio',
+            cancelText: 'Skip For Now'
+          })
+        : Promise.resolve(window.confirm('Do you want to generate realistic audio?'));
+
+      confirmAudio.then(generateAudio => {
+        document.getElementById('generate_audio').value = generateAudio ? '1' : '0';
+        audioChoiceConfirmed = true;
+        if (submitter && typeof form.requestSubmit === 'function') {
+          form.requestSubmit(submitter);
+        } else if (typeof form.requestSubmit === 'function') {
+          form.requestSubmit();
+        } else {
+          form.submit();
+        }
+      });
     });
   }
 

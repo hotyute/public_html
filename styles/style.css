@@ -306,6 +306,63 @@ button:focus-visible { outline: none; box-shadow: var(--ring); }
   color: #b91c1c;
 }
 
+.app-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(17, 24, 39, 0.48);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.app-dialog[hidden] {
+  display: none;
+}
+
+.app-dialog.is-open {
+  opacity: 1;
+}
+
+.app-dialog__panel {
+  width: min(460px, 100%);
+  padding: 24px;
+  border: 1px solid rgba(14, 58, 93, 0.12);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 26px 70px rgba(17, 24, 39, 0.28);
+  transform: translateY(8px) scale(0.98);
+  transition: transform 0.18s ease;
+}
+
+.app-dialog.is-open .app-dialog__panel {
+  transform: translateY(0) scale(1);
+}
+
+.app-dialog__panel h2,
+.app-dialog__panel p {
+  margin: 0;
+}
+
+.app-dialog__panel h2 {
+  font-size: 1.65rem;
+}
+
+.app-dialog__panel p:not(.section-kicker) {
+  margin-top: 10px;
+  color: var(--text-700);
+}
+
+.app-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 22px;
+}
+
 @media (max-width: 560px) {
   .admin-inline-toolbar,
   .inline-edit-toolbar__actions {
@@ -328,6 +385,11 @@ button:focus-visible { outline: none; box-shadow: var(--ring); }
   .inline-thumbnail-field input {
     width: 100%;
     flex-basis: auto;
+  }
+
+  .app-dialog__actions,
+  .app-dialog__actions button {
+    width: 100%;
   }
 }
 

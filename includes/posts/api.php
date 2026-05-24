@@ -131,6 +131,7 @@ try {
     $thumbnailInput = $data['thumbnail'] ?? '';
     $thumbnailStyleInput = $data['thumbnail_style'] ?? '';
     $generateAudio = posts_api_bool($data['generate_audio'] ?? null, true);
+    $contentChanged = posts_api_bool($data['content_changed'] ?? null, true);
 
     $title = trim(strip_tags(is_scalar($titleInput) ? (string)$titleInput : ''));
     $rawContent = is_string($contentInput) ? $contentInput : '';
@@ -160,6 +161,18 @@ try {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Invalid post id']);
             exit;
+        }
+
+        if (!$contentChanged) {
+            $existingContentStmt = $pdo->prepare("SELECT content FROM posts WHERE id = ?");
+            $existingContentStmt->execute([$postId]);
+            $existingContent = $existingContentStmt->fetchColumn();
+            if ($existingContent === false) {
+                http_response_code(404);
+                echo json_encode(['success' => false, 'message' => 'Post not found']);
+                exit;
+            }
+            $content = (string)$existingContent;
         }
 
         $stmt = $pdo->prepare("UPDATE posts SET title = ?, content = ?, thumbnail = ?, thumbnail_style = ? WHERE id = ?");

@@ -74,7 +74,7 @@
 
 .home-feature-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(260px, 0.7fr);
+  grid-template-columns: minmax(0, 1.42fr) minmax(230px, 0.58fr);
   gap: 22px;
   align-items: start;
   margin: 24px 0 30px;
@@ -152,7 +152,7 @@
 
 .home-feature-side__image {
   display: block;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 8;
   background: #e5e7eb;
 }
 
@@ -167,12 +167,12 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding: 16px;
+  padding: 14px;
 }
 
 .home-feature-side__content h2 {
   margin: 0;
-  font-size: clamp(1.25rem, 1.55vw, 1.55rem);
+  font-size: clamp(1.15rem, 1.35vw, 1.4rem);
 }
 
 .home-feature-side__excerpt {
@@ -181,7 +181,7 @@
   overflow: hidden;
   color: var(--text-700);
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
 }
 
 .home-feature-side .home-hero__actions {
