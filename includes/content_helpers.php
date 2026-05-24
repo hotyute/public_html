@@ -92,8 +92,18 @@ function app_post_image_src(?string $thumbnail): string
 {
     $thumbnail = trim((string)$thumbnail);
     if ($thumbnail === '') {
-        return '/images/thumbnail.png';
+        return app_post_placeholder_image_src();
     }
+
+    $normalizedThumbnail = str_replace('\\', '/', $thumbnail);
+    $normalizedThumbnail = ltrim($normalizedThumbnail, '/');
+    while (strpos($normalizedThumbnail, '../') === 0) {
+        $normalizedThumbnail = substr($normalizedThumbnail, 3);
+    }
+    if (strcasecmp($normalizedThumbnail, 'images/thumbnail.png') === 0) {
+        return app_post_placeholder_image_src();
+    }
+
     if (strpos($thumbnail, '../') === 0) {
         return '/' . ltrim(substr($thumbnail, 3), '/');
     }
@@ -102,6 +112,13 @@ function app_post_image_src(?string $thumbnail): string
     }
 
     return $thumbnail;
+}
+
+function app_post_placeholder_image_src(): string
+{
+    $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640" role="img" aria-label="No thumbnail selected"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7f4ef"/><stop offset="1" stop-color="#e8f0f7"/></linearGradient></defs><rect width="960" height="640" rx="36" fill="url(#bg)"/><path d="M160 454h640" stroke="#d7a83b" stroke-width="8" stroke-linecap="round"/><path d="M250 378l130-142 96 106 74-78 160 114" fill="none" stroke="#0e3a5d" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" opacity=".75"/><circle cx="642" cy="218" r="44" fill="#e7b84c" opacity=".85"/><text x="480" y="508" fill="#0e3a5d" font-family="Nunito, Arial, sans-serif" font-size="42" font-weight="800" text-anchor="middle">No Thumbnail Selected</text></svg>';
+
+    return 'data:image/svg+xml;charset=UTF-8,' . rawurlencode($svg);
 }
 
 function app_safe_image_style(?string $style): string

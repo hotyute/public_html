@@ -151,7 +151,7 @@ include __DIR__ . '/header.php';
         <section class="home-intro" data-inline-create-anchor>
             <div>
                 <p class="section-kicker">Divine Word Community</p>
-                <h1>Teachings, studies, and reflections for the flock.</h1>
+                <h1>Teachings, Articles, and Reflections<br><span>For the Little Flock.</span></h1>
                 <p>Read the newest article, then keep moving through recent studies without losing your place.</p>
             </div>
             <div class="home-actions">

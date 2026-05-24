@@ -1,29 +1,38 @@
 <?php
 $footerLinks = [
-    ['url' => '/archive.php', 'text' => 'All Posts', 'thumbnail' => ''],
-    ['url' => '#', 'text' => 'Link 2', 'thumbnail' => ''],
-    ['url' => '#', 'text' => 'Link 3', 'thumbnail' => ''],
+    ['url' => '/archive.php', 'text' => 'All Articles'],
+    ['url' => '/members.php', 'text' => 'Members'],
+    ['url' => '/contact.php', 'text' => 'Contact'],
+    ['url' => '/about.php', 'text' => 'About'],
 ];
 ?>
-<footer style="background-image: url('/images/footer.jpg');">
-    <?php if (!isset($_SESSION['username'])) : ?>
-        <p>Not registered yet? <a href="/register.php"><span class="registerl">Register here</span></a></p>
-    <?php endif; ?>
-    <p>&copy; <?php echo date("Y"); ?> DivineWord Community. All rights reserved.</p>
+<footer class="site-footer">
+    <div class="site-footer__inner">
+        <div class="site-footer__brand">
+            <img src="/images/logo.png" alt="Divine Word" class="site-footer__logo">
+            <p>Teachings, Articles, and Reflections<br>For the Little Flock.</p>
+        </div>
 
-    <div class="footer-links">
-        <ul>
-            <?php foreach ($footerLinks as $link) : ?>
-                <li>
-                    <div class="footer-link-item">
-                        <?php if (!empty($link['thumbnail'])) : ?>
-                            <img src="<?php echo $link['thumbnail']; ?>" alt="<?php echo $link['text']; ?>" class="footer-thumbnail">
-                        <?php endif; ?>
-                        <a href="<?php echo $link['url']; ?>"><?php echo $link['text']; ?></a>
-                    </div>
-                </li>
-            <?php endforeach; ?>
-        </ul>
+        <nav class="footer-links" aria-label="Footer navigation">
+            <ul>
+                <?php foreach ($footerLinks as $link) : ?>
+                    <li>
+                        <a href="<?php echo htmlspecialchars($link['url'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($link['text'], ENT_QUOTES, 'UTF-8'); ?></a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </nav>
+
+        <div class="site-footer__cta">
+            <?php if (!isset($_SESSION['username'])) : ?>
+                <p>Not registered yet? <a href="/register.php"><span class="registerl">Register here</span></a></p>
+            <?php else : ?>
+                <p>Signed in and ready to continue.</p>
+                <a href="/userportal/user_portal.php">Open User Portal</a>
+            <?php endif; ?>
+        </div>
+
+        <p class="site-footer__copy">&copy; <?php echo date("Y"); ?> DivineWord Community. All rights reserved.</p>
     </div>
 </footer>
 
