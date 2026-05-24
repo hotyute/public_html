@@ -10,16 +10,8 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'] ?? '', ['ad
     exit;
 }
 
-$videoFile = __DIR__ . '/../featured_video.txt';
-
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $url = file_exists($videoFile) ? trim(file_get_contents($videoFile)) : '';
-    echo json_encode([
-        'success' => true,
-        'url' => $url,
-        'embed' => app_video_embed_url($url),
-        'preview' => app_video_preview_image($url),
-    ]);
+    echo json_encode(['success' => true] + app_featured_video_data());
     exit;
 }
 
@@ -43,17 +35,13 @@ if (!hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
 }
 
 $url = trim((string)($data['video_link'] ?? $data['url'] ?? ''));
-$embed = app_video_embed_url($url);
-if ($url === '' || $embed === '') {
+$style = trim((string)($data['container_style'] ?? ''));
+try {
+    $savedVideo = app_featured_video_save($url, $style);
+} catch (InvalidArgumentException $e) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Please enter a valid YouTube, Vimeo, or embeddable video link.']);
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     exit;
 }
 
-file_put_contents($videoFile, $embed);
-echo json_encode([
-    'success' => true,
-    'url' => $embed,
-    'embed' => $embed,
-    'preview' => app_video_preview_image($embed),
-]);
+echo json_encode(['success' => true] + $savedVideo);

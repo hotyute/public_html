@@ -21,7 +21,7 @@ function css($path) {
     <?php css('/styles/surplus.css'); ?>
 <?php endif; ?>
 
-<?php if (in_array($current_page, ['admin_panel','edit_post','create_post','test_manage','user_portal','manage_users','manage_magazines'])) : ?>
+<?php if (in_array($current_page, ['admin_panel','edit_post','create_post','test_manage','user_portal','manage_users','manage_magazines','edit_video'])) : ?>
     <?php css('/styles/admin.css'); ?>
     <?php if ($current_page == 'edit_post') : ?>
         <?php css('/styles/edit_post.css'); ?>

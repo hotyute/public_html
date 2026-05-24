@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $status_message = "Post updated successfully!";
                     $status_message .= $audioResult['audio_generated']
                         ? " Audio regenerated."
-                        : " Reader transcript regenerated; install espeak-ng on the Ubuntu server for saved audio files.";
+                        : " Reader transcript regenerated; Piper/espeak audio was unavailable, so browser speech remains as backup.";
                     if ($thumbnail_warning !== '') {
                         $status_message .= ' ' . $thumbnail_warning;
                     }

@@ -16,6 +16,7 @@
     let wordStarts = [];
     let utterance = null;
     let isSpeechMode = false;
+    let activeCueIndex = -1;
 
     function setStatus(text) {
         if (status) status.textContent = text;
@@ -68,6 +69,12 @@
         wordSpans.forEach(span => span.classList.remove('is-current'));
     }
 
+    function updateProgress(index) {
+        if (progress) {
+            progress.style.width = `${Math.round(((index + 1) / Math.max(1, wordSpans.length)) * 100)}%`;
+        }
+    }
+
     function highlightWord(index) {
         if (!wordSpans.length) return;
         const safeIndex = Math.max(0, Math.min(wordSpans.length - 1, index));
@@ -75,9 +82,61 @@
         const span = wordSpans[safeIndex];
         span.classList.add('is-current');
         span.scrollIntoView({ block: 'center', behavior: 'smooth' });
-        if (progress) {
-            progress.style.width = `${Math.round(((safeIndex + 1) / wordSpans.length) * 100)}%`;
+        updateProgress(safeIndex);
+    }
+
+    function highlightCue(cue) {
+        if (!wordSpans.length || !cue) return;
+        const start = Math.max(0, Math.min(wordSpans.length - 1, Number(cue.start_word || 0)));
+        const end = Math.max(start, Math.min(wordSpans.length - 1, Number(cue.end_word ?? start)));
+        clearHighlight();
+        for (let i = start; i <= end; i++) {
+            wordSpans[i].classList.add('is-current');
         }
+        wordSpans[start].scrollIntoView({ block: 'center', behavior: 'smooth' });
+        updateProgress(end);
+    }
+
+    function cueForTime(time) {
+        const cues = Array.isArray(pageData?.cues) ? pageData.cues : [];
+        if (!cues.length) return null;
+
+        let low = 0;
+        let high = cues.length - 1;
+        while (low <= high) {
+            const mid = Math.floor((low + high) / 2);
+            const cue = cues[mid];
+            if (time < Number(cue.start || 0)) {
+                high = mid - 1;
+            } else if (time > Number(cue.end || 0)) {
+                low = mid + 1;
+            } else {
+                activeCueIndex = mid;
+                return cue;
+            }
+        }
+
+        const index = Math.max(0, Math.min(cues.length - 1, high));
+        activeCueIndex = index;
+        return cues[index];
+    }
+
+    function highlightAudioTime() {
+        if (!audio || !pageData) return;
+        const duration = audio.duration || 0;
+        const estimated = Number(pageData.estimated_seconds || 0);
+        const cueTime = duration > 0 && estimated > 0
+            ? audio.currentTime * (estimated / duration)
+            : audio.currentTime;
+        const cue = cueForTime(cueTime);
+        if (cue) {
+            highlightCue(cue);
+            return;
+        }
+
+        const safeDuration = duration || estimated || 1;
+        const ratio = Math.max(0, Math.min(1, audio.currentTime / safeDuration));
+        highlightWord(Math.floor(ratio * Math.max(1, wordSpans.length)));
     }
 
     function wordIndexFromChar(charIndex) {
@@ -158,11 +217,8 @@
             return;
         }
         audio.src = pageData.audio_url;
-        audio.addEventListener('timeupdate', () => {
-            const duration = audio.duration || pageData.estimated_seconds || 1;
-            const ratio = Math.max(0, Math.min(1, audio.currentTime / duration));
-            highlightWord(Math.floor(ratio * Math.max(1, wordSpans.length)));
-        });
+        audio.addEventListener('timeupdate', highlightAudioTime);
+        audio.addEventListener('seeked', highlightAudioTime);
         audio.addEventListener('ended', goNextPage);
         setStatus('Generated audio is ready.');
     }
@@ -178,6 +234,7 @@
                 if (!pageData) throw new Error('Reader transcript is missing this page.');
                 wordsFromText(pageData.text || content.textContent || '');
                 wrapContentWords();
+                activeCueIndex = -1;
                 configureAudio();
                 if (reader.dataset.autoplay === '1') {
                     playAudio();

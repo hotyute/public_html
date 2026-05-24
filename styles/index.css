@@ -273,7 +273,10 @@
 }
 
 .featured-video__frame {
+  position: relative;
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
   border-radius: 8px;
   background: #111827;
 }
@@ -337,6 +340,35 @@
   object-fit: cover;
   border-radius: 8px;
   background: #dbe3ec;
+}
+
+.video-size-tools {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.video-size-tools label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-700);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.video-resize-handle {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 2;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: var(--gold-500);
+  box-shadow: 0 4px 12px rgba(17, 24, 39, 0.32);
+  cursor: nwse-resize;
 }
 
 .magazine-preview {
@@ -496,6 +528,10 @@
     font-size: 2.2rem;
   }
 
+  .home-hero__excerpt {
+    display: none;
+  }
+
   .article-carousel__track {
     grid-auto-columns: 86%;
   }
@@ -519,7 +555,15 @@
 
   .article-mobile-list {
     display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(240px, 86%);
     gap: 10px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding: 2px 2px 14px;
+    scroll-snap-type: x mandatory;
+    scrollbar-color: var(--gold-500) rgba(14, 58, 93, 0.12);
+    scrollbar-width: thin;
   }
 
   .article-mobile-row {
@@ -531,6 +575,7 @@
     border: 1px solid rgba(14, 58, 93, 0.1);
     border-radius: 8px;
     background: #fff;
+    scroll-snap-align: start;
   }
 
   .article-mobile-row__image {

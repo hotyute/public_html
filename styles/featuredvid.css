@@ -23,7 +23,10 @@
 }
 
 .featured-video__frame {
+    position: relative;
     overflow: hidden;
+    width: 100%;
+    max-width: 100%;
     border-radius: 8px;
     background: #111827;
 }
@@ -41,6 +44,35 @@
     padding: 28px;
     color: #555;
     background: #f8fafc;
+}
+
+.video-size-tools {
+    display: grid;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.video-size-tools label {
+    display: grid;
+    gap: 6px;
+    color: var(--text-700);
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+.video-resize-handle {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    z-index: 2;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 2px solid #fff;
+    border-radius: 999px;
+    background: var(--gold-500);
+    box-shadow: 0 4px 12px rgba(17, 24, 39, 0.32);
+    cursor: nwse-resize;
 }
 
 .featured-video p {

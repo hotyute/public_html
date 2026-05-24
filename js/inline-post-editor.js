@@ -376,8 +376,8 @@
             })
             .then(data => {
                 const audioNote = data.audio?.audio_generated
-                    ? ' Audio generated.'
-                    : ' Reader transcript generated.';
+                    ? ` Audio generated${data.audio.engine ? ` with ${data.audio.engine}.` : '.'}`
+                    : ' Reader transcript generated; browser speech remains as backup.';
                 setMessage(`Saved.${audioNote}`);
                 window.setTimeout(() => {
                     if (activeEditor?.mode === 'create' && data.id) {

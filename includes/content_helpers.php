@@ -161,3 +161,62 @@ function app_video_preview_image(?string $url): string
 
     return '';
 }
+
+function app_featured_video_file(): string
+{
+    return __DIR__ . '/featured_video.txt';
+}
+
+function app_featured_video_meta_file(): string
+{
+    return __DIR__ . '/featured_video_meta.json';
+}
+
+function app_featured_video_data(): array
+{
+    $urlFile = app_featured_video_file();
+    $metaFile = app_featured_video_meta_file();
+    $url = file_exists($urlFile) ? trim((string)file_get_contents($urlFile)) : '';
+    $meta = [];
+
+    if (file_exists($metaFile)) {
+        $decoded = json_decode((string)file_get_contents($metaFile), true);
+        if (is_array($decoded)) {
+            $meta = $decoded;
+        }
+    }
+
+    $style = app_safe_image_style(is_scalar($meta['container_style'] ?? null) ? (string)$meta['container_style'] : '');
+
+    return [
+        'url' => $url,
+        'embed' => app_video_embed_url($url),
+        'preview' => app_video_preview_image($url),
+        'container_style' => $style,
+    ];
+}
+
+function app_featured_video_save(string $url, string $containerStyle = ''): array
+{
+    $embed = app_video_embed_url($url);
+    if ($embed === '') {
+        throw new InvalidArgumentException('Please enter a valid YouTube, Vimeo, or embeddable video link.');
+    }
+
+    file_put_contents(app_featured_video_file(), $embed);
+    $style = app_safe_image_style($containerStyle);
+    file_put_contents(
+        app_featured_video_meta_file(),
+        json_encode([
+            'container_style' => $style,
+            'updated_at' => date(DATE_ATOM),
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+    );
+
+    return [
+        'url' => $embed,
+        'embed' => $embed,
+        'preview' => app_video_preview_image($embed),
+        'container_style' => $style,
+    ];
+}

@@ -23,13 +23,11 @@ $posts = $postsStmt->fetchAll(PDO::FETCH_ASSOC);
 $heroPost = $posts[0] ?? null;
 $continuePosts = array_slice($posts, 1);
 
-$video_link = '';
-$video_file = __DIR__ . '/includes/featured_video.txt';
-if (file_exists($video_file)) {
-    $video_link = trim(file_get_contents($video_file));
-}
-$video_embed = app_video_embed_url($video_link);
-$video_preview = app_video_preview_image($video_link);
+$videoData = app_featured_video_data();
+$video_link = $videoData['url'];
+$video_embed = $videoData['embed'];
+$video_preview = $videoData['preview'];
+$video_style = $videoData['container_style'];
 
 $magazinesStmt = $pdo->query("
     SELECT id, title, author, image_url, article_url, issue, DATE(published_date) AS published_date
@@ -74,10 +72,11 @@ function render_mobile_article_row(array $post, bool $canEditPosts): void
 {
     $postId = (int)$post['id'];
     $postUrl = '/post.php?id=' . $postId;
+    $thumbnailStyle = app_safe_image_style($post['thumbnail_style'] ?? '');
     ?>
     <article class="article-mobile-row" data-inline-post data-post-id="<?= $postId ?>">
         <a class="article-mobile-row__image" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-image>
-            <img src="<?= htmlspecialchars(app_post_image_src($post['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?>">
+            <img src="<?= htmlspecialchars(app_post_image_src($post['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?>"<?= $thumbnailStyle !== '' ? ' style="' . htmlspecialchars($thumbnailStyle, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
         </a>
         <div>
             <a class="article-mobile-row__title" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-field="title"><?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?></a>
@@ -166,14 +165,14 @@ include __DIR__ . '/header.php';
                     </div>
                 </div>
                 <div class="article-mobile-list" aria-label="Recent articles for mobile">
-                    <?php foreach ($continuePosts as $post): ?>
+                    <?php foreach (array_slice($continuePosts, 0, 4) as $post): ?>
                         <?php render_mobile_article_row($post, $canEditPosts); ?>
                     <?php endforeach; ?>
                 </div>
             </section>
         <?php endif; ?>
 
-        <section class="featured-video" data-video-editor data-video-url="<?= htmlspecialchars($video_link, ENT_QUOTES, 'UTF-8') ?>">
+        <section class="featured-video" data-video-editor data-video-url="<?= htmlspecialchars($video_link, ENT_QUOTES, 'UTF-8') ?>" data-video-style="<?= htmlspecialchars($video_style, ENT_QUOTES, 'UTF-8') ?>">
             <div class="section-heading">
                 <div>
                     <p class="section-kicker">Watch</p>
@@ -186,7 +185,7 @@ include __DIR__ . '/header.php';
                     </div>
                 <?php endif; ?>
             </div>
-            <div class="featured-video__frame" data-video-preview>
+            <div class="featured-video__frame" data-video-preview<?= $video_style !== '' ? ' style="' . htmlspecialchars($video_style, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
             <?php if (!empty($video_embed)) : ?>
                 <iframe src="<?= htmlspecialchars($video_embed, ENT_QUOTES, 'UTF-8') ?>" title="Featured video" allowfullscreen></iframe>
             <?php else : ?>
@@ -204,6 +203,15 @@ include __DIR__ . '/header.php';
                             <img src="<?= htmlspecialchars($video_preview, ENT_QUOTES, 'UTF-8') ?>" alt="Featured video preview">
                         <?php endif; ?>
                         <span data-video-status><?= $video_embed !== '' ? 'Ready to embed.' : 'Paste a supported video link to preview it.' ?></span>
+                    </div>
+                    <div class="video-size-tools">
+                        <label>Container width <input type="range" min="55" max="100" step="1" data-video-width value="100"></label>
+                        <div class="inline-edit-toolbar__actions">
+                            <button type="button" class="secondary-button" data-video-ratio="1.777">Wide</button>
+                            <button type="button" class="secondary-button" data-video-ratio="1.333">Classic</button>
+                            <button type="button" class="secondary-button" data-video-ratio="1">Square</button>
+                            <button type="button" class="secondary-button" data-video-reset-size>Reset size</button>
+                        </div>
                     </div>
                     <div class="inline-edit-toolbar__actions">
                         <button type="button" data-video-save>Save Video</button>

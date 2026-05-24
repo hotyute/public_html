@@ -6,10 +6,11 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['user_role'] ?? '', ['ad
 }
 require_once __DIR__ . '/../includes/content_helpers.php';
 
-$video_file = __DIR__ . '/../includes/featured_video.txt';
 $success = '';
 $error = '';
-$current_video = file_exists($video_file) ? trim(file_get_contents($video_file)) : '';
+$videoData = app_featured_video_data();
+$current_video = $videoData['url'];
+$current_style = $videoData['container_style'];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
@@ -17,13 +18,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     $new_link = trim($_POST['video_link'] ?? '');
-    $embed_link = app_video_embed_url($new_link);
-    if (!empty($embed_link)) {
-        file_put_contents($video_file, $embed_link);
-        $current_video = $embed_link;
+    $style = trim($_POST['container_style'] ?? '');
+    try {
+        $savedVideo = app_featured_video_save($new_link, $style);
+        $current_video = $savedVideo['url'];
+        $current_style = $savedVideo['container_style'];
         $success = 'Video link updated successfully!';
-    } else {
-        $error = 'Please provide a valid video link.';
+    } catch (InvalidArgumentException $e) {
+        $error = $e->getMessage();
     }
 }
 $current_embed = app_video_embed_url($current_video);
@@ -31,7 +33,7 @@ $current_preview = app_video_preview_image($current_video);
 ?>
 
 <?php include '../header.php'; ?>
-<div class="admin-content video-admin-page" data-video-editor data-video-url="<?= htmlspecialchars($current_video, ENT_QUOTES, 'UTF-8') ?>">
+<div class="admin-content video-admin-page" data-video-editor data-video-url="<?= htmlspecialchars($current_video, ENT_QUOTES, 'UTF-8') ?>" data-video-style="<?= htmlspecialchars($current_style, ENT_QUOTES, 'UTF-8') ?>">
     <div class="video-admin-page__header">
         <div>
             <p class="section-kicker">Homepage Feature</p>
@@ -52,6 +54,7 @@ $current_preview = app_video_preview_image($current_video);
         <label for="video_link">Video Link</label>
         <div class="video-admin-form__input">
             <input type="url" id="video_link" name="video_link" data-video-input value="<?php echo htmlspecialchars($current_video, ENT_QUOTES, 'UTF-8'); ?>" placeholder="https://www.youtube.com/watch?v=...">
+            <input type="hidden" name="container_style" data-video-style-input value="<?= htmlspecialchars($current_style, ENT_QUOTES, 'UTF-8') ?>">
             <button type="submit">Update Video</button>
         </div>
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
@@ -65,12 +68,21 @@ $current_preview = app_video_preview_image($current_video);
                     <h2>Homepage Player</h2>
                 </div>
             </div>
-            <div class="featured-video__frame" data-video-preview>
+            <div class="featured-video__frame" data-video-preview<?= $current_style !== '' ? ' style="' . htmlspecialchars($current_style, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
                 <?php if ($current_embed !== ''): ?>
                     <iframe src="<?= htmlspecialchars($current_embed, ENT_QUOTES, 'UTF-8') ?>" title="Featured video preview" allowfullscreen></iframe>
                 <?php else: ?>
                     <p>No video selected yet.</p>
                 <?php endif; ?>
+            </div>
+            <div class="video-size-tools">
+                <label>Container width <input type="range" min="55" max="100" step="1" data-video-width value="100"></label>
+                <div class="inline-edit-toolbar__actions">
+                    <button type="button" class="secondary-button" data-video-ratio="1.777">Wide</button>
+                    <button type="button" class="secondary-button" data-video-ratio="1.333">Classic</button>
+                    <button type="button" class="secondary-button" data-video-ratio="1">Square</button>
+                    <button type="button" class="secondary-button" data-video-reset-size>Reset size</button>
+                </div>
             </div>
         </section>
 

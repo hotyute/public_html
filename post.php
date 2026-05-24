@@ -146,11 +146,13 @@ if ($post_id > 0) {
         if ($post['thumbnail']) {
             $thumbnailStyle = app_safe_image_style($post['thumbnail_style'] ?? '');
             echo '<img src="' . htmlspecialchars($post['thumbnail'], ENT_QUOTES, 'UTF-8') . '" alt="Post Image" class="post-thumbnail" data-edit-image' . ($thumbnailStyle !== '' ? ' style="' . htmlspecialchars($thumbnailStyle, ENT_QUOTES, 'UTF-8') . '"' : '') . '>';
+        } elseif ($canEditPosts) {
+            echo '<img src="/images/thumbnail.png" alt="Post image placeholder" class="post-thumbnail post-thumbnail--placeholder" data-edit-image>';
         }
 
         $manifestUrl = article_audio_manifest_url((int)$post_id);
         $manifestPath = article_audio_manifest_path((int)$post_id);
-        if (!file_exists($manifestPath) && !empty($post['voiceover_url'])) {
+        if (article_audio_manifest_needs_refresh((int)$post_id) && !empty($post['voiceover_url'])) {
             article_audio_generate_for_post($pdo, (int)$post_id, $content);
         }
         if (file_exists($manifestPath) || !empty($post['voiceover_url'])) {

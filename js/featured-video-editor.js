@@ -72,6 +72,87 @@
         } else if (status) {
             status.textContent = result?.status || 'Paste a supported link to build a preview.';
         }
+        applyVideoStyle(root, root.dataset.videoStyle || '');
+        installResizeHandle(root);
+    }
+
+    function videoTarget(root) {
+        return root.querySelector('[data-video-preview]') || root;
+    }
+
+    function applyVideoStyle(root, style) {
+        const target = videoTarget(root);
+        if (!target) return;
+        target.setAttribute('style', style || '');
+        const styleInput = root.querySelector('[data-video-style-input]');
+        if (styleInput) styleInput.value = style || '';
+        root.dataset.videoStyle = style || '';
+        syncSizeControls(root);
+    }
+
+    function videoStyleFromControls(root) {
+        const target = videoTarget(root);
+        const widthControl = root.querySelector('[data-video-width]');
+        const width = Number(widthControl?.value || 100);
+        const aspectRatio = target?.style.aspectRatio || '16 / 9';
+        return `width: ${Math.max(55, Math.min(100, width))}%; max-width: 100%; aspect-ratio: ${aspectRatio}`;
+    }
+
+    function syncSizeControls(root) {
+        const target = videoTarget(root);
+        const widthControl = root.querySelector('[data-video-width]');
+        if (!target || !widthControl) return;
+        const width = target.style.width || '100%';
+        const match = width.match(/(\d+)/);
+        widthControl.value = match ? match[1] : '100';
+    }
+
+    function setVideoRatio(root, ratio) {
+        const target = videoTarget(root);
+        if (!target || !ratio) return;
+        target.style.aspectRatio = ratio > 1.5 ? '16 / 9' : ratio > 1.1 ? '4 / 3' : '1 / 1';
+        if (!target.style.width) target.style.width = '100%';
+        target.style.maxWidth = '100%';
+        applyVideoStyle(root, videoStyleFromControls(root));
+    }
+
+    function installResizeHandle(root) {
+        const target = videoTarget(root);
+        if (!target || root.querySelector('.video-resize-handle')) return;
+        const handle = document.createElement('button');
+        handle.type = 'button';
+        handle.className = 'video-resize-handle';
+        handle.setAttribute('aria-label', 'Resize video container');
+        target.appendChild(handle);
+
+        handle.addEventListener('pointerdown', event => {
+            event.preventDefault();
+            const rect = target.getBoundingClientRect();
+            const startX = event.clientX;
+            const startY = event.clientY;
+            const startWidth = rect.width;
+            const startHeight = rect.height;
+            const parentWidth = target.parentElement?.getBoundingClientRect().width || startWidth;
+
+            function move(moveEvent) {
+                const width = Math.max(220, startWidth + moveEvent.clientX - startX);
+                const height = Math.max(140, startHeight + moveEvent.clientY - startY);
+                const widthPercent = Math.max(55, Math.min(100, Math.round((width / parentWidth) * 100)));
+                const ratio = width / height;
+                target.style.width = `${widthPercent}%`;
+                target.style.maxWidth = '100%';
+                target.style.aspectRatio = `${Math.max(0.7, Math.min(2.2, ratio)).toFixed(3)} / 1`;
+                applyVideoStyle(root, videoStyleFromControls(root));
+            }
+
+            function up() {
+                document.removeEventListener('pointermove', move);
+                document.removeEventListener('pointerup', up);
+            }
+
+            document.addEventListener('pointermove', move);
+            document.addEventListener('pointerup', up);
+        });
     }
 
     function wireRoot(root) {
@@ -81,12 +162,33 @@
         const saveButton = root.querySelector('[data-video-save]');
         const cancelButton = root.querySelector('[data-video-cancel]');
         const copyButton = root.querySelector('[data-video-copy-embed]');
+        const widthControl = root.querySelector('[data-video-width]');
+
+        root.dataset.savedVideoStyle = root.dataset.videoStyle || '';
+        applyVideoStyle(root, root.dataset.videoStyle || '');
+        installResizeHandle(root);
 
         if (input) {
             input.addEventListener('input', () => {
                 renderPreview(root, parseVideo(input.value.trim()));
             });
         }
+
+        if (widthControl) {
+            widthControl.addEventListener('input', () => {
+                const target = videoTarget(root);
+                if (!target.style.aspectRatio) target.style.aspectRatio = '16 / 9';
+                applyVideoStyle(root, videoStyleFromControls(root));
+            });
+        }
+
+        root.querySelectorAll('[data-video-ratio]').forEach(button => {
+            button.addEventListener('click', () => setVideoRatio(root, Number(button.dataset.videoRatio)));
+        });
+
+        root.querySelector('[data-video-reset-size]')?.addEventListener('click', () => {
+            applyVideoStyle(root, '');
+        });
 
         if (editButton && panel) {
             editButton.addEventListener('click', () => {
@@ -99,6 +201,7 @@
             cancelButton.addEventListener('click', () => {
                 panel.hidden = true;
                 if (input) input.value = root.dataset.videoUrl || '';
+                applyVideoStyle(root, root.dataset.savedVideoStyle || '');
                 renderPreview(root, parseVideo(input?.value || ''));
             });
         }
@@ -117,7 +220,7 @@
                         'Content-Type': 'application/json',
                         'X-CSRF-Token': csrfToken
                     },
-                    body: JSON.stringify({ video_link: result.embed })
+                    body: JSON.stringify({ video_link: result.embed, container_style: root.dataset.videoStyle || '' })
                 })
                     .then(async response => {
                         const data = await response.json().catch(() => ({}));
@@ -126,6 +229,8 @@
                     })
                     .then(data => {
                         root.dataset.videoUrl = data.url || result.embed;
+                        root.dataset.videoStyle = data.container_style || root.dataset.videoStyle || '';
+                        root.dataset.savedVideoStyle = root.dataset.videoStyle || '';
                         input.value = root.dataset.videoUrl;
                         renderPreview(root, parseVideo(root.dataset.videoUrl));
                         if (panel) panel.hidden = true;
