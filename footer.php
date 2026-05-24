@@ -39,6 +39,13 @@ $footerLinks = [
 <?php endif; ?>
 <?php if ($current_page == 'index') : ?>
     <script src="/js/article-carousel.js"></script>
+    <script src="/js/featured-video-editor.js"></script>
+    <?php if (isset($_SESSION['user_id']) && ($_SESSION['user_role'] ?? '') === 'admin') : ?>
+        <script src="/js/home-content-admin.js"></script>
+    <?php endif; ?>
+<?php endif; ?>
+<?php if ($current_page == 'edit_video') : ?>
+    <script src="/js/featured-video-editor.js"></script>
 <?php endif; ?>
 <?php if (in_array($current_page, ['index', 'post'], true) && isset($_SESSION['user_id']) && in_array($_SESSION['user_role'] ?? '', ['admin', 'editor'], true)) : ?>
     <script src="/js/inline-post-editor.js"></script>

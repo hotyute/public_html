@@ -17,7 +17,7 @@ if (!$post_id) {
     exit;
 }
 
-$stmt = $pdo->prepare("SELECT title, content, thumbnail FROM posts WHERE id = ?");
+$stmt = $pdo->prepare("SELECT title, content, thumbnail, thumbnail_style FROM posts WHERE id = ?");
 $stmt->execute([$post_id]);
 $post = $stmt->fetch(PDO::FETCH_ASSOC);
 

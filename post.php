@@ -117,7 +117,7 @@ if ($post_id > 0) {
         $_SESSION['viewed_posts'][] = $post_id;
     }
 
-    $stmt = $pdo->prepare("SELECT posts.title, posts.content, posts.thumbnail, posts.voiceover_url,
+    $stmt = $pdo->prepare("SELECT posts.title, posts.content, posts.thumbnail, posts.thumbnail_style, posts.voiceover_url,
                                   COALESCE(users.displayname, 'Unknown') AS author,
                                   COALESCE(users.role, 'member') AS user_role,
                                   posts.views
@@ -134,7 +134,7 @@ if ($post_id > 0) {
         $content_page = isset($pages[$page - 1]) ? $pages[$page - 1] : '';
         $userClass = getUserClass($post['user_role']);
 
-        echo '<div class="post-container" data-inline-post data-post-id="' . (int)$post_id . '">';
+        echo '<div class="post-container" data-inline-post data-post-id="' . (int)$post_id . '" data-page="' . (int)$page . '">';
         if ($canEditPosts) {
             echo '<div class="admin-inline-toolbar">';
             echo '<button type="button" class="js-edit-post" data-post-id="' . (int)$post_id . '">Edit This Article</button>';
@@ -144,7 +144,8 @@ if ($post_id > 0) {
         echo '<h1 class="post-title" data-edit-field="title">' . htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') . '</h1>';
         echo '<h4 class="post-author">By <span class="' . $userClass . '">' . htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8') . '</span> | Views: ' . htmlspecialchars($post['views'], ENT_QUOTES, 'UTF-8') . '</h4>';
         if ($post['thumbnail']) {
-            echo '<img src="' . htmlspecialchars($post['thumbnail'], ENT_QUOTES, 'UTF-8') . '" alt="Post Image" class="post-thumbnail" data-edit-image>';
+            $thumbnailStyle = app_safe_image_style($post['thumbnail_style'] ?? '');
+            echo '<img src="' . htmlspecialchars($post['thumbnail'], ENT_QUOTES, 'UTF-8') . '" alt="Post Image" class="post-thumbnail" data-edit-image' . ($thumbnailStyle !== '' ? ' style="' . htmlspecialchars($thumbnailStyle, ENT_QUOTES, 'UTF-8') . '"' : '') . '>';
         }
 
         $manifestUrl = article_audio_manifest_url((int)$post_id);

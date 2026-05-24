@@ -5,16 +5,17 @@ require_once __DIR__ . '/includes/content_helpers.php';
 
 $issue = app_current_issue_label();
 $canEditPosts = app_can_edit_posts();
+$canManageMagazines = app_can_manage_magazines();
 
 $postsStmt = $pdo->query("
-    SELECT posts.id, posts.title, posts.thumbnail, posts.content, posts.created_at,
+    SELECT posts.id, posts.title, posts.thumbnail, posts.thumbnail_style, posts.content, posts.created_at,
            COALESCE(users.displayname, 'Unknown') AS author,
            COALESCE(users.role, 'member') AS user_role,
            COUNT(comments.id) AS comment_count
     FROM posts
     LEFT JOIN users ON posts.user_id = users.id
     LEFT JOIN comments ON posts.id = comments.post_id
-    GROUP BY posts.id, posts.title, posts.thumbnail, posts.content, posts.created_at, users.displayname, users.role
+    GROUP BY posts.id, posts.title, posts.thumbnail, posts.thumbnail_style, posts.content, posts.created_at, users.displayname, users.role
     ORDER BY posts.id DESC
     LIMIT 13
 ");
@@ -27,15 +28,15 @@ $video_file = __DIR__ . '/includes/featured_video.txt';
 if (file_exists($video_file)) {
     $video_link = trim(file_get_contents($video_file));
 }
+$video_embed = app_video_embed_url($video_link);
+$video_preview = app_video_preview_image($video_link);
 
-$magazinesStmt = $pdo->prepare("
-    SELECT title, author, image_url, article_url
+$magazinesStmt = $pdo->query("
+    SELECT id, title, author, image_url, article_url, issue, DATE(published_date) AS published_date
     FROM magazine_articles
-    WHERE issue = :issue
-    ORDER BY id DESC
+    ORDER BY published_date DESC, id DESC
     LIMIT 3
 ");
-$magazinesStmt->execute(['issue' => $issue]);
 $magazineArticles = $magazinesStmt->fetchAll(PDO::FETCH_ASSOC);
 
 function render_article_tile(array $post, bool $canEditPosts): void
@@ -43,10 +44,11 @@ function render_article_tile(array $post, bool $canEditPosts): void
     $postId = (int)$post['id'];
     $postUrl = '/post.php?id=' . $postId;
     $roleClass = app_user_role_class($post['user_role'] ?? '');
+    $thumbnailStyle = app_safe_image_style($post['thumbnail_style'] ?? '');
     ?>
     <article class="article-tile" data-inline-post data-post-id="<?= $postId ?>">
         <a class="article-tile__image" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-image>
-            <img src="<?= htmlspecialchars(app_post_image_src($post['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?>">
+            <img src="<?= htmlspecialchars(app_post_image_src($post['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?>"<?= $thumbnailStyle !== '' ? ' style="' . htmlspecialchars($thumbnailStyle, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
         </a>
         <div class="article-tile__body">
             <a class="article-tile__title" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-field="title">
@@ -63,6 +65,27 @@ function render_article_tile(array $post, bool $canEditPosts): void
                     <button type="button" class="inline-edit-button js-edit-post" data-post-id="<?= $postId ?>">Edit</button>
                 <?php endif; ?>
             </div>
+        </div>
+    </article>
+    <?php
+}
+
+function render_mobile_article_row(array $post, bool $canEditPosts): void
+{
+    $postId = (int)$post['id'];
+    $postUrl = '/post.php?id=' . $postId;
+    ?>
+    <article class="article-mobile-row" data-inline-post data-post-id="<?= $postId ?>">
+        <a class="article-mobile-row__image" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-image>
+            <img src="<?= htmlspecialchars(app_post_image_src($post['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?>">
+        </a>
+        <div>
+            <a class="article-mobile-row__title" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-field="title"><?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?></a>
+            <p><?= htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8') ?> &middot; <?= (int)$post['comment_count'] ?> comments</p>
+            <?php if ($canEditPosts): ?>
+                <button type="button" class="inline-edit-button js-edit-post" data-post-id="<?= $postId ?>">Edit</button>
+            <?php endif; ?>
+            <span class="article-mobile-row__hidden-content" data-edit-field="content"><?= htmlspecialchars(app_plain_excerpt($post['content'] ?? '', 90), ENT_QUOTES, 'UTF-8') ?></span>
         </div>
     </article>
     <?php
@@ -91,10 +114,11 @@ include __DIR__ . '/header.php';
             <?php
             $heroId = (int)$heroPost['id'];
             $heroUrl = '/post.php?id=' . $heroId;
+            $heroThumbnailStyle = app_safe_image_style($heroPost['thumbnail_style'] ?? '');
             ?>
             <section class="home-hero" data-inline-post data-post-id="<?= $heroId ?>">
                 <a class="home-hero__media" href="<?= htmlspecialchars($heroUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-image>
-                    <img src="<?= htmlspecialchars(app_post_image_src($heroPost['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($heroPost['title'], ENT_QUOTES, 'UTF-8') ?>">
+                    <img src="<?= htmlspecialchars(app_post_image_src($heroPost['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($heroPost['title'], ENT_QUOTES, 'UTF-8') ?>"<?= $heroThumbnailStyle !== '' ? ' style="' . htmlspecialchars($heroThumbnailStyle, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
                 </a>
                 <div class="home-hero__content">
                     <p class="section-kicker">Latest Article</p>
@@ -141,54 +165,114 @@ include __DIR__ . '/header.php';
                         <?php endforeach; ?>
                     </div>
                 </div>
+                <div class="article-mobile-list" aria-label="Recent articles for mobile">
+                    <?php foreach ($continuePosts as $post): ?>
+                        <?php render_mobile_article_row($post, $canEditPosts); ?>
+                    <?php endforeach; ?>
+                </div>
             </section>
         <?php endif; ?>
 
-        <section class="featured-video">
+        <section class="featured-video" data-video-editor data-video-url="<?= htmlspecialchars($video_link, ENT_QUOTES, 'UTF-8') ?>">
             <div class="section-heading">
                 <div>
                     <p class="section-kicker">Watch</p>
                     <h2>Featured Video</h2>
                 </div>
                 <?php if ($canEditPosts): ?>
-                    <a href="/admin/edit_video.php">Edit video</a>
+                    <div class="section-actions">
+                        <button type="button" class="secondary-button js-video-edit">Edit video</button>
+                        <a href="/admin/edit_video.php">Advanced</a>
+                    </div>
                 <?php endif; ?>
             </div>
-            <?php if (!empty($video_link)) : ?>
-                <iframe src="<?= htmlspecialchars($video_link, ENT_QUOTES, 'UTF-8') ?>" title="Featured video" allowfullscreen></iframe>
+            <div class="featured-video__frame" data-video-preview>
+            <?php if (!empty($video_embed)) : ?>
+                <iframe src="<?= htmlspecialchars($video_embed, ENT_QUOTES, 'UTF-8') ?>" title="Featured video" allowfullscreen></iframe>
             <?php else : ?>
                 <p>No featured video this week. Check back later.</p>
             <?php endif; ?>
-        </section>
-    </main>
-
-    <aside class="sidebar home-sidebar">
-        <div class="section-heading sidebar-heading">
-            <div>
-                <p class="section-kicker">External Magazines</p>
-                <h3><?= htmlspecialchars($issue, ENT_QUOTES, 'UTF-8') ?></h3>
             </div>
             <?php if ($canEditPosts): ?>
-                <a href="/admin/manage_magazines.php">Manage</a>
+                <div class="video-inline-editor" data-video-panel hidden>
+                    <label>
+                        Video link
+                        <input type="url" data-video-input value="<?= htmlspecialchars($video_link, ENT_QUOTES, 'UTF-8') ?>" placeholder="Paste a YouTube or Vimeo link">
+                    </label>
+                    <div class="video-preview-card" data-video-card>
+                        <?php if ($video_preview !== ''): ?>
+                            <img src="<?= htmlspecialchars($video_preview, ENT_QUOTES, 'UTF-8') ?>" alt="Featured video preview">
+                        <?php endif; ?>
+                        <span data-video-status><?= $video_embed !== '' ? 'Ready to embed.' : 'Paste a supported video link to preview it.' ?></span>
+                    </div>
+                    <div class="inline-edit-toolbar__actions">
+                        <button type="button" data-video-save>Save Video</button>
+                        <button type="button" class="secondary-button" data-video-cancel>Cancel</button>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </section>
+
+        <section class="magazine-preview" data-magazine-admin>
+        <div class="section-heading">
+            <div>
+                <p class="section-kicker">External Magazines</p>
+                <h2>Latest Issues</h2>
+            </div>
+            <?php if ($canManageMagazines): ?>
+                <div class="section-actions">
+                    <button type="button" class="secondary-button js-magazine-new">Add article</button>
+                    <a href="/admin/manage_magazines.php">Manage</a>
+                </div>
             <?php endif; ?>
         </div>
-        <ul>
+        <div class="magazine-preview__grid">
             <?php if ($magazineArticles): ?>
                 <?php foreach ($magazineArticles as $row): ?>
-                    <li>
-                        <img src="<?= htmlspecialchars($row['image_url'], ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8') ?>" class="thumbnail">
-                        <span>
-                            <a href="<?= htmlspecialchars($row['article_url'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8') ?></a>
+                    <article class="magazine-card"
+                             data-magazine-id="<?= (int)$row['id'] ?>"
+                             data-title="<?= htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8') ?>"
+                             data-author="<?= htmlspecialchars($row['author'], ENT_QUOTES, 'UTF-8') ?>"
+                             data-image-url="<?= htmlspecialchars($row['image_url'], ENT_QUOTES, 'UTF-8') ?>"
+                             data-article-url="<?= htmlspecialchars($row['article_url'], ENT_QUOTES, 'UTF-8') ?>"
+                             data-published-date="<?= htmlspecialchars($row['published_date'], ENT_QUOTES, 'UTF-8') ?>"
+                             data-issue="<?= htmlspecialchars($row['issue'], ENT_QUOTES, 'UTF-8') ?>">
+                        <a class="magazine-card__image" href="<?= htmlspecialchars($row['article_url'], ENT_QUOTES, 'UTF-8') ?>">
+                            <img src="<?= htmlspecialchars($row['image_url'], ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8') ?>">
+                        </a>
+                        <div>
+                            <p><?= htmlspecialchars($row['issue'], ENT_QUOTES, 'UTF-8') ?></p>
+                            <h3><a href="<?= htmlspecialchars($row['article_url'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($row['title'], ENT_QUOTES, 'UTF-8') ?></a></h3>
                             <small><?= htmlspecialchars($row['author'], ENT_QUOTES, 'UTF-8') ?></small>
-                        </span>
-                    </li>
+                            <?php if ($canManageMagazines): ?>
+                                <button type="button" class="inline-edit-button js-magazine-edit">Edit</button>
+                            <?php endif; ?>
+                        </div>
+                    </article>
                 <?php endforeach; ?>
             <?php else: ?>
-                <li>No articles available for this issue.</li>
+                <p class="magazine-preview__empty">No external magazine articles yet.</p>
             <?php endif; ?>
-        </ul>
+        </div>
+        <?php if ($canManageMagazines): ?>
+            <form class="magazine-inline-form" data-magazine-form hidden>
+                <input type="hidden" name="id">
+                <label>Title <input type="text" name="title" maxlength="255" required></label>
+                <label>Author <input type="text" name="author" maxlength="255" required></label>
+                <label>Image URL <input type="url" name="image_url" required></label>
+                <label>Article URL <input type="url" name="article_url" required></label>
+                <label>Published <input type="date" name="published_date" value="<?= htmlspecialchars(date('Y-m-d'), ENT_QUOTES, 'UTF-8') ?>" required></label>
+                <label>Issue <input type="text" name="issue" value="<?= htmlspecialchars($issue, ENT_QUOTES, 'UTF-8') ?>" required></label>
+                <p class="inline-editor-message" data-magazine-message aria-live="polite"></p>
+                <div class="inline-edit-toolbar__actions">
+                    <button type="submit">Save Magazine Article</button>
+                    <button type="button" class="secondary-button" data-magazine-cancel>Cancel</button>
+                </div>
+            </form>
+        <?php endif; ?>
         <a href="/magazines/all_issues.php" class="view-all">View All Issues</a>
-    </aside>
+        </section>
+    </main>
 </div>
 
 <?php include __DIR__ . '/footer.php'; ?>

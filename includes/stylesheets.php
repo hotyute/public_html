@@ -14,7 +14,6 @@ function css($path) {
 <?php if ($current_page == 'index') : ?>
     <?php css('/styles/surplus.css'); ?>
     <?php css('/styles/featuredvid.css'); ?>
-    <?php css('/styles/sidebar.css'); ?>
     <?php css('/styles/index.css'); ?>
 <?php endif; ?>
 
@@ -26,6 +25,10 @@ function css($path) {
     <?php css('/styles/admin.css'); ?>
     <?php if ($current_page == 'edit_post') : ?>
         <?php css('/styles/edit_post.css'); ?>
+    <?php endif; ?>
+    <?php if ($current_page == 'edit_video') : ?>
+        <?php css('/styles/featuredvid.css'); ?>
+        <?php css('/styles/edit_video.css'); ?>
     <?php endif; ?>
 <?php endif; ?>
 

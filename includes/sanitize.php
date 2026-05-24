@@ -67,7 +67,7 @@ function purifier_config_base(): HTMLPurifier_Config {
         'padding','padding-left','padding-right','padding-top','padding-bottom',
         'border','border-top','border-right','border-bottom','border-left','border-color','border-style','border-width','border-radius',
         // layout/sizing
-        'display','float','width','height','max-width','min-width',
+        'display','float','width','height','max-width','min-width','aspect-ratio','object-fit','object-position',
         // lists and tables
         'list-style-type','border-collapse','border-spacing','table-layout','caption-side'
     ]);
@@ -86,7 +86,7 @@ function purifier_config_base(): HTMLPurifier_Config {
         // 'data' => false (not listed => disallowed)
     ]);
 
-    // Keep author structure; don’t auto-wrap
+    // Keep author structure; do not auto-wrap
     $config->set('AutoFormat.AutoParagraph', false);
     $config->set('AutoFormat.RemoveEmpty', false);
     $config->set('AutoFormat.RemoveEmpty.RemoveNbsp', false);

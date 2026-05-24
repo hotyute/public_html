@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../session.php';
 require_once __DIR__ . '/../database.php';
 require_once __DIR__ . '/../sanitize.php';
+require_once __DIR__ . '/../content_helpers.php';
 require_once __DIR__ . '/../article_audio.php';
 
 header('Content-Type: application/json');
@@ -37,6 +38,11 @@ function posts_api_thumbnail(?string $value): string
     return $value;
 }
 
+function posts_api_thumbnail_style(?string $value): string
+{
+    return app_safe_image_style($value);
+}
+
 function posts_api_payload(): array
 {
     $raw = file_get_contents('php://input');
@@ -68,7 +74,7 @@ try {
             exit;
         }
 
-        $stmt = $pdo->prepare("SELECT id, title, content, thumbnail FROM posts WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT id, title, content, thumbnail, thumbnail_style FROM posts WHERE id = ?");
         $stmt->execute([$postId]);
         $post = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$post) {
@@ -99,12 +105,14 @@ try {
     $titleInput = $data['title'] ?? '';
     $contentInput = $data['content'] ?? '';
     $thumbnailInput = $data['thumbnail'] ?? '';
+    $thumbnailStyleInput = $data['thumbnail_style'] ?? '';
 
     $title = trim(strip_tags(is_scalar($titleInput) ? (string)$titleInput : ''));
     $rawContent = is_string($contentInput) ? $contentInput : '';
     $rawContent = preg_replace('/<hr\b[^>]*class="[^"]*\bpagebreak\b[^"]*"[^>]*>/i', '<!-- pagebreak -->', $rawContent);
     $content = sanitize_html2($rawContent);
     $thumbnail = posts_api_thumbnail(is_scalar($thumbnailInput) ? (string)$thumbnailInput : '');
+    $thumbnailStyle = posts_api_thumbnail_style(is_scalar($thumbnailStyleInput) ? (string)$thumbnailStyleInput : '');
 
     if ($title === '') {
         http_response_code(400);
@@ -113,8 +121,8 @@ try {
     }
 
     if ($action === 'create') {
-        $stmt = $pdo->prepare("INSERT INTO posts (title, content, thumbnail, user_id) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$title, $content, $thumbnail !== '' ? $thumbnail : null, (int)$_SESSION['user_id']]);
+        $stmt = $pdo->prepare("INSERT INTO posts (title, content, thumbnail, thumbnail_style, user_id) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$title, $content, $thumbnail !== '' ? $thumbnail : null, $thumbnailStyle !== '' ? $thumbnailStyle : null, (int)$_SESSION['user_id']]);
         $postId = (int)$pdo->lastInsertId();
         $audio = article_audio_generate_for_post($pdo, $postId, $content);
         echo json_encode(['success' => true, 'id' => $postId, 'audio' => $audio]);
@@ -129,8 +137,8 @@ try {
             exit;
         }
 
-        $stmt = $pdo->prepare("UPDATE posts SET title = ?, content = ?, thumbnail = ? WHERE id = ?");
-        $stmt->execute([$title, $content, $thumbnail !== '' ? $thumbnail : null, $postId]);
+        $stmt = $pdo->prepare("UPDATE posts SET title = ?, content = ?, thumbnail = ?, thumbnail_style = ? WHERE id = ?");
+        $stmt->execute([$title, $content, $thumbnail !== '' ? $thumbnail : null, $thumbnailStyle !== '' ? $thumbnailStyle : null, $postId]);
         $audio = article_audio_generate_for_post($pdo, $postId, $content);
         echo json_encode(['success' => true, 'id' => $postId, 'audio' => $audio]);
         exit;

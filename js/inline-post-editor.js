@@ -1,5 +1,6 @@
 (function () {
     const apiUrl = '/includes/posts/api.php';
+    const uploadUrl = '/includes/posts/upload_image.php';
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
     let activeEditor = null;
 
@@ -24,10 +25,106 @@
     }
 
     function stopEditingElement(element) {
+        if (!element) return;
         element.contentEditable = 'false';
         element.classList.remove('inline-editable-text');
         element.removeAttribute('role');
         element.removeAttribute('aria-label');
+    }
+
+    function imageStyleFrom(img) {
+        if (!img) return '';
+        const pieces = [];
+        ['width', 'height', 'maxWidth', 'objectFit', 'objectPosition', 'aspectRatio'].forEach(prop => {
+            if (img.style[prop]) {
+                const cssProp = prop.replace(/[A-Z]/g, match => `-${match.toLowerCase()}`);
+                pieces.push(`${cssProp}: ${img.style[prop]}`);
+            }
+        });
+        return pieces.join('; ');
+    }
+
+    function isThumbnailImage(img) {
+        if (!activeEditor || !img) return false;
+        return img === activeEditor.thumbnailImage;
+    }
+
+    function syncImageState(img) {
+        if (!activeEditor || !img) return;
+        if (isThumbnailImage(img)) {
+            activeEditor.thumbnailStyleInput.value = imageStyleFrom(img);
+        }
+    }
+
+    function splitPages(html) {
+        return String(html || '').split(/<!--\s*pagebreak\s*-->/i);
+    }
+
+    function mergeVisiblePage(fullHtml, pageNumber, visibleHtml) {
+        const pages = splitPages(fullHtml);
+        const index = Math.max(0, Math.min(pages.length - 1, Number(pageNumber || 1) - 1));
+        pages[index] = visibleHtml;
+        return pages.join('<!-- pagebreak -->');
+    }
+
+    function replacePreviewText(fullHtml, originalText, replacementText) {
+        const original = String(originalText || '').trim().replace(/\.\.\.$/, '');
+        const replacement = String(replacementText || '').trim();
+        if (!original) return fullHtml || replacement;
+
+        const host = document.createElement('div');
+        host.innerHTML = fullHtml || '';
+        const walker = document.createTreeWalker(host, NodeFilter.SHOW_TEXT);
+        let remaining = original.length;
+        let firstNode = null;
+
+        while (remaining > 0) {
+            const node = walker.nextNode();
+            if (!node) break;
+            const value = node.nodeValue || '';
+            if (value.trim() === '') continue;
+            if (!firstNode) firstNode = node;
+
+            const take = Math.min(value.length, remaining);
+            if (node === firstNode) {
+                node.nodeValue = replacement + value.slice(take);
+            } else {
+                node.nodeValue = value.slice(take);
+            }
+            remaining -= take;
+        }
+
+        return firstNode ? host.innerHTML : (fullHtml || replacement);
+    }
+
+    function buildContentPayload() {
+        if (!activeEditor) return '';
+        const visibleHtml = cleanEditableHtml(activeEditor.contentEl);
+        if (activeEditor.mode === 'create') return visibleHtml;
+        if (activeEditor.scope === 'page') {
+            return mergeVisiblePage(activeEditor.originalFullContent, activeEditor.pageNumber, visibleHtml);
+        }
+        if (activeEditor.scope === 'preview') {
+            return replacePreviewText(
+                activeEditor.originalFullContent,
+                activeEditor.originalVisibleText,
+                textFromHtml(visibleHtml)
+            );
+        }
+        return visibleHtml;
+    }
+
+    function cleanEditableHtml(element) {
+        const clone = element.cloneNode(true);
+        clone.classList.remove('inline-editable-text');
+        clone.removeAttribute('contenteditable');
+        clone.removeAttribute('role');
+        clone.removeAttribute('aria-label');
+        clone.querySelectorAll('.inline-editable-image, .is-selected-image').forEach(img => {
+            img.classList.remove('inline-editable-image', 'is-selected-image');
+            img.removeAttribute('contenteditable');
+        });
+        return clone.innerHTML;
     }
 
     function closeEditor(restore = true) {
@@ -36,12 +133,16 @@
         activeEditor.surface.classList.remove('is-inline-editing', 'is-loading-editor');
         stopEditingElement(activeEditor.titleEl);
         stopEditingElement(activeEditor.contentEl);
+        activeEditor.imageEls.forEach(img => img.classList.remove('inline-editable-image', 'is-selected-image'));
+        removeImageHandle();
 
         if (restore) {
             activeEditor.titleEl.innerHTML = activeEditor.originalTitleHtml;
             activeEditor.contentEl.innerHTML = activeEditor.originalContentHtml;
-            if (activeEditor.thumbnailInput) {
-                activeEditor.thumbnailInput.value = activeEditor.originalThumbnail || '';
+            if (activeEditor.thumbnailInput) activeEditor.thumbnailInput.value = activeEditor.originalThumbnail || '';
+            if (activeEditor.thumbnailImage) {
+                activeEditor.thumbnailImage.src = activeEditor.originalThumbnailSrc || activeEditor.thumbnailImage.src;
+                activeEditor.thumbnailImage.setAttribute('style', activeEditor.originalThumbnailStyle || '');
             }
         }
 
@@ -75,7 +176,7 @@
         contentEl.className = 'inline-edit-body';
         contentEl.setAttribute('data-edit-field', 'content');
 
-        const mount = surface.querySelector('.article-tile__body, .home-hero__content') || surface;
+        const mount = surface.querySelector('.article-tile__body, .home-hero__content, .article-mobile-row > div') || surface;
         const actions = mount.querySelector('.article-tile__actions, .home-hero__actions');
         if (actions) {
             actions.insertAdjacentElement('beforebegin', contentEl);
@@ -90,13 +191,24 @@
         toolbar.className = 'inline-edit-toolbar';
         toolbar.innerHTML = `
             <div class="inline-edit-toolbar__row">
-                <strong>${mode === 'create' ? 'New Article' : 'Editing Article'}</strong>
+                <strong>${mode === 'create' ? 'New Article' : 'Editing Visible Article Area'}</strong>
                 <span class="inline-editor-message" aria-live="polite"></span>
             </div>
             <label class="inline-thumbnail-field">
                 Thumbnail
                 <input type="text" name="thumbnail" placeholder="/images/uploads/example.jpg">
+                <button type="button" class="secondary-button" data-choose-thumbnail>Choose File</button>
             </label>
+            <input type="hidden" name="thumbnail_style">
+            <input type="file" data-image-file accept="image/*" hidden>
+            <div class="inline-image-tools" data-image-tools hidden>
+                <span>Selected image</span>
+                <button type="button" class="secondary-button" data-image-ratio="1.777">Wide</button>
+                <button type="button" class="secondary-button" data-image-ratio="1">Square</button>
+                <button type="button" class="secondary-button" data-image-ratio="0.75">Portrait</button>
+                <button type="button" class="secondary-button" data-image-clear-size>Original</button>
+            </div>
+            <p class="inline-edit-hint">Click a picture to replace it. Drag the corner handle to resize or reshape it.</p>
             <div class="inline-edit-toolbar__actions">
                 <button type="button" data-editor-save>Save Article</button>
                 <button type="button" class="secondary-button" data-editor-cancel>Cancel</button>
@@ -106,48 +218,100 @@
         return toolbar;
     }
 
+    function editorScope(surface, contentEl) {
+        if (contentEl.id === 'post-content-wrapper') return 'page';
+        if (surface.matches('.home-hero, .article-tile, .article-mobile-row')) return 'preview';
+        return 'full';
+    }
+
+    function prepareImages() {
+        if (!activeEditor) return;
+        const imageSet = new Set();
+        if (activeEditor.thumbnailImage) imageSet.add(activeEditor.thumbnailImage);
+        activeEditor.contentEl.querySelectorAll('img').forEach(img => imageSet.add(img));
+        activeEditor.imageEls = Array.from(imageSet);
+        activeEditor.imageEls.forEach(img => {
+            img.classList.add('inline-editable-image');
+            img.setAttribute('contenteditable', 'false');
+        });
+    }
+
     function renderEditor(options) {
         closeEditor(true);
 
         const surface = options.surface;
-        const post = options.post || { id: '', title: '', thumbnail: '', content: '' };
+        const post = options.post || { id: '', title: '', thumbnail: '', thumbnail_style: '', content: '' };
         const titleEl = surface.querySelector('[data-edit-field="title"]');
         const contentEl = ensureContentTarget(surface);
         if (!titleEl || !contentEl) return;
 
         const toolbar = createToolbar(options.mode, post);
-        const mount = surface.querySelector('.article-tile__body, .home-hero__content') || surface;
+        const mount = surface.querySelector('.article-tile__body, .home-hero__content, .article-mobile-row > div') || surface;
         mount.insertBefore(toolbar, mount.firstChild);
 
         const thumbnailInput = toolbar.querySelector('[name="thumbnail"]');
+        const thumbnailStyleInput = toolbar.querySelector('[name="thumbnail_style"]');
+        const fileInput = toolbar.querySelector('[data-image-file]');
+        const thumbnailImage = surface.querySelector('.post-thumbnail, [data-edit-image] img');
         thumbnailInput.value = post.thumbnail || '';
+        thumbnailStyleInput.value = post.thumbnail_style || imageStyleFrom(thumbnailImage);
 
         activeEditor = {
             mode: options.mode,
             postId: post.id || '',
+            scope: editorScope(surface, contentEl),
+            pageNumber: surface.dataset.page || 1,
             surface,
             titleEl,
             contentEl,
             toolbar,
             thumbnailInput,
+            thumbnailStyleInput,
+            fileInput,
+            thumbnailImage,
+            imageEls: [],
+            selectedImage: null,
             message: toolbar.querySelector('.inline-editor-message'),
             originalTitleHtml: titleEl.innerHTML,
             originalContentHtml: contentEl.innerHTML,
-            originalThumbnail: post.thumbnail || ''
+            originalVisibleText: textFromHtml(contentEl.innerHTML),
+            originalFullContent: post.content || contentEl.innerHTML,
+            originalThumbnail: post.thumbnail || '',
+            originalThumbnailSrc: thumbnailImage?.getAttribute('src') || '',
+            originalThumbnailStyle: thumbnailImage?.getAttribute('style') || ''
         };
 
         if (options.mode === 'update') {
-            titleEl.textContent = post.title || '';
-            contentEl.innerHTML = post.content || '';
+            titleEl.textContent = post.title || titleEl.textContent;
+            if (thumbnailImage && post.thumbnail) thumbnailImage.src = post.thumbnail;
+            if (thumbnailImage && post.thumbnail_style) thumbnailImage.setAttribute('style', post.thumbnail_style);
         }
 
         surface.classList.add('is-inline-editing');
         makeEditable(titleEl, 'Article title');
-        makeEditable(contentEl, 'Article body');
+        makeEditable(contentEl, activeEditor.scope === 'preview' ? 'Visible preview text' : 'Visible article body');
+        prepareImages();
         titleEl.focus();
 
+        thumbnailInput.addEventListener('input', () => {
+            if (activeEditor?.thumbnailImage && thumbnailInput.value.trim()) {
+                activeEditor.thumbnailImage.src = thumbnailInput.value.trim();
+            }
+        });
+        toolbar.querySelector('[data-choose-thumbnail]').addEventListener('click', () => {
+            if (activeEditor?.thumbnailImage) {
+                chooseImage(activeEditor.thumbnailImage);
+            } else {
+                chooseImage(null);
+            }
+        });
+        fileInput.addEventListener('change', uploadChosenImage);
         toolbar.querySelector('[data-editor-save]').addEventListener('click', savePost);
         toolbar.querySelector('[data-editor-cancel]').addEventListener('click', () => closeEditor(true));
+        toolbar.querySelectorAll('[data-image-ratio]').forEach(button => {
+            button.addEventListener('click', () => applyImageRatio(Number(button.dataset.imageRatio)));
+        });
+        toolbar.querySelector('[data-image-clear-size]').addEventListener('click', clearSelectedImageSize);
     }
 
     function loadPost(postId, button) {
@@ -178,16 +342,18 @@
     function savePost(event) {
         event.preventDefault();
         if (!activeEditor) return;
+        syncImageState(activeEditor.selectedImage);
 
         const payload = {
             action: activeEditor.mode,
             id: activeEditor.postId ? Number(activeEditor.postId) : undefined,
             title: textFromHtml(activeEditor.titleEl.innerHTML).trim(),
             thumbnail: activeEditor.thumbnailInput.value.trim(),
-            content: activeEditor.contentEl.innerHTML
+            thumbnail_style: activeEditor.thumbnailStyleInput.value.trim(),
+            content: buildContentPayload()
         };
 
-        if (!payload.title || !payload.content.trim()) {
+        if (!payload.title || !textFromHtml(payload.content).trim()) {
             setMessage('Title and article body are required.', true);
             return;
         }
@@ -224,8 +390,153 @@
             .catch(error => setMessage(error.message, true));
     }
 
+    function chooseImage(img) {
+        if (!activeEditor) return;
+        activeEditor.pendingImage = img || activeEditor.thumbnailImage || null;
+        if (activeEditor.pendingImage) selectImage(activeEditor.pendingImage, false);
+        activeEditor.fileInput.value = '';
+        activeEditor.fileInput.click();
+    }
+
+    function uploadChosenImage() {
+        if (!activeEditor || !activeEditor.fileInput.files.length) return;
+        const file = activeEditor.fileInput.files[0];
+        const image = activeEditor.pendingImage || activeEditor.selectedImage || activeEditor.thumbnailImage;
+        const form = new FormData();
+        form.append('image', file);
+
+        setMessage('Uploading image...');
+        fetch(uploadUrl, {
+            method: 'POST',
+            headers: { 'X-CSRF-Token': csrfToken },
+            body: form
+        })
+            .then(async response => {
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok || !data.success) throw new Error(data.message || 'Image upload failed');
+                return data.path;
+            })
+            .then(path => {
+                if (image) {
+                    image.src = path;
+                    if (isThumbnailImage(image)) activeEditor.thumbnailInput.value = path;
+                } else {
+                    activeEditor.thumbnailInput.value = path;
+                }
+                setMessage('Image uploaded.');
+            })
+            .catch(error => setMessage(error.message, true));
+    }
+
+    function selectImage(img, openPicker = true) {
+        if (!activeEditor || !img) return;
+        if (activeEditor.selectedImage) {
+            activeEditor.selectedImage.classList.remove('is-selected-image');
+        }
+        activeEditor.selectedImage = img;
+        img.classList.add('is-selected-image');
+        activeEditor.toolbar.querySelector('[data-image-tools]').hidden = false;
+        placeImageHandle(img);
+        if (openPicker) chooseImage(img);
+    }
+
+    function placeImageHandle(img) {
+        removeImageHandle();
+        if (!activeEditor || !img) return;
+        const handle = document.createElement('button');
+        handle.type = 'button';
+        handle.className = 'inline-image-resize-handle';
+        handle.setAttribute('aria-label', 'Resize selected image');
+        document.body.appendChild(handle);
+        activeEditor.imageHandle = handle;
+
+        const position = () => {
+            if (!activeEditor?.imageHandle || !activeEditor.selectedImage) return;
+            const rect = activeEditor.selectedImage.getBoundingClientRect();
+            activeEditor.imageHandle.style.left = `${window.scrollX + rect.right - 9}px`;
+            activeEditor.imageHandle.style.top = `${window.scrollY + rect.bottom - 9}px`;
+        };
+        activeEditor.positionImageHandle = position;
+        position();
+        window.addEventListener('scroll', position, true);
+        window.addEventListener('resize', position);
+
+        handle.addEventListener('pointerdown', startImageResize);
+    }
+
+    function removeImageHandle() {
+        if (!activeEditor) return;
+        if (activeEditor.positionImageHandle) {
+            window.removeEventListener('scroll', activeEditor.positionImageHandle, true);
+            window.removeEventListener('resize', activeEditor.positionImageHandle);
+        }
+        activeEditor.imageHandle?.remove();
+        activeEditor.imageHandle = null;
+        activeEditor.positionImageHandle = null;
+    }
+
+    function startImageResize(event) {
+        event.preventDefault();
+        if (!activeEditor?.selectedImage) return;
+        const img = activeEditor.selectedImage;
+        const rect = img.getBoundingClientRect();
+        const startX = event.clientX;
+        const startY = event.clientY;
+        const startWidth = rect.width;
+        const startHeight = rect.height;
+
+        function move(moveEvent) {
+            const width = Math.max(64, startWidth + moveEvent.clientX - startX);
+            const height = Math.max(64, startHeight + moveEvent.clientY - startY);
+            img.style.width = `${Math.round(width)}px`;
+            img.style.height = `${Math.round(height)}px`;
+            img.style.maxWidth = '100%';
+            img.style.objectFit = 'cover';
+            syncImageState(img);
+            activeEditor.positionImageHandle?.();
+        }
+
+        function up() {
+            document.removeEventListener('pointermove', move);
+            document.removeEventListener('pointerup', up);
+        }
+
+        document.addEventListener('pointermove', move);
+        document.addEventListener('pointerup', up);
+    }
+
+    function applyImageRatio(ratio) {
+        if (!activeEditor?.selectedImage || !ratio) return;
+        const img = activeEditor.selectedImage;
+        const width = Math.max(96, img.getBoundingClientRect().width);
+        img.style.width = `${Math.round(width)}px`;
+        img.style.height = `${Math.round(width / ratio)}px`;
+        img.style.maxWidth = '100%';
+        img.style.objectFit = 'cover';
+        syncImageState(img);
+        activeEditor.positionImageHandle?.();
+    }
+
+    function clearSelectedImageSize() {
+        if (!activeEditor?.selectedImage) return;
+        const img = activeEditor.selectedImage;
+        img.style.width = '';
+        img.style.height = '';
+        img.style.objectFit = '';
+        img.style.aspectRatio = '';
+        syncImageState(img);
+        activeEditor.positionImageHandle?.();
+    }
+
     document.addEventListener('click', event => {
         if (activeEditor?.surface.contains(event.target)) {
+            const image = event.target.closest('img.inline-editable-image');
+            if (image) {
+                event.preventDefault();
+                selectImage(image);
+                return;
+            }
+
             const editableLink = event.target.closest('a[contenteditable="true"]');
             if (editableLink) event.preventDefault();
         }

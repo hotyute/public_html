@@ -58,8 +58,106 @@ function app_can_edit_posts(): bool
     return isset($_SESSION['user_id']) && in_array($_SESSION['user_role'] ?? '', ['admin', 'editor'], true);
 }
 
+function app_can_manage_magazines(): bool
+{
+    return isset($_SESSION['user_id']) && ($_SESSION['user_role'] ?? '') === 'admin';
+}
+
 function app_post_image_src(?string $thumbnail): string
 {
     $thumbnail = trim((string)$thumbnail);
     return $thumbnail !== '' ? $thumbnail : '/images/thumbnail.png';
+}
+
+function app_safe_image_style(?string $style): string
+{
+    $style = trim((string)$style);
+    if ($style === '') {
+        return '';
+    }
+
+    $allowed = [
+        'width' => true,
+        'height' => true,
+        'max-width' => true,
+        'object-fit' => true,
+        'object-position' => true,
+        'aspect-ratio' => true,
+    ];
+    $safe = [];
+
+    foreach (explode(';', $style) as $declaration) {
+        $parts = explode(':', $declaration, 2);
+        if (count($parts) !== 2) {
+            continue;
+        }
+
+        $property = strtolower(trim($parts[0]));
+        $value = trim($parts[1]);
+        if (!isset($allowed[$property]) || $value === '') {
+            continue;
+        }
+        if (stripos($value, 'url') !== false || !preg_match('/^[a-z0-9 .,%()\/-]+$/i', $value)) {
+            continue;
+        }
+
+        $safe[] = $property . ': ' . $value;
+    }
+
+    return implode('; ', $safe);
+}
+
+function app_video_embed_url(?string $url): string
+{
+    $url = trim((string)$url);
+    if ($url === '' || !filter_var($url, FILTER_VALIDATE_URL)) {
+        return '';
+    }
+
+    $parts = parse_url($url);
+    $host = strtolower((string)($parts['host'] ?? ''));
+    $path = trim((string)($parts['path'] ?? ''), '/');
+    $query = [];
+    parse_str((string)($parts['query'] ?? ''), $query);
+
+    if (strpos($host, 'youtu.be') !== false) {
+        $id = strtok($path, '/');
+        return $id ? 'https://www.youtube.com/embed/' . rawurlencode($id) : '';
+    }
+
+    if (strpos($host, 'youtube.com') !== false || strpos($host, 'youtube-nocookie.com') !== false) {
+        if (isset($query['v']) && preg_match('/^[A-Za-z0-9_-]{6,}$/', (string)$query['v'])) {
+            return 'https://www.youtube.com/embed/' . rawurlencode((string)$query['v']);
+        }
+        if (preg_match('#^(embed|shorts|live)/([A-Za-z0-9_-]{6,})#', $path, $matches)) {
+            return 'https://www.youtube.com/embed/' . rawurlencode($matches[2]);
+        }
+    }
+
+    if (strpos($host, 'vimeo.com') !== false) {
+        if (preg_match('/(\d{6,})/', $path, $matches)) {
+            return 'https://player.vimeo.com/video/' . rawurlencode($matches[1]);
+        }
+    }
+
+    $scheme = strtolower((string)($parts['scheme'] ?? ''));
+    return in_array($scheme, ['http', 'https'], true) ? $url : '';
+}
+
+function app_video_preview_image(?string $url): string
+{
+    $embed = app_video_embed_url($url);
+    if ($embed === '') {
+        return '';
+    }
+
+    $parts = parse_url($embed);
+    $host = strtolower((string)($parts['host'] ?? ''));
+    $path = trim((string)($parts['path'] ?? ''), '/');
+
+    if (strpos($host, 'youtube.com') !== false && preg_match('#^embed/([A-Za-z0-9_-]{6,})#', $path, $matches)) {
+        return 'https://img.youtube.com/vi/' . rawurlencode($matches[1]) . '/hqdefault.jpg';
+    }
+
+    return '';
 }

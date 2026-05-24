@@ -10,6 +10,9 @@
 
 /* Style for Form Fields */
 .admin-form input[type="text"],
+.admin-form input[type="url"],
+.admin-form input[type="date"],
+.admin-form select,
 .admin-form textarea {
     width: 100%;
     padding: 10px;

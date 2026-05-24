@@ -22,6 +22,27 @@
     border-radius: 4px;
 }
 
+.featured-video__frame {
+    overflow: hidden;
+    border-radius: 8px;
+    background: #111827;
+}
+
+.featured-video__frame iframe {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    height: auto;
+    border: 0;
+}
+
+.featured-video__frame p {
+    margin: 0;
+    padding: 28px;
+    color: #555;
+    background: #f8fafc;
+}
+
 .featured-video p {
     text-align: center;
     font-size: 16px;

@@ -78,6 +78,7 @@ function app_ensure_schema(PDO $pdo): void
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             user_id INT NULL,
             thumbnail VARCHAR(255) NULL,
+            thumbnail_style VARCHAR(255) NULL,
             views INT DEFAULT 0,
             voiceover_url VARCHAR(255) NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -179,7 +180,8 @@ function app_ensure_schema(PDO $pdo): void
     app_ensure_column($pdo, 'users', 'email', 'email VARCHAR(255) NULL AFTER displayname');
     app_ensure_column($pdo, 'posts', 'user_id', 'user_id INT NULL AFTER created_at');
     app_ensure_column($pdo, 'posts', 'thumbnail', 'thumbnail VARCHAR(255) NULL AFTER user_id');
-    app_ensure_column($pdo, 'posts', 'views', 'views INT DEFAULT 0 AFTER thumbnail');
+    app_ensure_column($pdo, 'posts', 'thumbnail_style', 'thumbnail_style VARCHAR(255) NULL AFTER thumbnail');
+    app_ensure_column($pdo, 'posts', 'views', 'views INT DEFAULT 0 AFTER thumbnail_style');
     app_ensure_column($pdo, 'posts', 'voiceover_url', 'voiceover_url VARCHAR(255) NULL AFTER views');
     app_ensure_column($pdo, 'comments', 'parent_id', 'parent_id INT DEFAULT NULL AFTER created_at');
     app_ensure_column($pdo, 'scores', 'percent', 'percent DECIMAL(5,2) NOT NULL DEFAULT 0 AFTER score');
