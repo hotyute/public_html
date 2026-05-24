@@ -292,9 +292,142 @@ function article_audio_ffmpeg_binary(): ?string
     return article_audio_shell_command_exists('ffmpeg');
 }
 
+function article_audio_kokoro_script(): ?string
+{
+    $env = getenv('KOKORO_TTS_SCRIPT');
+    $candidates = [];
+    if ($env) {
+        $candidates[] = $env;
+    }
+    $candidates[] = '/opt/kokoro/generate.py';
+
+    foreach ($candidates as $candidate) {
+        if (is_file($candidate) && is_readable($candidate)) {
+            return $candidate;
+        }
+    }
+
+    return null;
+}
+
+function article_audio_kokoro_python(): ?string
+{
+    $env = getenv('KOKORO_TTS_PYTHON');
+    $candidates = [];
+    if ($env) {
+        $candidates[] = $env;
+    }
+    $candidates[] = '/opt/kokoro/.venv/bin/python3';
+
+    foreach ($candidates as $candidate) {
+        if (is_file($candidate) && is_executable($candidate)) {
+            return $candidate;
+        }
+    }
+
+    return article_audio_shell_command_exists('python3');
+}
+
+function article_audio_kokoro_voice(): string
+{
+    $voice = trim((string)(getenv('KOKORO_TTS_VOICE') ?: 'bm_george'));
+    return preg_match('/^[A-Za-z0-9_-]+$/', $voice) ? $voice : 'bm_george';
+}
+
+function article_audio_kokoro_speed(): string
+{
+    $speed = (float)(getenv('KOKORO_TTS_SPEED') ?: 1.0);
+    $speed = min(1.4, max(0.7, $speed));
+    return number_format($speed, 2, '.', '');
+}
+
 function article_audio_espeak_command(): ?string
 {
     return article_audio_shell_command_exists('espeak-ng') ?: article_audio_shell_command_exists('espeak');
+}
+
+function article_audio_generate_with_kokoro(string $textFile, string $mp3File, array &$diagnostics): bool
+{
+    if (PHP_OS_FAMILY === 'Windows' || !function_exists('exec')) {
+        article_audio_add_diagnostic($diagnostics, 'kokoro', 'Kokoro cannot run because exec is disabled or the host is Windows.');
+        return false;
+    }
+
+    $script = article_audio_kokoro_script();
+    $python = article_audio_kokoro_python();
+    $ffmpeg = article_audio_ffmpeg_binary();
+    $needsPython = $script !== null && !is_executable($script);
+    if ($script === null || ($needsPython && $python === null)) {
+        article_audio_add_diagnostic($diagnostics, 'kokoro', 'Required Kokoro dependencies were not found.', [
+            'script' => article_audio_path_state($script),
+            'python' => article_audio_path_state($python),
+            'ffmpeg' => article_audio_path_state($ffmpeg),
+        ]);
+        return false;
+    }
+
+    if (!is_readable($textFile)) {
+        article_audio_add_diagnostic($diagnostics, 'kokoro', 'Input text file is not readable.', ['text_file' => $textFile]);
+        return false;
+    }
+
+    $audioDir = dirname($mp3File);
+    if (!is_dir($audioDir) || !is_writable($audioDir)) {
+        article_audio_add_diagnostic($diagnostics, 'kokoro', 'Audio directory is not writable.', [
+            'audio_dir' => $audioDir,
+            'exists' => is_dir($audioDir),
+            'writable' => is_writable($audioDir),
+        ]);
+        return false;
+    }
+
+    $wavFile = preg_replace('/\.mp3$/', '.wav', $mp3File) ?: ($mp3File . '.wav');
+    $generator = is_executable($script) ? escapeshellarg($script) : escapeshellarg($python) . ' ' . escapeshellarg($script);
+    $kokoroCmd = $generator
+        . ' ' . escapeshellarg($textFile)
+        . ' ' . escapeshellarg($wavFile)
+        . ' ' . escapeshellarg(article_audio_kokoro_voice())
+        . ' ' . escapeshellarg(article_audio_kokoro_speed())
+        . ' 2>&1';
+    exec($kokoroCmd, $kokoroOutput, $kokoroStatus);
+    if ($kokoroStatus !== 0 || !file_exists($wavFile) || filesize($wavFile) <= 0) {
+        article_audio_add_diagnostic($diagnostics, 'kokoro', 'Kokoro failed to create a WAV file.', [
+            'status' => $kokoroStatus,
+            'output' => article_audio_output_excerpt($kokoroOutput),
+            'wav_file' => $wavFile,
+            'wav_exists' => file_exists($wavFile),
+            'wav_size' => file_exists($wavFile) ? filesize($wavFile) : 0,
+        ]);
+        return false;
+    }
+
+    if ($ffmpeg === null) {
+        article_audio_add_diagnostic($diagnostics, 'kokoro', 'ffmpeg was not found; Kokoro WAV output will be used directly.', [
+            'wav_file' => $wavFile,
+        ]);
+        return true;
+    }
+
+    $ffmpegCmd = escapeshellarg($ffmpeg)
+        . ' -y -loglevel error -i ' . escapeshellarg($wavFile)
+        . ' -codec:a libmp3lame -q:a 4 ' . escapeshellarg($mp3File)
+        . ' 2>&1';
+    exec($ffmpegCmd, $ffmpegOutput, $ffmpegStatus);
+
+    $success = $ffmpegStatus === 0 && file_exists($mp3File) && filesize($mp3File) > 0;
+    if (!$success) {
+        article_audio_add_diagnostic($diagnostics, 'kokoro', 'ffmpeg failed to convert Kokoro WAV output to MP3.', [
+            'status' => $ffmpegStatus,
+            'output' => article_audio_output_excerpt($ffmpegOutput),
+            'mp3_file' => $mp3File,
+            'mp3_exists' => file_exists($mp3File),
+            'mp3_size' => file_exists($mp3File) ? filesize($mp3File) : 0,
+        ]);
+        return file_exists($wavFile) && filesize($wavFile) > 0;
+    }
+
+    @unlink($wavFile);
+    return true;
 }
 
 function article_audio_generate_with_piper(string $textFile, string $mp3File, array &$diagnostics): bool
@@ -395,6 +528,16 @@ function article_audio_generate_audio_file(string $textFile, string $fileStem, a
 {
     $audioDir = article_audio_dir();
     $mp3Path = $audioDir . '/' . $fileStem . '.mp3';
+    $kokoroWavPath = $audioDir . '/' . $fileStem . '.wav';
+    if (article_audio_generate_with_kokoro($textFile, $mp3Path, $diagnostics)) {
+        if (file_exists($mp3Path) && filesize($mp3Path) > 0) {
+            return ['engine' => 'kokoro', 'path' => $mp3Path, 'url' => '/audio/' . $fileStem . '.mp3'];
+        }
+        if (file_exists($kokoroWavPath) && filesize($kokoroWavPath) > 0) {
+            return ['engine' => 'kokoro', 'path' => $kokoroWavPath, 'url' => '/audio/' . $fileStem . '.wav'];
+        }
+    }
+
     if (article_audio_generate_with_piper($textFile, $mp3Path, $diagnostics)) {
         return ['engine' => 'piper', 'path' => $mp3Path, 'url' => '/audio/' . $fileStem . '.mp3'];
     }

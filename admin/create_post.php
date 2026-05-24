@@ -82,11 +82,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $audioResult = article_audio_generate_for_post($pdo, (int)$pdo->lastInsertId(), $content, $generateAudio);
                 $status_message = "Post added successfully!";
                 if ($audioResult['audio_generated']) {
-                    $status_message .= " Audio generated.";
+                    $status_message .= " Audio generated with " . (string)($audioResult['engine'] ?? 'Kokoro') . ".";
                 } elseif (!$generateAudio) {
                     $status_message .= " Realistic audio skipped; browser speech will be used.";
                 } else {
-                    $status_message .= ' ' . ($audioResult['message'] ?? "Reader transcript generated; Piper/espeak audio was unavailable, so browser speech remains as backup.");
+                    $status_message .= ' ' . ($audioResult['message'] ?? "Reader transcript generated; Kokoro/espeak audio was unavailable, so browser speech remains as backup.");
                 }
                 if ($thumbnail_warning !== '') {
                     $status_message .= ' ' . $thumbnail_warning;
@@ -257,7 +257,7 @@ $(function() {
       const confirmAudio = typeof window.appConfirmDialog === 'function'
         ? window.appConfirmDialog({
             title: 'Generate Realistic Audio?',
-            message: 'This will create Piper audio for the article. Choose skip to use browser speech instead.',
+            message: 'This will create Kokoro audio for the article. Choose skip to use browser speech instead.',
             confirmText: 'Generate Audio',
             cancelText: 'Skip For Now'
           })

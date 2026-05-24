@@ -62,10 +62,11 @@ function render_article_tile(array $post, bool $canEditPosts): void
     $postUrl = '/post.php?id=' . $postId;
     $roleClass = app_user_role_class($post['user_role'] ?? '');
     $thumbnailStyle = app_safe_image_style($post['thumbnail_style'] ?? '');
+    $hasThumbnail = trim((string)($post['thumbnail'] ?? '')) !== '';
     ?>
     <article class="article-tile" data-inline-post data-post-id="<?= $postId ?>">
         <a class="article-tile__image" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-image>
-            <img src="<?= htmlspecialchars(app_post_image_src($post['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?>"<?= $thumbnailStyle !== '' ? ' style="' . htmlspecialchars($thumbnailStyle, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
+            <img class="<?= !$hasThumbnail ? 'post-image-placeholder' : '' ?>" src="<?= htmlspecialchars(app_post_image_src($post['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?>"<?= $hasThumbnail && $thumbnailStyle !== '' ? ' style="' . htmlspecialchars($thumbnailStyle, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
         </a>
         <div class="article-tile__body">
             <a class="article-tile__title" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-field="title">
@@ -93,10 +94,11 @@ function render_mobile_article_row(array $post, bool $canEditPosts): void
     $postUrl = '/post.php?id=' . $postId;
     $roleClass = app_user_role_class($post['user_role'] ?? '');
     $thumbnailStyle = app_safe_image_style($post['thumbnail_style'] ?? '');
+    $hasThumbnail = trim((string)($post['thumbnail'] ?? '')) !== '';
     ?>
     <article class="article-mobile-row" data-inline-post data-post-id="<?= $postId ?>">
         <a class="article-mobile-row__image" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-image>
-            <img src="<?= htmlspecialchars(app_post_image_src($post['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?>"<?= $thumbnailStyle !== '' ? ' style="' . htmlspecialchars($thumbnailStyle, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
+            <img class="<?= !$hasThumbnail ? 'post-image-placeholder' : '' ?>" src="<?= htmlspecialchars(app_post_image_src($post['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?>"<?= $hasThumbnail && $thumbnailStyle !== '' ? ' style="' . htmlspecialchars($thumbnailStyle, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
         </a>
         <div>
             <a class="article-mobile-row__title" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-field="title"><?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?></a>
@@ -116,10 +118,11 @@ function render_feature_side_article(array $post, bool $canEditPosts): void
     $postUrl = '/post.php?id=' . $postId;
     $roleClass = app_user_role_class($post['user_role'] ?? '');
     $thumbnailStyle = app_safe_image_style($post['thumbnail_style'] ?? '');
+    $hasThumbnail = trim((string)($post['thumbnail'] ?? '')) !== '';
     ?>
     <article class="home-feature-side" data-inline-post data-post-id="<?= $postId ?>">
         <a class="home-feature-side__image" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-image>
-            <img src="<?= htmlspecialchars(app_post_image_src($post['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?>"<?= $thumbnailStyle !== '' ? ' style="' . htmlspecialchars($thumbnailStyle, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
+            <img class="<?= !$hasThumbnail ? 'post-image-placeholder' : '' ?>" src="<?= htmlspecialchars(app_post_image_src($post['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?>"<?= $hasThumbnail && $thumbnailStyle !== '' ? ' style="' . htmlspecialchars($thumbnailStyle, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
         </a>
         <div class="home-feature-side__content">
             <p class="section-kicker">Previous Article</p>
@@ -164,11 +167,12 @@ include __DIR__ . '/header.php';
             $heroId = (int)$heroPost['id'];
             $heroUrl = '/post.php?id=' . $heroId;
             $heroThumbnailStyle = app_safe_image_style($heroPost['thumbnail_style'] ?? '');
+            $heroHasThumbnail = trim((string)($heroPost['thumbnail'] ?? '')) !== '';
             ?>
             <div class="home-feature-grid<?= $secondaryHeroPost ? '' : ' home-feature-grid--single' ?>">
                 <section class="home-hero" data-inline-post data-post-id="<?= $heroId ?>">
                     <a class="home-hero__media" href="<?= htmlspecialchars($heroUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-image>
-                        <img src="<?= htmlspecialchars(app_post_image_src($heroPost['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($heroPost['title'], ENT_QUOTES, 'UTF-8') ?>"<?= $heroThumbnailStyle !== '' ? ' style="' . htmlspecialchars($heroThumbnailStyle, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
+                        <img class="<?= !$heroHasThumbnail ? 'post-image-placeholder' : '' ?>" src="<?= htmlspecialchars(app_post_image_src($heroPost['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($heroPost['title'], ENT_QUOTES, 'UTF-8') ?>"<?= $heroHasThumbnail && $heroThumbnailStyle !== '' ? ' style="' . htmlspecialchars($heroThumbnailStyle, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
                     </a>
                     <div class="home-hero__content">
                         <p class="section-kicker">Latest Article</p>

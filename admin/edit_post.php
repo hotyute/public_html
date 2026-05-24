@@ -129,8 +129,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         article_audio_delete_for_post($post_id);
                         $audioResult = article_audio_generate_for_post($pdo, $post_id, $content, true);
                         $status_message .= $audioResult['audio_generated']
-                            ? " Audio regenerated."
-                            : ' ' . ($audioResult['message'] ?? "Reader transcript regenerated; Piper/espeak audio was unavailable, so browser speech remains as backup.");
+                            ? " Audio regenerated with " . (string)($audioResult['engine'] ?? 'Kokoro') . "."
+                            : ' ' . ($audioResult['message'] ?? "Reader transcript regenerated; Kokoro/espeak audio was unavailable, so browser speech remains as backup.");
                     } elseif (article_audio_manifest_exists($post_id)) {
                         $status_message .= " Existing audio was kept.";
                     } else {

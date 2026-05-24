@@ -156,9 +156,26 @@ function app_ensure_schema(PDO $pdo): void
             user_id INT NOT NULL,
             title VARCHAR(255) NOT NULL,
             message TEXT NOT NULL,
+            notification_type VARCHAR(50) DEFAULT 'general',
+            link_url VARCHAR(255) NULL,
             is_read BOOLEAN DEFAULT FALSE,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             INDEX idx_notifications_user_read (user_id, is_read)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS messages (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            sender_id INT NOT NULL,
+            recipient_id INT NOT NULL,
+            subject VARCHAR(255) NOT NULL,
+            body TEXT NOT NULL,
+            is_read BOOLEAN DEFAULT FALSE,
+            read_at TIMESTAMP NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_messages_recipient_read (recipient_id, is_read, created_at),
+            INDEX idx_messages_sender_created (sender_id, created_at)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     ");
 
@@ -187,6 +204,8 @@ function app_ensure_schema(PDO $pdo): void
     app_ensure_column($pdo, 'scores', 'percent', 'percent DECIMAL(5,2) NOT NULL DEFAULT 0 AFTER score');
     app_ensure_column($pdo, 'tests', 'num_questions', 'num_questions INT NOT NULL DEFAULT 10 AFTER created_at');
     app_ensure_column($pdo, 'notifications', 'is_read', 'is_read BOOLEAN DEFAULT FALSE AFTER message');
+    app_ensure_column($pdo, 'notifications', 'notification_type', "notification_type VARCHAR(50) DEFAULT 'general' AFTER message");
+    app_ensure_column($pdo, 'notifications', 'link_url', 'link_url VARCHAR(255) NULL AFTER notification_type');
     app_ensure_column($pdo, 'magazine_articles', 'issue', 'issue VARCHAR(50) NOT NULL AFTER published_date');
     app_ensure_column_type($pdo, 'posts', 'content', 'MEDIUMTEXT NOT NULL');
     app_ensure_column_type($pdo, 'notifications', 'message', 'TEXT NOT NULL');

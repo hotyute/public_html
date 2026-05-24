@@ -55,6 +55,23 @@ function render_comment_text(string $content): string
     return nl2br(htmlspecialchars($decoded, ENT_QUOTES, 'UTF-8'));
 }
 
+function render_post_pagination(int $postId, int $page, int $totalPages, string $position): void
+{
+    echo '<nav class="post-pagination post-pagination--' . htmlspecialchars($position, ENT_QUOTES, 'UTF-8') . '" aria-label="Article page navigation">';
+    if ($page > 1) {
+        echo '<a class="post-pagination__link" href="post.php?id=' . $postId . '&page=' . ($page - 1) . '">Previous</a>';
+    } else {
+        echo '<span class="post-pagination__link post-pagination__link--disabled">Previous</span>';
+    }
+    echo '<span class="post-pagination__status">Page ' . $page . ' of ' . $totalPages . '</span>';
+    if ($page < $totalPages) {
+        echo '<a class="post-pagination__link" href="post.php?id=' . $postId . '&page=' . ($page + 1) . '">Next</a>';
+    } else {
+        echo '<span class="post-pagination__link post-pagination__link--disabled">Next</span>';
+    }
+    echo '</nav>';
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_comment']) && isset($_POST['comment_id'])) {
     // CSRF token validation
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
@@ -143,12 +160,9 @@ if ($post_id > 0) {
         }
         echo '<h1 class="post-title" data-edit-field="title">' . htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') . '</h1>';
         echo '<h4 class="post-author">By <span class="' . $userClass . '">' . htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8') . '</span> | Views: ' . htmlspecialchars($post['views'], ENT_QUOTES, 'UTF-8') . '</h4>';
-        if ($post['thumbnail']) {
-            $thumbnailStyle = app_safe_image_style($post['thumbnail_style'] ?? '');
-            echo '<img src="' . htmlspecialchars($post['thumbnail'], ENT_QUOTES, 'UTF-8') . '" alt="Post Image" class="post-thumbnail" data-edit-image' . ($thumbnailStyle !== '' ? ' style="' . htmlspecialchars($thumbnailStyle, ENT_QUOTES, 'UTF-8') . '"' : '') . '>';
-        } elseif ($canEditPosts) {
-            echo '<img src="/images/thumbnail.png" alt="Post image placeholder" class="post-thumbnail post-thumbnail--placeholder" data-edit-image>';
-        }
+        $thumbnailStyle = app_safe_image_style($post['thumbnail_style'] ?? '');
+        $hasThumbnail = trim((string)($post['thumbnail'] ?? '')) !== '';
+        echo '<img src="' . htmlspecialchars(app_post_image_src($post['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') . '" alt="' . ($hasThumbnail ? 'Post Image' : 'Post image placeholder') . '" class="post-thumbnail' . (!$hasThumbnail ? ' post-thumbnail--placeholder' : '') . '" data-edit-image' . ($hasThumbnail && $thumbnailStyle !== '' ? ' style="' . htmlspecialchars($thumbnailStyle, ENT_QUOTES, 'UTF-8') . '"' : '') . '>';
 
         $manifestUrl = article_audio_manifest_url((int)$post_id);
         $manifestPath = article_audio_manifest_path((int)$post_id);
@@ -175,34 +189,12 @@ if ($post_id > 0) {
             echo '</section>';
         }
 
-        // Pagination controls
-        echo '<div class="pagination" style="display: flex; justify-content: space-between; align-items: center; padding: 35px 0;">';
-        if ($page > 1) {
-            echo '<a href="post.php?id=' . $post_id . '&page=' . ($page - 1) . '">Previous</a>';
-        } else {
-            echo '<span></span>';
-        }
-        echo '<span>Page ' . $page . ' of ' . $total_pages . '</span>';
-        if ($page < $total_pages) {
-            echo '<a href="post.php?id=' . $post_id . '&page=' . ($page + 1) . '">Next</a>';
-        }
-        echo '</div>';
+        render_post_pagination((int)$post_id, (int)$page, (int)$total_pages, 'top');
 
         // We add an ID to the content wrapper to easily target it with JS
         echo '<div id="post-content-wrapper" class="post-content">' . nl2br_skip($content_page) . '</div>';
 
-        // Pagination controls
-        echo '<div class="pagination" style="display: flex; justify-content: space-between; align-items: center;">';
-        if ($page > 1) {
-            echo '<a href="post.php?id=' . $post_id . '&page=' . ($page - 1) . '">Previous</a>';
-        } else {
-            echo '<span></span>';
-        }
-        echo '<span>Page ' . $page . ' of ' . $total_pages . '</span>';
-        if ($page < $total_pages) {
-            echo '<a href="post.php?id=' . $post_id . '&page=' . ($page + 1) . '">Next</a>';
-        }
-        echo '</div>';
+        render_post_pagination((int)$post_id, (int)$page, (int)$total_pages, 'bottom');
 
         if (isset($_SESSION['user_id'])) {
             echo '<form id="commentForm" class="comment-form">';

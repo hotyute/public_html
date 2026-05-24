@@ -19,6 +19,7 @@ if (isset($_GET['logout'])) {
 }
 
 include_once __DIR__ . '/includes/notifications/notification_data.php';
+include_once __DIR__ . '/includes/messages.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -36,14 +37,17 @@ include_once __DIR__ . '/includes/notifications/notification_data.php';
         function toggleNotifications(e) {
             if (e && e.stopPropagation) e.stopPropagation();
             const dropdown = document.querySelector('.notifications-dropdown');
+            const button = document.querySelector('.notifications-button');
             if (!dropdown) return;
             const isVisible = dropdown.style.display === 'block';
             closeAllDropdowns();
             dropdown.style.display = isVisible ? 'none' : 'block';
+            if (button) button.setAttribute('aria-expanded', isVisible ? 'false' : 'true');
         }
 
         function closeAllDropdowns() {
             document.querySelectorAll('.notifications-dropdown').forEach(d => d.style.display = 'none');
+            document.querySelectorAll('.notifications-button').forEach(b => b.setAttribute('aria-expanded', 'false'));
         }
 
         document.addEventListener('click', function(event) {
@@ -82,33 +86,47 @@ include_once __DIR__ . '/includes/notifications/notification_data.php';
                 <?php
                 if (isset($_SESSION['username'])) {
                     $user_id = (int)$_SESSION['user_id'];
-                    $notifications = get_notifications($user_id);
-                    $notification_count = count($notifications);
+                    $notifications = get_notifications($user_id, false, false, 5);
+                    $notification_count = notification_unread_count($user_id);
+                    $message_count = app_message_unread_count($user_id);
                 ?>
-                    <span>Hello, <?php echo htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8'); ?>
-                        <a class="notifications-button" href="javascript:void(0);" onclick="toggleNotifications(event)">
-                            <span class="notification-count">(<?php echo htmlspecialchars($notification_count, ENT_QUOTES, 'UTF-8'); ?>)</span>
-                        </a>
-                    </span>
+                    <div class="user-menu">
+                        <button class="notifications-button" type="button" onclick="toggleNotifications(event)" aria-expanded="false">
+                            <span>Hello, <?php echo htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8'); ?></span>
+                            <span class="notification-count"><?php echo htmlspecialchars($notification_count, ENT_QUOTES, 'UTF-8'); ?></span>
+                        </button>
                     <div class="notifications-dropdown">
-                        <?php
-                        if ($notification_count > 0) {
-                            foreach ($notifications as $notification) {
-                                echo "<div class='notification'>";
-                                echo "<a href='/notifications.php'>";
-                                echo "<strong>" . htmlspecialchars($notification['title'], ENT_QUOTES, 'UTF-8') . "</strong><br>";
-                                echo strip_tags(htmlspecialchars_decode($notification['message']), '<a><strong><em><span><br>');
-                                echo "</a>";
-                                echo "</div>";
-                            }
-                        } else {
-                            echo "<div class='notification'>";
-                            echo "<a href='/notifications.php'>";
-                            echo "No new notifications";
-                            echo "</a>";
-                            echo "</div>";
-                        }
-                        ?>
+                        <div class="notifications-dropdown__header">
+                            <strong>Notifications</strong>
+                            <span><?php echo (int)$notification_count; ?> unread</span>
+                        </div>
+                        <div class="notifications-dropdown__actions">
+                            <a href="/notifications.php">View All</a>
+                            <a href="/userportal/messages.php">Messages<?php echo $message_count > 0 ? ' (' . (int)$message_count . ')' : ''; ?></a>
+                        </div>
+                        <?php if ($notifications): ?>
+                            <?php foreach ($notifications as $notification): ?>
+                                <?php
+                                $link = notification_link($notification);
+                                $created = strtotime((string)($notification['created_at'] ?? ''));
+                                $createdLabel = $created ? date('M j, H:i', $created) : '';
+                                ?>
+                                <a class="notification" href="<?php echo htmlspecialchars($link, ENT_QUOTES, 'UTF-8'); ?>">
+                                    <span class="notification__type"><?php echo htmlspecialchars($notification['notification_type'] ?? 'general', ENT_QUOTES, 'UTF-8'); ?></span>
+                                    <strong><?php echo htmlspecialchars($notification['title'], ENT_QUOTES, 'UTF-8'); ?></strong>
+                                    <span><?php echo strip_tags(htmlspecialchars_decode($notification['message']), '<strong><em><span><br>'); ?></span>
+                                    <?php if ($createdLabel !== ''): ?>
+                                        <small><?php echo htmlspecialchars($createdLabel, ENT_QUOTES, 'UTF-8'); ?></small>
+                                    <?php endif; ?>
+                                </a>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <a class="notification notification--empty" href="/notifications.php">
+                                <strong>No new notifications</strong>
+                                <span>You are all caught up.</span>
+                            </a>
+                        <?php endif; ?>
+                    </div>
                     </div>
                     <button class="auth-button" onclick="logout()">Logout</button>
                 <?php

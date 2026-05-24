@@ -91,7 +91,17 @@ function app_can_manage_magazines(): bool
 function app_post_image_src(?string $thumbnail): string
 {
     $thumbnail = trim((string)$thumbnail);
-    return $thumbnail !== '' ? $thumbnail : '/images/thumbnail.png';
+    if ($thumbnail === '') {
+        return '/images/thumbnail.png';
+    }
+    if (strpos($thumbnail, '../') === 0) {
+        return '/' . ltrim(substr($thumbnail, 3), '/');
+    }
+    if (strpos($thumbnail, 'images/') === 0) {
+        return '/' . $thumbnail;
+    }
+
+    return $thumbnail;
 }
 
 function app_safe_image_style(?string $style): string

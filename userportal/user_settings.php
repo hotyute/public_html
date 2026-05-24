@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 require_once '../base_config.php';
-require 'includes/database.php';
+require __DIR__ . '/../includes/database.php';
 
 // Check if the request is for email validation via AJAX
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['check_email'])) {
@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_password'])) {
 }
 
 // Include necessary files and the header
-include 'header.php';
+include __DIR__ . '/../header.php';
 ?>
 
 <div class="settings-container">
@@ -120,7 +120,7 @@ include 'header.php';
 
 <?php
 // Include the footer
-include 'footer.php';
+include __DIR__ . '/../footer.php';
 ?>
 
 <script>

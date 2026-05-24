@@ -32,6 +32,10 @@ function css($path) {
     <?php endif; ?>
 <?php endif; ?>
 
+<?php if (in_array($current_page, ['user_portal','messages','test_history','user_settings'])) : ?>
+    <?php css('/styles/portal.css'); ?>
+<?php endif; ?>
+
 <?php if ($current_page == 'post') : ?>
     <?php css('/styles/post.css'); ?>
 <?php endif; ?>

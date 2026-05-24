@@ -33,7 +33,7 @@ $stmt = $pdo->prepare($assignedTestsQuery);
 $stmt->execute(['userId' => $userId]);
 $assignedTestsResult = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-include 'header.php';
+include __DIR__ . '/../header.php';
 ?>
 <div class="test-container">
     <h1>Test History</h1>
@@ -88,4 +88,4 @@ include 'header.php';
         </tbody>
     </table>
 </div>
-<?php include 'footer.php'; ?>
+<?php include __DIR__ . '/../footer.php'; ?>
