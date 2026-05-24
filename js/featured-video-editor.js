@@ -95,7 +95,7 @@
         const widthControl = root.querySelector('[data-video-width]');
         const width = Number(widthControl?.value || 100);
         const aspectRatio = target?.style.aspectRatio || '16 / 9';
-        return `width: ${Math.max(55, Math.min(100, width))}%; max-width: 100%; aspect-ratio: ${aspectRatio}`;
+        return `width: ${Math.max(45, Math.min(100, width))}%; max-width: 100%; aspect-ratio: ${aspectRatio}`;
     }
 
     function syncSizeControls(root) {
@@ -105,6 +105,16 @@
         const width = target.style.width || '100%';
         const match = width.match(/(\d+)/);
         widthControl.value = match ? match[1] : '100';
+    }
+
+    function setVideoWidth(root, width) {
+        const target = videoTarget(root);
+        const widthControl = root.querySelector('[data-video-width]');
+        if (!target || !widthControl) return;
+        widthControl.value = String(Math.max(45, Math.min(100, Number(width) || 100)));
+        if (!target.style.aspectRatio) target.style.aspectRatio = '16 / 9';
+        target.style.maxWidth = '100%';
+        applyVideoStyle(root, videoStyleFromControls(root));
     }
 
     function setVideoRatio(root, ratio) {
@@ -122,7 +132,7 @@
         const handle = document.createElement('button');
         handle.type = 'button';
         handle.className = 'video-resize-handle';
-        handle.setAttribute('aria-label', 'Resize video container');
+        handle.setAttribute('aria-label', 'Resize featured video');
         target.appendChild(handle);
 
         handle.addEventListener('pointerdown', event => {
@@ -137,11 +147,13 @@
             function move(moveEvent) {
                 const width = Math.max(220, startWidth + moveEvent.clientX - startX);
                 const height = Math.max(140, startHeight + moveEvent.clientY - startY);
-                const widthPercent = Math.max(55, Math.min(100, Math.round((width / parentWidth) * 100)));
+                const widthPercent = Math.max(45, Math.min(100, Math.round((width / parentWidth) * 100)));
                 const ratio = width / height;
                 target.style.width = `${widthPercent}%`;
                 target.style.maxWidth = '100%';
                 target.style.aspectRatio = `${Math.max(0.7, Math.min(2.2, ratio)).toFixed(3)} / 1`;
+                const widthControl = root.querySelector('[data-video-width]');
+                if (widthControl) widthControl.value = String(widthPercent);
                 applyVideoStyle(root, videoStyleFromControls(root));
             }
 
@@ -184,6 +196,10 @@
 
         root.querySelectorAll('[data-video-ratio]').forEach(button => {
             button.addEventListener('click', () => setVideoRatio(root, Number(button.dataset.videoRatio)));
+        });
+
+        root.querySelectorAll('[data-video-size]').forEach(button => {
+            button.addEventListener('click', () => setVideoWidth(root, Number(button.dataset.videoSize)));
         });
 
         root.querySelector('[data-video-reset-size]')?.addEventListener('click', () => {

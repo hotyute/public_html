@@ -53,6 +53,31 @@ function app_plain_excerpt(?string $content, int $limit = 180): string
     return rtrim($slice, " \t\n\r\0\x0B.,;:") . '...';
 }
 
+function app_plain_excerpt_data(?string $content, int $limit = 180): array
+{
+    $plain = trim(preg_replace('/\s+/', ' ', strip_tags((string)$content)));
+    if ($plain === '') {
+        return [
+            'text' => '',
+            'is_truncated' => false,
+        ];
+    }
+
+    $length = function_exists('mb_strlen') ? mb_strlen($plain) : strlen($plain);
+    if ($length <= $limit) {
+        return [
+            'text' => $plain,
+            'is_truncated' => false,
+        ];
+    }
+
+    $slice = function_exists('mb_substr') ? mb_substr($plain, 0, $limit) : substr($plain, 0, $limit);
+    return [
+        'text' => rtrim($slice),
+        'is_truncated' => true,
+    ];
+}
+
 function app_can_edit_posts(): bool
 {
     return isset($_SESSION['user_id']) && in_array($_SESSION['user_role'] ?? '', ['admin', 'editor'], true);

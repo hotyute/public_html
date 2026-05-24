@@ -37,6 +37,23 @@ $magazinesStmt = $pdo->query("
 ");
 $magazineArticles = $magazinesStmt->fetchAll(PDO::FETCH_ASSOC);
 
+function render_editable_excerpt(string $tag, string $className, ?string $content, int $limit): void
+{
+    $excerpt = app_plain_excerpt_data($content, $limit);
+    $tagName = in_array($tag, ['div', 'span'], true) ? $tag : 'div';
+    $text = htmlspecialchars($excerpt['text'], ENT_QUOTES, 'UTF-8');
+    $class = htmlspecialchars($className, ENT_QUOTES, 'UTF-8');
+    $previewText = htmlspecialchars($excerpt['text'], ENT_QUOTES, 'UTF-8');
+    $generatedEllipsis = $excerpt['is_truncated'] ? '1' : '0';
+
+    echo '<' . $tagName . ' class="' . $class . '" data-edit-field="content" data-preview-text="' . $previewText . '" data-preview-generated-ellipsis="' . $generatedEllipsis . '">';
+    echo $text;
+    if ($excerpt['is_truncated']) {
+        echo '<span class="preview-ellipsis" contenteditable="false" aria-hidden="true">...</span>';
+    }
+    echo '</' . $tagName . '>';
+}
+
 function render_article_tile(array $post, bool $canEditPosts): void
 {
     $postId = (int)$post['id'];
@@ -56,7 +73,7 @@ function render_article_tile(array $post, bool $canEditPosts): void
                 By <span class="<?= htmlspecialchars($roleClass, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8') ?></span>
                 <span><?= (int)$post['comment_count'] ?> Comments</span>
             </p>
-            <div class="article-tile__excerpt" data-edit-field="content"><?= htmlspecialchars(app_plain_excerpt($post['content'] ?? '', 130), ENT_QUOTES, 'UTF-8') ?></div>
+            <?php render_editable_excerpt('div', 'article-tile__excerpt', $post['content'] ?? '', 130); ?>
             <div class="article-tile__actions">
                 <a href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>">Read</a>
                 <?php if ($canEditPosts): ?>
@@ -84,7 +101,7 @@ function render_mobile_article_row(array $post, bool $canEditPosts): void
             <?php if ($canEditPosts): ?>
                 <button type="button" class="inline-edit-button js-edit-post" data-post-id="<?= $postId ?>">Edit</button>
             <?php endif; ?>
-            <span class="article-mobile-row__hidden-content" data-edit-field="content"><?= htmlspecialchars(app_plain_excerpt($post['content'] ?? '', 90), ENT_QUOTES, 'UTF-8') ?></span>
+            <?php render_editable_excerpt('span', 'article-mobile-row__hidden-content', $post['content'] ?? '', 90); ?>
         </div>
     </article>
     <?php
@@ -126,7 +143,7 @@ include __DIR__ . '/header.php';
                         By <span class="<?= htmlspecialchars(app_user_role_class($heroPost['user_role'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($heroPost['author'], ENT_QUOTES, 'UTF-8') ?></span>
                         <span><?= (int)$heroPost['comment_count'] ?> Comments</span>
                     </p>
-                    <div class="home-hero__excerpt" data-edit-field="content"><?= htmlspecialchars(app_plain_excerpt($heroPost['content'] ?? '', 240), ENT_QUOTES, 'UTF-8') ?></div>
+                    <?php render_editable_excerpt('div', 'home-hero__excerpt', $heroPost['content'] ?? '', 240); ?>
                     <div class="home-hero__actions">
                         <a class="button" href="<?= htmlspecialchars($heroUrl, ENT_QUOTES, 'UTF-8') ?>">Read Article</a>
                         <?php if ($canEditPosts): ?>
@@ -172,6 +189,7 @@ include __DIR__ . '/header.php';
             </section>
         <?php endif; ?>
 
+        <div class="home-media-row">
         <section class="featured-video" data-video-editor data-video-url="<?= htmlspecialchars($video_link, ENT_QUOTES, 'UTF-8') ?>" data-video-style="<?= htmlspecialchars($video_style, ENT_QUOTES, 'UTF-8') ?>">
             <div class="section-heading">
                 <div>
@@ -205,8 +223,11 @@ include __DIR__ . '/header.php';
                         <span data-video-status><?= $video_embed !== '' ? 'Ready to embed.' : 'Paste a supported video link to preview it.' ?></span>
                     </div>
                     <div class="video-size-tools">
-                        <label>Container width <input type="range" min="55" max="100" step="1" data-video-width value="100"></label>
+                        <label>Video width <input type="range" min="45" max="100" step="1" data-video-width value="100"></label>
                         <div class="inline-edit-toolbar__actions">
+                            <button type="button" class="secondary-button" data-video-size="65">Compact</button>
+                            <button type="button" class="secondary-button" data-video-size="82">Balanced</button>
+                            <button type="button" class="secondary-button" data-video-size="100">Full</button>
                             <button type="button" class="secondary-button" data-video-ratio="1.777">Wide</button>
                             <button type="button" class="secondary-button" data-video-ratio="1.333">Classic</button>
                             <button type="button" class="secondary-button" data-video-ratio="1">Square</button>
@@ -280,6 +301,7 @@ include __DIR__ . '/header.php';
         <?php endif; ?>
         <a href="/magazines/all_issues.php" class="view-all">View All Issues</a>
         </section>
+        </div>
     </main>
 </div>
 

@@ -10,6 +10,12 @@
         return element.textContent || '';
     }
 
+    function textFromEditablePreview(element) {
+        const clone = element.cloneNode(true);
+        clone.querySelectorAll('.preview-ellipsis').forEach(node => node.remove());
+        return textFromHtml(clone.innerHTML).trim();
+    }
+
     function setMessage(text, isError) {
         if (!activeEditor?.message) return;
         activeEditor.message.textContent = text || '';
@@ -67,8 +73,24 @@
         return pages.join('<!-- pagebreak -->');
     }
 
+    function closestContentBlock(node, root) {
+        const blockTags = new Set(['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'LI', 'FIGCAPTION']);
+        const nestedBlockSelector = 'p, div, h1, h2, h3, h4, h5, h6, blockquote, li, figcaption';
+        let current = node.parentElement;
+        while (current && current !== root) {
+            if (blockTags.has(current.tagName)) {
+                if (current.tagName === 'DIV' && current.querySelector(nestedBlockSelector)) {
+                    return node;
+                }
+                return current;
+            }
+            current = current.parentElement;
+        }
+        return node.parentNode === root ? node : null;
+    }
+
     function replacePreviewText(fullHtml, originalText, replacementText) {
-        const original = String(originalText || '').trim().replace(/\.\.\.$/, '');
+        const original = String(originalText || '').trim();
         const replacement = String(replacementText || '').trim();
         if (!original) return fullHtml || replacement;
 
@@ -76,25 +98,36 @@
         host.innerHTML = fullHtml || '';
         const walker = document.createTreeWalker(host, NodeFilter.SHOW_TEXT);
         let remaining = original.length;
-        let firstNode = null;
+        let firstBlock = null;
 
         while (remaining > 0) {
             const node = walker.nextNode();
             if (!node) break;
             const value = node.nodeValue || '';
             if (value.trim() === '') continue;
-            if (!firstNode) firstNode = node;
+            if (!firstBlock) firstBlock = closestContentBlock(node, host) || node;
 
             const take = Math.min(value.length, remaining);
-            if (node === firstNode) {
-                node.nodeValue = replacement + value.slice(take);
-            } else {
+            if (closestContentBlock(node, host) !== firstBlock && node !== firstBlock) {
                 node.nodeValue = value.slice(take);
             }
             remaining -= take;
         }
 
-        return firstNode ? host.innerHTML : (fullHtml || replacement);
+        const replacementBlock = document.createElement('p');
+        replacementBlock.textContent = replacement;
+
+        if (firstBlock?.nodeType === Node.TEXT_NODE) {
+            firstBlock.parentNode.replaceChild(replacementBlock, firstBlock);
+            return host.innerHTML;
+        }
+
+        if (firstBlock?.parentNode) {
+            firstBlock.parentNode.replaceChild(replacementBlock, firstBlock);
+            return host.innerHTML;
+        }
+
+        return fullHtml || replacement;
     }
 
     function buildContentPayload() {
@@ -120,6 +153,7 @@
         clone.removeAttribute('contenteditable');
         clone.removeAttribute('role');
         clone.removeAttribute('aria-label');
+        clone.querySelectorAll('.preview-ellipsis').forEach(node => node.remove());
         clone.querySelectorAll('.inline-editable-image, .is-selected-image').forEach(img => {
             img.classList.remove('inline-editable-image', 'is-selected-image');
             img.removeAttribute('contenteditable');
@@ -244,6 +278,11 @@
         const titleEl = surface.querySelector('[data-edit-field="title"]');
         const contentEl = ensureContentTarget(surface);
         if (!titleEl || !contentEl) return;
+        const scope = editorScope(surface, contentEl);
+        const originalContentHtml = contentEl.innerHTML;
+        const originalVisibleText = scope === 'preview'
+            ? (contentEl.dataset.previewText || textFromEditablePreview(contentEl))
+            : textFromHtml(contentEl.innerHTML);
 
         const toolbar = createToolbar(options.mode, post);
         const mount = surface.querySelector('.article-tile__body, .home-hero__content, .article-mobile-row > div') || surface;
@@ -259,7 +298,7 @@
         activeEditor = {
             mode: options.mode,
             postId: post.id || '',
-            scope: editorScope(surface, contentEl),
+            scope,
             pageNumber: surface.dataset.page || 1,
             surface,
             titleEl,
@@ -273,8 +312,8 @@
             selectedImage: null,
             message: toolbar.querySelector('.inline-editor-message'),
             originalTitleHtml: titleEl.innerHTML,
-            originalContentHtml: contentEl.innerHTML,
-            originalVisibleText: textFromHtml(contentEl.innerHTML),
+            originalContentHtml,
+            originalVisibleText,
             originalFullContent: post.content || contentEl.innerHTML,
             originalThumbnail: post.thumbnail || '',
             originalThumbnailSrc: thumbnailImage?.getAttribute('src') || '',
@@ -285,6 +324,10 @@
             titleEl.textContent = post.title || titleEl.textContent;
             if (thumbnailImage && post.thumbnail) thumbnailImage.src = post.thumbnail;
             if (thumbnailImage && post.thumbnail_style) thumbnailImage.setAttribute('style', post.thumbnail_style);
+        }
+
+        if (activeEditor.scope === 'preview') {
+            contentEl.textContent = activeEditor.originalVisibleText;
         }
 
         surface.classList.add('is-inline-editing');
