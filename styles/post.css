@@ -346,7 +346,7 @@
 
 /* Modern reading surface overrides */
 .post-container {
-    width: min(1160px, 94vw);
+    width: min(1280px, 96vw);
     max-width: none;
     margin: 24px auto;
     padding: clamp(22px, 4vw, 46px);
@@ -356,7 +356,7 @@
 }
 
 .post-title {
-    max-width: 980px;
+    max-width: 1100px;
     margin: 0 auto 12px;
     text-align: center;
     font-size: 3.8rem;
@@ -368,7 +368,7 @@
 }
 
 .post-container > .post-thumbnail {
-    width: min(100%, 980px);
+    width: min(100%, 1100px);
     max-width: 100%;
     max-height: 480px;
     object-fit: cover;
@@ -377,13 +377,13 @@
 }
 
 .post-content {
-    max-width: 980px;
+    max-width: 1100px;
     margin: 0 auto;
     padding: 0;
 }
 
 .article-reader {
-    max-width: 980px;
+    max-width: 1100px;
     margin: 26px auto;
     padding: 16px;
     border: 1px solid rgba(14, 58, 93, 0.12);
@@ -448,7 +448,7 @@
 }
 
 .pagination {
-    max-width: 980px;
+    max-width: 1100px;
     margin: 28px auto;
 }
 
@@ -460,7 +460,7 @@
 }
 
 .comments-section {
-    max-width: 980px;
+    max-width: 1100px;
     margin: 28px auto 0;
 }
 
@@ -474,7 +474,7 @@
 }
 
 .comment-form {
-    max-width: 980px;
+    max-width: 1100px;
     margin: 42px auto 0;
 }
 
