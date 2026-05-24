@@ -130,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $audioResult = article_audio_generate_for_post($pdo, $post_id, $content, true);
                         $status_message .= $audioResult['audio_generated']
                             ? " Audio regenerated."
-                            : " Reader transcript regenerated; Piper/espeak audio was unavailable, so browser speech remains as backup.";
+                            : ' ' . ($audioResult['message'] ?? "Reader transcript regenerated; Piper/espeak audio was unavailable, so browser speech remains as backup.");
                     } elseif (article_audio_manifest_exists($post_id)) {
                         $status_message .= " Existing audio was kept.";
                     } else {

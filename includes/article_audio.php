@@ -178,6 +178,43 @@ function article_audio_vtt(string $text): string
     return article_audio_vtt_from_cues(article_audio_cues($text));
 }
 
+function article_audio_add_diagnostic(array &$diagnostics, string $engine, string $message, array $context = []): void
+{
+    $entry = [
+        'engine' => $engine,
+        'message' => $message,
+    ];
+    if ($context !== []) {
+        $entry['context'] = $context;
+    }
+    $diagnostics[] = $entry;
+    error_log('Article audio ' . $engine . ': ' . $message . ($context !== [] ? ' ' . json_encode($context, JSON_UNESCAPED_SLASHES) : ''));
+}
+
+function article_audio_output_excerpt(array $output): string
+{
+    $text = trim(implode("\n", $output));
+    if ($text === '') {
+        return '';
+    }
+
+    return function_exists('mb_substr') ? mb_substr($text, 0, 1200) : substr($text, 0, 1200);
+}
+
+function article_audio_path_state(?string $path): array
+{
+    if ($path === null) {
+        return ['found' => false];
+    }
+
+    return [
+        'path' => $path,
+        'exists' => file_exists($path),
+        'readable' => is_readable($path),
+        'executable' => is_executable($path),
+    ];
+}
+
 function article_audio_shell_command_exists(string $command): ?string
 {
     if (PHP_OS_FAMILY === 'Windows' || !function_exists('shell_exec')) {
@@ -260,9 +297,10 @@ function article_audio_espeak_command(): ?string
     return article_audio_shell_command_exists('espeak-ng') ?: article_audio_shell_command_exists('espeak');
 }
 
-function article_audio_generate_with_piper(string $textFile, string $mp3File): bool
+function article_audio_generate_with_piper(string $textFile, string $mp3File, array &$diagnostics): bool
 {
     if (PHP_OS_FAMILY === 'Windows' || !function_exists('exec')) {
+        article_audio_add_diagnostic($diagnostics, 'piper', 'Piper cannot run because exec is disabled or the host is Windows.');
         return false;
     }
 
@@ -270,6 +308,26 @@ function article_audio_generate_with_piper(string $textFile, string $mp3File): b
     $model = article_audio_piper_model();
     $ffmpeg = article_audio_ffmpeg_binary();
     if ($piper === null || $model === null || $ffmpeg === null) {
+        article_audio_add_diagnostic($diagnostics, 'piper', 'Required Piper dependencies were not found.', [
+            'piper' => article_audio_path_state($piper),
+            'model' => article_audio_path_state($model),
+            'ffmpeg' => article_audio_path_state($ffmpeg),
+        ]);
+        return false;
+    }
+
+    if (!is_readable($textFile)) {
+        article_audio_add_diagnostic($diagnostics, 'piper', 'Input text file is not readable.', ['text_file' => $textFile]);
+        return false;
+    }
+
+    $audioDir = dirname($mp3File);
+    if (!is_dir($audioDir) || !is_writable($audioDir)) {
+        article_audio_add_diagnostic($diagnostics, 'piper', 'Audio directory is not writable.', [
+            'audio_dir' => $audioDir,
+            'exists' => is_dir($audioDir),
+            'writable' => is_writable($audioDir),
+        ]);
         return false;
     }
 
@@ -281,6 +339,13 @@ function article_audio_generate_with_piper(string $textFile, string $mp3File): b
         . ' 2>&1';
     exec($piperCmd, $piperOutput, $piperStatus);
     if ($piperStatus !== 0 || !file_exists($wavFile) || filesize($wavFile) <= 0) {
+        article_audio_add_diagnostic($diagnostics, 'piper', 'Piper failed to create a WAV file.', [
+            'status' => $piperStatus,
+            'output' => article_audio_output_excerpt($piperOutput),
+            'wav_file' => $wavFile,
+            'wav_exists' => file_exists($wavFile),
+            'wav_size' => file_exists($wavFile) ? filesize($wavFile) : 0,
+        ]);
         return false;
     }
 
@@ -290,42 +355,90 @@ function article_audio_generate_with_piper(string $textFile, string $mp3File): b
         . ' 2>&1';
     exec($ffmpegCmd, $ffmpegOutput, $ffmpegStatus);
 
-    return $ffmpegStatus === 0 && file_exists($mp3File) && filesize($mp3File) > 0;
+    $success = $ffmpegStatus === 0 && file_exists($mp3File) && filesize($mp3File) > 0;
+    if (!$success) {
+        article_audio_add_diagnostic($diagnostics, 'piper', 'ffmpeg failed to convert Piper WAV output to MP3.', [
+            'status' => $ffmpegStatus,
+            'output' => article_audio_output_excerpt($ffmpegOutput),
+            'mp3_file' => $mp3File,
+            'mp3_exists' => file_exists($mp3File),
+            'mp3_size' => file_exists($mp3File) ? filesize($mp3File) : 0,
+        ]);
+        return false;
+    }
+
+    @unlink($wavFile);
+    return true;
 }
 
-function article_audio_generate_with_espeak(string $textFile, string $audioFile): bool
+function article_audio_generate_with_espeak(string $textFile, string $audioFile, array &$diagnostics): bool
 {
     $command = article_audio_espeak_command();
     if ($command === null || !function_exists('exec')) {
+        article_audio_add_diagnostic($diagnostics, 'espeak', 'espeak fallback is not available.');
         return false;
     }
 
     $cmd = escapeshellarg($command) . ' -w ' . escapeshellarg($audioFile) . ' -f ' . escapeshellarg($textFile) . ' 2>&1';
     exec($cmd, $output, $status);
-    return $status === 0 && file_exists($audioFile) && filesize($audioFile) > 0;
+    $success = $status === 0 && file_exists($audioFile) && filesize($audioFile) > 0;
+    if (!$success) {
+        article_audio_add_diagnostic($diagnostics, 'espeak', 'espeak failed to generate fallback audio.', [
+            'status' => $status,
+            'output' => article_audio_output_excerpt($output),
+        ]);
+    }
+    return $success;
 }
 
-function article_audio_generate_audio_file(string $textFile, string $fileStem): array
+function article_audio_generate_audio_file(string $textFile, string $fileStem, array &$diagnostics = []): array
 {
     $audioDir = article_audio_dir();
     $mp3Path = $audioDir . '/' . $fileStem . '.mp3';
-    if (article_audio_generate_with_piper($textFile, $mp3Path)) {
+    if (article_audio_generate_with_piper($textFile, $mp3Path, $diagnostics)) {
         return ['engine' => 'piper', 'path' => $mp3Path, 'url' => '/audio/' . $fileStem . '.mp3'];
     }
 
     $wavPath = $audioDir . '/' . $fileStem . '.wav';
-    if (article_audio_generate_with_espeak($textFile, $wavPath)) {
+    if (article_audio_generate_with_espeak($textFile, $wavPath, $diagnostics)) {
         return ['engine' => 'espeak', 'path' => $wavPath, 'url' => '/audio/' . $fileStem . '.wav'];
     }
 
     return ['engine' => 'browser-speech', 'path' => null, 'url' => null];
 }
 
+function article_audio_failure_result(bool $generateAudio, array $diagnostics, string $message): array
+{
+    return [
+        'success' => false,
+        'audio_generated' => false,
+        'realistic_audio_requested' => $generateAudio,
+        'engine' => 'browser-speech',
+        'message' => $message,
+        'diagnostics' => $diagnostics,
+        'manifest_url' => null,
+        'page_count' => 0,
+    ];
+}
+
 function article_audio_generate_for_post(PDO $pdo, int $postId, string $content, bool $generateAudio = true): array
 {
     $audioDir = article_audio_dir();
-    if (!is_dir($audioDir)) {
-        @mkdir($audioDir, 0755, true);
+    $diagnostics = [];
+    $fail = function (string $message) use (&$diagnostics, $generateAudio, $pdo, $postId): array {
+        $stmt = $pdo->prepare('UPDATE posts SET voiceover_url = NULL WHERE id = ?');
+        $stmt->execute([$postId]);
+        return article_audio_failure_result($generateAudio, $diagnostics, $message);
+    };
+
+    if (!is_dir($audioDir) && !@mkdir($audioDir, 0755, true)) {
+        article_audio_add_diagnostic($diagnostics, 'storage', 'Audio directory could not be created.', ['audio_dir' => $audioDir]);
+        return $fail('Audio directory could not be created.');
+    }
+
+    if (!is_writable($audioDir)) {
+        article_audio_add_diagnostic($diagnostics, 'storage', 'Audio directory is not writable by PHP.', ['audio_dir' => $audioDir]);
+        return $fail('Audio directory is not writable by PHP.');
     }
 
     $base = article_audio_base_name($postId);
@@ -340,12 +453,18 @@ function article_audio_generate_for_post(PDO $pdo, int $postId, string $content,
         $textPath = $audioDir . '/' . $fileStem . '.txt';
         $vttPath = $audioDir . '/' . $fileStem . '.vtt';
 
-        file_put_contents($textPath, $text);
+        if (@file_put_contents($textPath, $text) === false) {
+            article_audio_add_diagnostic($diagnostics, 'storage', 'Failed to write reader text file.', ['path' => $textPath]);
+            return $fail('Failed to write reader text file.');
+        }
         $cues = article_audio_cues($text);
-        file_put_contents($vttPath, article_audio_vtt_from_cues($cues));
+        if (@file_put_contents($vttPath, article_audio_vtt_from_cues($cues)) === false) {
+            article_audio_add_diagnostic($diagnostics, 'storage', 'Failed to write reader cue file.', ['path' => $vttPath]);
+            return $fail('Failed to write reader cue file.');
+        }
 
         $audioResult = $generateAudio
-            ? article_audio_generate_audio_file($textPath, $fileStem)
+            ? article_audio_generate_audio_file($textPath, $fileStem, $diagnostics)
             : ['engine' => 'browser-speech', 'path' => null, 'url' => null];
         $hasAudio = $audioResult['url'] !== null;
         $generatedAudio = $generatedAudio || $hasAudio;
@@ -367,16 +486,19 @@ function article_audio_generate_for_post(PDO $pdo, int $postId, string $content,
         ];
     }
 
-    file_put_contents(
-        article_audio_manifest_path($postId),
-        json_encode([
+    $manifest = json_encode([
             'post_id' => $postId,
             'generated_at' => date(DATE_ATOM),
             'engine' => $generatedAudio ? $engine : 'browser-speech',
             'realistic_audio_requested' => $generateAudio,
+            'diagnostics' => $diagnostics,
             'pages' => $manifestPages
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
-    );
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+    if ($manifest === false || @file_put_contents(article_audio_manifest_path($postId), $manifest) === false) {
+        article_audio_add_diagnostic($diagnostics, 'storage', 'Failed to write reader manifest.', ['path' => article_audio_manifest_path($postId)]);
+        return $fail('Failed to write reader manifest.');
+    }
 
     $stmt = $pdo->prepare('UPDATE posts SET voiceover_url = ? WHERE id = ?');
     $firstAudioUrl = $manifestPages[0]['audio_url'] ?? null;
@@ -387,6 +509,10 @@ function article_audio_generate_for_post(PDO $pdo, int $postId, string $content,
         'audio_generated' => $generatedAudio,
         'realistic_audio_requested' => $generateAudio,
         'engine' => $engine,
+        'message' => !$generatedAudio && $generateAudio && $diagnostics !== []
+            ? ($diagnostics[0]['message'] ?? 'Realistic audio could not be generated.')
+            : null,
+        'diagnostics' => $diagnostics,
         'manifest_url' => article_audio_manifest_url($postId),
         'page_count' => count($manifestPages)
     ];

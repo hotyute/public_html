@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 } elseif (!$generateAudio) {
                     $status_message .= " Realistic audio skipped; browser speech will be used.";
                 } else {
-                    $status_message .= " Reader transcript generated; Piper/espeak audio was unavailable, so browser speech remains as backup.";
+                    $status_message .= ' ' . ($audioResult['message'] ?? "Reader transcript generated; Piper/espeak audio was unavailable, so browser speech remains as backup.");
                 }
                 if ($thumbnail_warning !== '') {
                     $status_message .= ' ' . $thumbnail_warning;

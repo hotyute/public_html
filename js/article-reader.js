@@ -13,6 +13,7 @@
     const nextUrl = reader.dataset.nextUrl || '';
     let pageData = null;
     let wordSpans = [];
+    let wordGroups = [];
     let wordStarts = [];
     let utterance = null;
     let isSpeechMode = false;
@@ -36,10 +37,12 @@
     }
 
     function wrapContentWords() {
-        let index = 0;
+        wordSpans = [];
+        wordGroups = [];
+        let currentWordOpen = false;
         const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, {
             acceptNode(node) {
-                return /\S/.test(node.nodeValue || '') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+                return (node.nodeValue || '') !== '' ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
             }
         });
         const nodes = [];
@@ -52,14 +55,20 @@
             parts.forEach(part => {
                 if (/^\s+$/.test(part)) {
                     fragment.appendChild(document.createTextNode(part));
+                    currentWordOpen = false;
                     return;
+                }
+                if (!currentWordOpen || wordGroups.length === 0) {
+                    wordGroups.push([]);
                 }
                 const span = document.createElement('span');
                 span.className = 'reader-word';
-                span.dataset.wordIndex = String(index++);
+                span.dataset.wordIndex = String(wordGroups.length - 1);
                 span.textContent = part;
+                wordGroups[wordGroups.length - 1].push(span);
                 wordSpans.push(span);
                 fragment.appendChild(span);
+                currentWordOpen = true;
             });
             node.parentNode.replaceChild(fragment, node);
         });
@@ -71,29 +80,31 @@
 
     function updateProgress(index) {
         if (progress) {
-            progress.style.width = `${Math.round(((index + 1) / Math.max(1, wordSpans.length)) * 100)}%`;
+            progress.style.width = `${Math.round(((index + 1) / Math.max(1, wordGroups.length || wordSpans.length)) * 100)}%`;
         }
     }
 
     function highlightWord(index) {
-        if (!wordSpans.length) return;
-        const safeIndex = Math.max(0, Math.min(wordSpans.length - 1, index));
+        const groups = wordGroups.length ? wordGroups : wordSpans.map(span => [span]);
+        if (!groups.length) return;
+        const safeIndex = Math.max(0, Math.min(groups.length - 1, index));
         clearHighlight();
-        const span = wordSpans[safeIndex];
-        span.classList.add('is-current');
-        span.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        const group = groups[safeIndex];
+        group.forEach(span => span.classList.add('is-current'));
+        group[0].scrollIntoView({ block: 'center', behavior: 'smooth' });
         updateProgress(safeIndex);
     }
 
     function highlightCue(cue) {
-        if (!wordSpans.length || !cue) return;
-        const start = Math.max(0, Math.min(wordSpans.length - 1, Number(cue.start_word || 0)));
-        const end = Math.max(start, Math.min(wordSpans.length - 1, Number(cue.end_word ?? start)));
+        const groups = wordGroups.length ? wordGroups : wordSpans.map(span => [span]);
+        if (!groups.length || !cue) return;
+        const start = Math.max(0, Math.min(groups.length - 1, Number(cue.start_word || 0)));
+        const end = Math.max(start, Math.min(groups.length - 1, Number(cue.end_word ?? start)));
         clearHighlight();
         for (let i = start; i <= end; i++) {
-            wordSpans[i].classList.add('is-current');
+            groups[i].forEach(span => span.classList.add('is-current'));
         }
-        wordSpans[start].scrollIntoView({ block: 'center', behavior: 'smooth' });
+        groups[start][0].scrollIntoView({ block: 'center', behavior: 'smooth' });
         updateProgress(end);
     }
 
@@ -136,7 +147,7 @@
 
         const safeDuration = duration || estimated || 1;
         const ratio = Math.max(0, Math.min(1, audio.currentTime / safeDuration));
-        highlightWord(Math.floor(ratio * Math.max(1, wordSpans.length)));
+        highlightWord(Math.floor(ratio * Math.max(1, wordGroups.length || wordSpans.length)));
     }
 
     function wordIndexFromChar(charIndex) {

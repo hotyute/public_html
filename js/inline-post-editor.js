@@ -32,6 +32,9 @@
         if (audio?.realistic_audio_requested === false) {
             return ' Realistic audio skipped; browser speech will be used.';
         }
+        if (audio?.message) {
+            return ` ${audio.message} Browser speech remains as backup.`;
+        }
         return ' Reader transcript generated; browser speech remains as backup.';
     }
 
@@ -223,7 +226,7 @@
         contentEl.className = 'inline-edit-body';
         contentEl.setAttribute('data-edit-field', 'content');
 
-        const mount = surface.querySelector('.article-tile__body, .home-hero__content, .article-mobile-row > div') || surface;
+        const mount = surface.querySelector('.article-tile__body, .home-hero__content, .home-feature-side__content, .article-mobile-row > div') || surface;
         const actions = mount.querySelector('.article-tile__actions, .home-hero__actions');
         if (actions) {
             actions.insertAdjacentElement('beforebegin', contentEl);
@@ -267,7 +270,7 @@
 
     function editorScope(surface, contentEl) {
         if (contentEl.id === 'post-content-wrapper') return 'page';
-        if (surface.matches('.home-hero, .article-tile, .article-mobile-row')) return 'preview';
+        if (surface.matches('.home-hero, .home-feature-side, .article-tile, .article-mobile-row')) return 'preview';
         return 'full';
     }
 
@@ -298,7 +301,7 @@
             : textFromHtml(contentEl.innerHTML);
 
         const toolbar = createToolbar(options.mode, post);
-        const mount = surface.querySelector('.article-tile__body, .home-hero__content, .article-mobile-row > div') || surface;
+        const mount = surface.querySelector('.article-tile__body, .home-hero__content, .home-feature-side__content, .article-mobile-row > div') || surface;
         mount.insertBefore(toolbar, mount.firstChild);
 
         const thumbnailInput = toolbar.querySelector('[name="thumbnail"]');

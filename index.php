@@ -17,11 +17,13 @@ $postsStmt = $pdo->query("
     LEFT JOIN comments ON posts.id = comments.post_id
     GROUP BY posts.id, posts.title, posts.thumbnail, posts.thumbnail_style, posts.content, posts.created_at, users.displayname, users.role
     ORDER BY posts.id DESC
-    LIMIT 13
+    LIMIT 14
 ");
 $posts = $postsStmt->fetchAll(PDO::FETCH_ASSOC);
 $heroPost = $posts[0] ?? null;
 $continuePosts = array_slice($posts, 1);
+$secondaryHeroPost = $continuePosts[0] ?? null;
+$recentPosts = $secondaryHeroPost ? array_slice($continuePosts, 1) : $continuePosts;
 
 $videoData = app_featured_video_data();
 $video_link = $videoData['url'];
@@ -89,6 +91,7 @@ function render_mobile_article_row(array $post, bool $canEditPosts): void
 {
     $postId = (int)$post['id'];
     $postUrl = '/post.php?id=' . $postId;
+    $roleClass = app_user_role_class($post['user_role'] ?? '');
     $thumbnailStyle = app_safe_image_style($post['thumbnail_style'] ?? '');
     ?>
     <article class="article-mobile-row" data-inline-post data-post-id="<?= $postId ?>">
@@ -97,11 +100,41 @@ function render_mobile_article_row(array $post, bool $canEditPosts): void
         </a>
         <div>
             <a class="article-mobile-row__title" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-field="title"><?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?></a>
-            <p><?= htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8') ?> &middot; <?= (int)$post['comment_count'] ?> comments</p>
+            <p><span class="<?= htmlspecialchars($roleClass, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8') ?></span> &middot; <?= (int)$post['comment_count'] ?> comments</p>
             <?php if ($canEditPosts): ?>
                 <button type="button" class="inline-edit-button js-edit-post" data-post-id="<?= $postId ?>">Edit</button>
             <?php endif; ?>
             <?php render_editable_excerpt('span', 'article-mobile-row__hidden-content', $post['content'] ?? '', 90); ?>
+        </div>
+    </article>
+    <?php
+}
+
+function render_feature_side_article(array $post, bool $canEditPosts): void
+{
+    $postId = (int)$post['id'];
+    $postUrl = '/post.php?id=' . $postId;
+    $roleClass = app_user_role_class($post['user_role'] ?? '');
+    $thumbnailStyle = app_safe_image_style($post['thumbnail_style'] ?? '');
+    ?>
+    <article class="home-feature-side" data-inline-post data-post-id="<?= $postId ?>">
+        <a class="home-feature-side__image" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-image>
+            <img src="<?= htmlspecialchars(app_post_image_src($post['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?>"<?= $thumbnailStyle !== '' ? ' style="' . htmlspecialchars($thumbnailStyle, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
+        </a>
+        <div class="home-feature-side__content">
+            <p class="section-kicker">Previous Article</p>
+            <h2><a href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-field="title"><?= htmlspecialchars($post['title'], ENT_QUOTES, 'UTF-8') ?></a></h2>
+            <p class="article-meta">
+                By <span class="<?= htmlspecialchars($roleClass, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($post['author'], ENT_QUOTES, 'UTF-8') ?></span>
+                <span><?= (int)$post['comment_count'] ?> Comments</span>
+            </p>
+            <?php render_editable_excerpt('div', 'home-feature-side__excerpt', $post['content'] ?? '', 150); ?>
+            <div class="home-hero__actions">
+                <a class="button secondary-button" href="<?= htmlspecialchars($postUrl, ENT_QUOTES, 'UTF-8') ?>">Read Article</a>
+                <?php if ($canEditPosts): ?>
+                    <button type="button" class="button secondary-button js-edit-post" data-post-id="<?= $postId ?>">Edit</button>
+                <?php endif; ?>
+            </div>
         </div>
     </article>
     <?php
@@ -132,26 +165,31 @@ include __DIR__ . '/header.php';
             $heroUrl = '/post.php?id=' . $heroId;
             $heroThumbnailStyle = app_safe_image_style($heroPost['thumbnail_style'] ?? '');
             ?>
-            <section class="home-hero" data-inline-post data-post-id="<?= $heroId ?>">
-                <a class="home-hero__media" href="<?= htmlspecialchars($heroUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-image>
-                    <img src="<?= htmlspecialchars(app_post_image_src($heroPost['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($heroPost['title'], ENT_QUOTES, 'UTF-8') ?>"<?= $heroThumbnailStyle !== '' ? ' style="' . htmlspecialchars($heroThumbnailStyle, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
-                </a>
-                <div class="home-hero__content">
-                    <p class="section-kicker">Latest Article</p>
-                    <h2><a href="<?= htmlspecialchars($heroUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-field="title"><?= htmlspecialchars($heroPost['title'], ENT_QUOTES, 'UTF-8') ?></a></h2>
-                    <p class="article-meta">
-                        By <span class="<?= htmlspecialchars(app_user_role_class($heroPost['user_role'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($heroPost['author'], ENT_QUOTES, 'UTF-8') ?></span>
-                        <span><?= (int)$heroPost['comment_count'] ?> Comments</span>
-                    </p>
-                    <?php render_editable_excerpt('div', 'home-hero__excerpt', $heroPost['content'] ?? '', 240); ?>
-                    <div class="home-hero__actions">
-                        <a class="button" href="<?= htmlspecialchars($heroUrl, ENT_QUOTES, 'UTF-8') ?>">Read Article</a>
-                        <?php if ($canEditPosts): ?>
-                            <button type="button" class="button secondary-button js-edit-post" data-post-id="<?= $heroId ?>">Edit This Article</button>
-                        <?php endif; ?>
+            <div class="home-feature-grid<?= $secondaryHeroPost ? '' : ' home-feature-grid--single' ?>">
+                <section class="home-hero" data-inline-post data-post-id="<?= $heroId ?>">
+                    <a class="home-hero__media" href="<?= htmlspecialchars($heroUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-image>
+                        <img src="<?= htmlspecialchars(app_post_image_src($heroPost['thumbnail'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($heroPost['title'], ENT_QUOTES, 'UTF-8') ?>"<?= $heroThumbnailStyle !== '' ? ' style="' . htmlspecialchars($heroThumbnailStyle, ENT_QUOTES, 'UTF-8') . '"' : '' ?>>
+                    </a>
+                    <div class="home-hero__content">
+                        <p class="section-kicker">Latest Article</p>
+                        <h2><a href="<?= htmlspecialchars($heroUrl, ENT_QUOTES, 'UTF-8') ?>" data-edit-field="title"><?= htmlspecialchars($heroPost['title'], ENT_QUOTES, 'UTF-8') ?></a></h2>
+                        <p class="article-meta">
+                            By <span class="<?= htmlspecialchars(app_user_role_class($heroPost['user_role'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($heroPost['author'], ENT_QUOTES, 'UTF-8') ?></span>
+                            <span><?= (int)$heroPost['comment_count'] ?> Comments</span>
+                        </p>
+                        <?php render_editable_excerpt('div', 'home-hero__excerpt', $heroPost['content'] ?? '', 160); ?>
+                        <div class="home-hero__actions">
+                            <a class="button" href="<?= htmlspecialchars($heroUrl, ENT_QUOTES, 'UTF-8') ?>">Read Article</a>
+                            <?php if ($canEditPosts): ?>
+                                <button type="button" class="button secondary-button js-edit-post" data-post-id="<?= $heroId ?>">Edit This Article</button>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+                <?php if ($secondaryHeroPost): ?>
+                    <?php render_feature_side_article($secondaryHeroPost, $canEditPosts); ?>
+                <?php endif; ?>
+            </div>
         <?php else: ?>
             <section class="empty-state">
                 <h2>No articles yet</h2>
@@ -162,7 +200,7 @@ include __DIR__ . '/header.php';
             </section>
         <?php endif; ?>
 
-        <?php if ($continuePosts): ?>
+        <?php if ($recentPosts): ?>
             <section class="continue-reading" aria-label="Continue reading">
                 <div class="section-heading">
                     <div>
@@ -176,14 +214,14 @@ include __DIR__ . '/header.php';
                 </div>
                 <div class="article-carousel" data-article-carousel>
                     <div class="article-carousel__track">
-                        <?php foreach ($continuePosts as $post): ?>
+                        <?php foreach ($recentPosts as $post): ?>
                             <?php render_article_tile($post, $canEditPosts); ?>
                         <?php endforeach; ?>
                     </div>
                 </div>
                 <div class="article-mobile-list" data-mobile-article-slider aria-label="Recent articles for mobile">
                     <div class="article-mobile-list__track">
-                        <?php foreach (array_chunk($continuePosts, 4) as $slideIndex => $postGroup): ?>
+                        <?php foreach (array_chunk($recentPosts, 4) as $slideIndex => $postGroup): ?>
                             <div class="article-mobile-slide" aria-label="Recent articles group <?= (int)$slideIndex + 1 ?>">
                                 <?php foreach ($postGroup as $post): ?>
                                     <?php render_mobile_article_row($post, $canEditPosts); ?>
@@ -191,11 +229,11 @@ include __DIR__ . '/header.php';
                             </div>
                         <?php endforeach; ?>
                     </div>
-                    <?php if (count($continuePosts) > 4): ?>
+                    <?php if (count($recentPosts) > 4): ?>
                         <div class="article-mobile-list__controls" aria-label="Mobile article slider controls">
                             <button type="button" class="article-mobile-list__button" data-mobile-prev aria-label="Previous article group">&larr;</button>
                             <div class="article-mobile-list__dots" aria-hidden="true">
-                                <?php foreach (array_chunk($continuePosts, 4) as $slideIndex => $_): ?>
+                                <?php foreach (array_chunk($recentPosts, 4) as $slideIndex => $_): ?>
                                     <span class="<?= $slideIndex === 0 ? 'is-active' : '' ?>"></span>
                                 <?php endforeach; ?>
                             </div>

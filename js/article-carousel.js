@@ -38,12 +38,22 @@
         if (!track || slides.length <= 1 || !prev || !next) return;
 
         function currentIndex() {
-            return Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
+            if (!slides.length) return 0;
+            let closestIndex = 0;
+            let closestDistance = Infinity;
+            slides.forEach((slide, index) => {
+                const distance = Math.abs(slide.offsetLeft - track.scrollLeft);
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestIndex = index;
+                }
+            });
+            return closestIndex;
         }
 
         function goTo(index) {
             const safeIndex = Math.max(0, Math.min(slides.length - 1, index));
-            track.scrollTo({ left: safeIndex * track.clientWidth, behavior: 'smooth' });
+            track.scrollTo({ left: slides[safeIndex].offsetLeft, behavior: 'smooth' });
         }
 
         function updateMobileState() {
@@ -56,7 +66,9 @@
         prev.addEventListener('click', () => goTo(currentIndex() - 1));
         next.addEventListener('click', () => goTo(currentIndex() + 1));
         track.addEventListener('scroll', updateMobileState, { passive: true });
-        window.addEventListener('resize', updateMobileState);
+        window.addEventListener('resize', () => window.requestAnimationFrame(updateMobileState));
+        window.addEventListener('orientationchange', () => window.setTimeout(updateMobileState, 180));
         updateMobileState();
+        window.requestAnimationFrame(updateMobileState);
     });
 })();
