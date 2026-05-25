@@ -169,7 +169,7 @@
   grid-template-columns: minmax(0, 1.48fr) minmax(250px, 0.52fr);
   gap: 22px;
   align-items: start;
-  margin: 24px 0 30px;
+  margin: 24px 0 0;
 }
 
 .home-feature-grid--single {
@@ -302,7 +302,33 @@
 }
 
 .continue-reading {
-  margin-bottom: 34px;
+  position: relative;
+  margin: 0 0 34px;
+  padding-top: 34px;
+}
+
+.continue-reading::before,
+.home-media-row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(14, 58, 93, 0.2), transparent);
+}
+
+.continue-reading::after,
+.home-media-row::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  border: 1px solid rgba(14, 58, 93, 0.28);
+  background: #fff;
+  transform: translateX(-50%) rotate(45deg);
 }
 
 .article-carousel {
@@ -330,6 +356,10 @@
   scroll-snap-type: x mandatory;
   scrollbar-color: var(--gold-500) rgba(14, 58, 93, 0.12);
   scrollbar-width: thin;
+}
+
+.article-carousel__track.is-gliding {
+  scroll-snap-type: none;
 }
 
 .article-carousel__track::-webkit-scrollbar {
@@ -391,6 +421,14 @@
   transition-duration: 0.28s;
 }
 
+.article-carousel__track.is-sliding-next .article-tile {
+  animation: articleSlideNext 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.article-carousel__track.is-sliding-prev .article-tile {
+  animation: articleSlidePrev 0.52s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 .article-tile.is-carousel-focus {
   border-color: rgba(231, 184, 76, 0.72);
   box-shadow: 0 16px 32px rgba(17, 24, 39, 0.12);
@@ -445,11 +483,14 @@
 }
 
 .home-media-row {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1.8fr) minmax(280px, 0.85fr);
   gap: 24px;
   align-items: start;
+  margin-top: 34px;
   margin-bottom: 34px;
+  padding-top: 34px;
 }
 
 .featured-video iframe {
@@ -715,6 +756,28 @@
   }
   100% {
     box-shadow: 0 8px 20px rgba(14, 58, 93, 0.25);
+  }
+}
+
+@keyframes articleSlideNext {
+  0% {
+    opacity: 0.76;
+    transform: translateX(12px) translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes articleSlidePrev {
+  0% {
+    opacity: 0.76;
+    transform: translateX(-12px) translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 

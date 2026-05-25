@@ -8,9 +8,18 @@
         const tiles = Array.from(track.querySelectorAll('.article-tile'));
         let scrollTimer = null;
         let frameRequested = false;
+        let animationFrame = 0;
 
         function pageSize() {
             return Math.max(track.clientWidth, 280);
+        }
+
+        function maxScrollLeft() {
+            return Math.max(0, track.scrollWidth - track.clientWidth);
+        }
+
+        function easing(t) {
+            return 1 - Math.pow(1 - t, 3);
         }
 
         function updateFocusTile() {
@@ -47,8 +56,47 @@
             scrollTimer = window.setTimeout(() => track.classList.remove('is-gliding'), 260);
         }
 
+        function slideBy(distance) {
+            const start = track.scrollLeft;
+            const target = Math.max(0, Math.min(maxScrollLeft(), start + distance));
+            const duration = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 0 : 520;
+            const directionClass = distance > 0 ? 'is-sliding-next' : 'is-sliding-prev';
+
+            if (animationFrame) {
+                window.cancelAnimationFrame(animationFrame);
+            }
+
+            track.classList.remove('is-sliding-next', 'is-sliding-prev');
+            track.classList.add('is-gliding', directionClass);
+
+            if (duration === 0 || Math.abs(target - start) < 2) {
+                track.scrollLeft = target;
+                track.classList.remove('is-sliding-next', 'is-sliding-prev');
+                updateButtons();
+                return;
+            }
+
+            const startedAt = performance.now();
+            const tick = now => {
+                const progress = Math.min(1, (now - startedAt) / duration);
+                track.scrollLeft = start + ((target - start) * easing(progress));
+                scheduleFocusUpdate();
+
+                if (progress < 1) {
+                    animationFrame = window.requestAnimationFrame(tick);
+                    return;
+                }
+
+                animationFrame = 0;
+                track.classList.remove('is-sliding-next', 'is-sliding-prev');
+                updateButtons();
+            };
+
+            animationFrame = window.requestAnimationFrame(tick);
+        }
+
         function updateButtons() {
-            const maxScroll = track.scrollWidth - track.clientWidth - 2;
+            const maxScroll = maxScrollLeft() - 2;
             prev.disabled = track.scrollLeft <= 2;
             next.disabled = track.scrollLeft >= maxScroll;
             scheduleFocusUpdate();
@@ -62,14 +110,12 @@
 
         prev.addEventListener('click', () => {
             animateButton(prev);
-            markGliding();
-            track.scrollBy({ left: -pageSize(), behavior: 'smooth' });
+            slideBy(-pageSize());
         });
 
         next.addEventListener('click', () => {
             animateButton(next);
-            markGliding();
-            track.scrollBy({ left: pageSize(), behavior: 'smooth' });
+            slideBy(pageSize());
         });
 
         track.addEventListener('scroll', () => {
