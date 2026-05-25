@@ -1,38 +1,64 @@
 <?php
-$footerLinks = [
-    ['url' => '/archive.php', 'text' => 'All Articles'],
-    ['url' => '/members.php', 'text' => 'Members'],
-    ['url' => '/contact.php', 'text' => 'Contact'],
-    ['url' => '/about.php', 'text' => 'About'],
+$footerColumns = [
+    [
+        'heading' => 'Explore',
+        'links' => [
+            ['url' => '/archive.php', 'text' => 'All Articles'],
+            ['url' => '/members.php', 'text' => 'Members'],
+            ['url' => '/about.php', 'text' => 'About'],
+        ],
+    ],
+    [
+        'heading' => 'Community',
+        'links' => [
+            ['url' => '/contact.php', 'text' => 'Contact Us'],
+            ['url' => '/search.php', 'text' => 'Search'],
+            ['url' => '/notifications.php', 'text' => 'Notifications'],
+        ],
+    ],
+    [
+        'heading' => 'Account',
+        'links' => isset($_SESSION['username'])
+            ? [
+                ['url' => '/userportal/user_portal.php', 'text' => 'User Portal'],
+                ['url' => '/userportal/messages.php', 'text' => 'Messages'],
+                ['url' => '/userportal/user_settings.php', 'text' => 'Settings'],
+            ]
+            : [
+                ['url' => '/login.php', 'text' => 'Login'],
+                ['url' => '/register.php', 'text' => 'Register'],
+            ],
+    ],
 ];
 ?>
 <footer class="site-footer">
-    <div class="site-footer__inner">
+    <div class="site-footer__main">
         <div class="site-footer__brand">
             <img src="/images/logo.png" alt="Divine Word" class="site-footer__logo">
             <p>Teachings, Articles, and Reflections<br>For the Little Flock.</p>
         </div>
 
-        <nav class="footer-links" aria-label="Footer navigation">
-            <ul>
-                <?php foreach ($footerLinks as $link) : ?>
-                    <li>
-                        <a href="<?php echo htmlspecialchars($link['url'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($link['text'], ENT_QUOTES, 'UTF-8'); ?></a>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        </nav>
-
-        <div class="site-footer__cta">
-            <?php if (!isset($_SESSION['username'])) : ?>
-                <p>Not registered yet? <a href="/register.php"><span class="registerl">Register here</span></a></p>
-            <?php else : ?>
-                <p>Signed in and ready to continue.</p>
-                <a href="/userportal/user_portal.php">Open User Portal</a>
-            <?php endif; ?>
+        <div class="site-footer__columns" aria-label="Footer navigation">
+            <?php foreach ($footerColumns as $column) : ?>
+                <section class="site-footer__column">
+                    <h2><?php echo htmlspecialchars($column['heading'], ENT_QUOTES, 'UTF-8'); ?></h2>
+                    <ul>
+                        <?php foreach ($column['links'] as $link) : ?>
+                            <li>
+                                <a href="<?php echo htmlspecialchars($link['url'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($link['text'], ENT_QUOTES, 'UTF-8'); ?></a>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </section>
+            <?php endforeach; ?>
         </div>
+    </div>
 
-        <p class="site-footer__copy">&copy; <?php echo date("Y"); ?> DivineWord Community. All rights reserved.</p>
+    <div class="site-footer__bottom">
+        <p>&copy; <?php echo date("Y"); ?> DivineWord Community. All rights reserved.</p>
+        <?php if (!isset($_SESSION['username'])) : ?>
+            <p>Not registered yet? <a href="/register.php">Register here</a></p>
+        <?php endif; ?>
     </div>
 </footer>
 

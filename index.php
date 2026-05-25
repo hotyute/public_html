@@ -149,9 +149,12 @@ include __DIR__ . '/header.php';
 <div class="main-container home-layout">
     <main class="home-main">
         <section class="home-intro" data-inline-create-anchor>
-            <div>
+            <div class="home-intro__copy">
                 <p class="section-kicker">Divine Word Community</p>
-                <h1>Teachings, Articles, and Reflections<br><span>For the Little Flock.</span></h1>
+                <h1>
+                    <span class="home-title-line">Teachings, Articles, and Reflections</span>
+                    <span class="home-title-line home-title-line--accent">For the Little Flock.</span>
+                </h1>
                 <p>Read the newest article, then keep moving through recent studies without losing your place.</p>
             </div>
             <div class="home-actions">
