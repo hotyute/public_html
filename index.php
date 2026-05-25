@@ -152,7 +152,8 @@ include __DIR__ . '/header.php';
             <div class="home-intro__copy">
                 <p class="section-kicker">Divine Word Community</p>
                 <h1>
-                    <span class="home-title-line">Teachings, Articles, and Reflections</span>
+                    <span class="home-title-line home-title-line--main">Teachings, Articles, and Reflections</span>
+                    <span class="home-title-divider" aria-hidden="true"><span></span></span>
                     <span class="home-title-line home-title-line--accent">For the Little Flock.</span>
                 </h1>
                 <p>Read the newest article, then keep moving through recent studies without losing your place.</p>

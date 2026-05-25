@@ -59,15 +59,15 @@ function render_post_pagination(int $postId, int $page, int $totalPages, string 
 {
     echo '<nav class="post-pagination post-pagination--' . htmlspecialchars($position, ENT_QUOTES, 'UTF-8') . '" aria-label="Article page navigation">';
     if ($page > 1) {
-        echo '<a class="post-pagination__link" href="post.php?id=' . $postId . '&page=' . ($page - 1) . '">Previous</a>';
+        echo '<a class="post-pagination__arrow" href="post.php?id=' . $postId . '&page=' . ($page - 1) . '" aria-label="Previous page"><span aria-hidden="true">&larr;</span></a>';
     } else {
-        echo '<span class="post-pagination__link post-pagination__link--disabled">Previous</span>';
+        echo '<span class="post-pagination__arrow post-pagination__arrow--disabled" aria-label="Previous page unavailable"><span aria-hidden="true">&larr;</span></span>';
     }
     echo '<span class="post-pagination__status">Page ' . $page . ' of ' . $totalPages . '</span>';
     if ($page < $totalPages) {
-        echo '<a class="post-pagination__link" href="post.php?id=' . $postId . '&page=' . ($page + 1) . '">Next</a>';
+        echo '<a class="post-pagination__arrow" href="post.php?id=' . $postId . '&page=' . ($page + 1) . '" aria-label="Next page"><span aria-hidden="true">&rarr;</span></a>';
     } else {
-        echo '<span class="post-pagination__link post-pagination__link--disabled">Next</span>';
+        echo '<span class="post-pagination__arrow post-pagination__arrow--disabled" aria-label="Next page unavailable"><span aria-hidden="true">&rarr;</span></span>';
     }
     echo '</nav>';
 }

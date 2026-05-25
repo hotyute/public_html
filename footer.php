@@ -71,6 +71,7 @@ $footerColumns = [
 <?php if ($current_page == 'post') : ?>
     <script src="/js/tools.js"></script>
     <script src="/js/article-reader.js"></script>
+    <script src="/js/post-navigation.js"></script>
 <?php endif; ?>
 <?php if ($current_page == 'index') : ?>
     <script src="/js/article-carousel.js"></script>
