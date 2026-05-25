@@ -169,7 +169,7 @@
   grid-template-columns: minmax(0, 1.48fr) minmax(250px, 0.52fr);
   gap: 22px;
   align-items: start;
-  margin: 24px 0 0;
+  margin: 24px 0 46px;
 }
 
 .home-feature-grid--single {
@@ -303,8 +303,8 @@
 
 .continue-reading {
   position: relative;
-  margin: 0 0 34px;
-  padding-top: 34px;
+  margin: 0 0 46px;
+  padding-top: 44px;
 }
 
 .continue-reading::before,
@@ -352,7 +352,7 @@
   overflow-x: auto;
   overscroll-behavior-x: contain;
   padding: 2px 2px 18px;
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   scroll-snap-type: x mandatory;
   scrollbar-color: var(--gold-500) rgba(14, 58, 93, 0.12);
   scrollbar-width: thin;
@@ -488,9 +488,9 @@
   grid-template-columns: minmax(0, 1.8fr) minmax(280px, 0.85fr);
   gap: 24px;
   align-items: start;
-  margin-top: 34px;
+  margin-top: 46px;
   margin-bottom: 34px;
-  padding-top: 34px;
+  padding-top: 44px;
 }
 
 .featured-video iframe {

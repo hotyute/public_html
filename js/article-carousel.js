@@ -9,6 +9,7 @@
         let scrollTimer = null;
         let frameRequested = false;
         let animationFrame = 0;
+        let isProgrammaticSlide = false;
 
         function pageSize() {
             return Math.max(track.clientWidth, 280);
@@ -50,10 +51,20 @@
             });
         }
 
-        function markGliding() {
+        function markGliding(duration = 320) {
             track.classList.add('is-gliding');
             window.clearTimeout(scrollTimer);
-            scrollTimer = window.setTimeout(() => track.classList.remove('is-gliding'), 260);
+            scrollTimer = window.setTimeout(() => track.classList.remove('is-gliding'), duration);
+        }
+
+        function finishSlide(target) {
+            track.scrollLeft = target;
+            animationFrame = 0;
+            isProgrammaticSlide = false;
+            track.classList.remove('is-sliding-next', 'is-sliding-prev');
+            window.clearTimeout(scrollTimer);
+            scrollTimer = window.setTimeout(() => track.classList.remove('is-gliding'), 80);
+            updateButtons();
         }
 
         function slideBy(distance) {
@@ -68,11 +79,11 @@
 
             track.classList.remove('is-sliding-next', 'is-sliding-prev');
             track.classList.add('is-gliding', directionClass);
+            isProgrammaticSlide = true;
+            window.clearTimeout(scrollTimer);
 
             if (duration === 0 || Math.abs(target - start) < 2) {
-                track.scrollLeft = target;
-                track.classList.remove('is-sliding-next', 'is-sliding-prev');
-                updateButtons();
+                finishSlide(target);
                 return;
             }
 
@@ -87,9 +98,7 @@
                     return;
                 }
 
-                animationFrame = 0;
-                track.classList.remove('is-sliding-next', 'is-sliding-prev');
-                updateButtons();
+                finishSlide(target);
             };
 
             animationFrame = window.requestAnimationFrame(tick);
@@ -119,7 +128,9 @@
         });
 
         track.addEventListener('scroll', () => {
-            markGliding();
+            if (!isProgrammaticSlide) {
+                markGliding();
+            }
             updateButtons();
         }, { passive: true });
         window.addEventListener('resize', () => {
